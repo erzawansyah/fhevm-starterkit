@@ -1,0 +1,20 @@
+{
+    "id": "fhe-add",
+    "name": "FHE Addition",
+    "description": "Learn how to perform encrypted addition operations using Fully Homomorphic Encryption",
+    "difficulty": "beginner",
+    "tags": [
+        "fhe",
+        "addition",
+        "arithmetic"
+    ],
+    "fheOperations": [
+        "add",
+        "euint32"
+    ],
+    "version": "1.0.0",
+    "author": {
+        "name": "mew3",
+        "url": "https://mew3.xyz"
+    }
+}

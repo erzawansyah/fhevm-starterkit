@@ -1,0 +1,16 @@
+{
+    "id": "fhe-counter",
+    "name": "FHE Counter",
+    "description": "Build a simple encrypted counter with increment operations on encrypted values",
+    "difficulty": "beginner",
+    "tags": [
+        "fhe",
+        "counter",
+        "state-management"
+    ],
+    "fheOperations": [
+        "add",
+        "euint32"
+    ],
+    "version": "1.0.0"
+}
