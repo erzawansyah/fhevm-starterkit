@@ -1,77 +1,93 @@
 # **FHEVM StarterKit**
 
-**FHEVM StarterKit** is a curated collection of starter templates, boilerplates, and generation tools for building privacy-preserving smart contracts using Fully Homomorphic Encryption (FHE) on the FHEVM.
+**FHEVM StarterKit** is a curated collection of starter templates and foundational tooling for building privacy-preserving smart contracts using Fully Homomorphic Encryption (FHE) on the FHEVM.
 
-This project aims to help developers:
+This repository is designed to help developers:
 
-- explore small, focused encrypted contract patterns
-- learn from curated starter examples
-- understand FHE operations through practical implementations
-- build privacy-preserving smart contracts with confidence
+- understand FHEVM through small, focused starter projects
+- explore encrypted operations via practical, minimal implementations
+- reuse curated patterns when building real FHEVM smart contracts
+- maintain a clean and consistent development environment using official templates
 
-StarterKit is designed to support both **learning** and **production-ready development**.
+StarterKit supports developers at all stages — from **learning encrypted programming patterns** to **bootstrapping production-ready FHEVM projects**.
 
 ---
 
 ## ⭐ **What This Repository Provides**
 
-- **Curated Starters** — small, focused FHEVM examples with contracts, tests, and documentation
-  - ✅ **FHE Counter** — encrypted counter with increment operations
-  - ✅ **FHE Addition** — encrypted addition operations demo
-- **Base Templates** — official Zama templates for project setup
-  - ✅ **fhevm-hardhat-template** — base Hardhat template from Zama
-  - ✅ **relayer-ui-template** — UI template for relayer integration
-- **Metadata-Driven Structure** — each starter includes a `starter.meta.json` file for indexing and documentation
-- **Template Management** — automated scripts for template initialization and updates
-- **Documentation** — comprehensive guides and overview for each starter
+- **Curated Starters**
+  Small, focused FHEVM starter projects containing contracts, tests, documentation, and metadata.
+  Currently available:
 
-More starters and features will be added as the project evolves.
+  - **FHE Counter** — encrypted counter using `euint32`
+  - **FHE Addition** — encrypted arithmetic with `euint32`
+
+- **Official Base Templates**
+  Located in `base/`, used for initializing new FHEVM projects.
+
+  - `fhevm-hardhat-template` (Zama official Hardhat setup)
+  - `relayer-ui-template` (UI template for relayer integration)
+
+- **Metadata-Driven Structure**
+  Each starter includes a `starter.meta.json` file used for indexing, validation, and future automation.
+
+- **Template Management Scripts**
+  Automation for initializing and updating local copies of official templates.
+
+- **Documentation Foundation**
+  Early documentation for understanding the purpose and structure of each starter.
+
+More starters and tooling will be introduced as the StarterKit evolves.
 
 ---
 
 ## 🚀 **Getting Started**
 
-### Prerequisites
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
+---
+
 ### Initialize Base Template
 
-Set up the official FHEVM Hardhat template from Zama:
+Clone the official FHEVM Hardhat template into the `base/` directory:
 
 ```bash
 npm run template:init
 ```
 
-This will clone the [fhevm-hardhat-template](https://github.com/zama-ai/fhevm-hardhat-template) into the `base/` directory.
+### Update the Base Template
 
-### Update Template
-
-Update the base template to the latest version:
+Fetch the latest version of the Hardhat template:
 
 ```bash
 npm run template:update
 ```
 
-### Explore Starters
+---
 
-Browse the `starters/` directory to explore example implementations:
+### Explore Available Starters
 
-- **fhe-counter/** — Encrypted counter with state management
-- **fhe-add/** — Encrypted addition operations
+Browse the `starters/` directory:
 
-Each starter includes:
+- `fhe-counter/` — encrypted counter logic
+- `fhe-add/` — encrypted addition operations
 
-- Smart contracts in `contracts/`
-- Test files in `test/`
-- Metadata in `starter.meta.json`
-- Documentation in `README.md`
+Each starter contains:
+
+- `contracts/` — smart contract implementation
+- `test/` — TypeScript test files
+- `README.md` — explanation and usage
+- `starter.meta.json` — metadata for indexing and validation
+
+---
 
 ### Validate Metadata
 
-Check that all starter metadata files are valid:
+Ensure all starter metadata conforms to the schema:
 
 ```bash
 npm run validate:metadata
@@ -83,104 +99,97 @@ npm run validate:metadata
 
 ```text
 fhevm-starterkit/
-  starters/                     # curated FHEVM starter examples
+  starters/                     # curated FHEVM starters
     fhe-counter/
-      contracts/
-        FHECounter.sol
-      test/
-        FHECounter.ts
-      README.md
-      starter.meta.json
     fhe-add/
-      contracts/
-        FHEAdd.sol
-      test/
-        FHEAdd.ts
-      README.md
-      starter.meta.json
 
   base/                         # official Zama templates
-    fhevm-hardhat-template/     # base Hardhat template
-    relayer-ui-template/        # UI template for relayer
+    fhevm-hardhat-template/
+    relayer-ui-template/
 
   scripts/                      # automation scripts
-    template-init.ts            # initialize base template
-    template-update.ts          # update base template
-    validate-metadata.ts        # validate starter metadata
+    template-init.ts
+    template-update.ts
+    validate-metadata.ts
 
-  docs/                         # documentation
+  docs/                         # documentation (early stage)
     OVERVIEW.md
 
   lib/                          # types and schemas
     schemas/
-      starter-meta.schema.json  # JSON schema for metadata
+      starter-meta.schema.json
     types/
-      starter-meta.ts           # TypeScript types
+      starter-meta.ts
 
-  starterkit.config.js          # project configuration
+  starterkit.config.js          # configuration
   package.json
   README.md
 ```
 
 ---
 
-## 📚 **Available Starters**
+## 📚 **Current Starters**
 
-### FHE Counter
+### **FHE Counter**
 
-- **Difficulty**: Beginner
-- **Description**: Build a simple encrypted counter with increment operations on encrypted values
-- **FHE Operations**: `add`, `euint32`
-- **Tags**: fhe, counter, state-management
+- **Difficulty:** Beginner
+- **Description:** Simple encrypted counter demonstrating addition on encrypted state
+- **FHE Types:** `euint32`
+- **Core Operation:** `add`
 
-### FHE Addition
+---
 
-- **Difficulty**: Beginner
-- **Description**: Learn how to perform encrypted addition operations using Fully Homomorphic Encryption
-- **FHE Operations**: `add`, `euint32`
-- **Tags**: fhe, addition, arithmetic
+### **FHE Addition**
+
+- **Difficulty:** Beginner
+- **Description:** Basic encrypted arithmetic example using homomorphic addition
+- **FHE Types:** `euint32`
+- **Core Operation:** `add`
 
 ---
 
 ## 🛠️ **Scripts Reference**
 
-| Command                     | Description                            |
-| --------------------------- | -------------------------------------- |
-| `npm run template:init`     | Initialize base FHEVM Hardhat template |
-| `npm run template:update`   | Update base template to latest version |
-| `npm run validate:metadata` | Validate all starter metadata files    |
+| Command                     | Description                              |
+| --------------------------- | ---------------------------------------- |
+| `npm run template:init`     | Initialize official Hardhat template     |
+| `npm run template:update`   | Sync base template with upstream version |
+| `npm run validate:metadata` | Validate all `starter.meta.json` files   |
 
 ---
 
 ## ⚠️ **Project Status**
 
-**Current Phase**: Foundation Complete ✅
+**Current Stage:** Foundation Established
 
 Completed:
 
-- ✅ Base template integration (fhevm-hardhat-template)
-- ✅ Two curated starter examples (Counter & Addition)
-- ✅ Metadata schema and validation system
-- ✅ Template management automation
-- ✅ Documentation structure
+- Base template integration
+- Two curated starter projects
+- Metadata schema + validation tool
+- Template initialization & update scripts
+- Documentation foundation
 
-In Development:
+In Progress:
 
-- 🔄 Additional starter examples
-- 🔄 Starter generator tool
-- 🔄 Web interface for browsing starters
-- 🔄 Enhanced documentation generation
+- Additional starters across learning categories
+- Starter generator tooling
+- Metadata-driven docs builder
+- Web interface for browsing starters
 
 ---
 
 ## 🤝 **Contributions**
 
-Contributions, feedback, and starter ideas are welcome! Each starter should include:
+Contributions and starter proposals are welcome.
+A valid starter should include:
 
-- Smart contracts demonstrating FHE operations
-- Comprehensive test coverage
-- Valid `starter.meta.json` following the schema
-- Clear documentation in README.md
+- minimal, focused encrypted contract logic
+- clean test coverage
+- `starter.meta.json` following the schema
+- clear documentation in `README.md`
+
+Starter guidelines will be expanded as the repository grows.
 
 ---
 
