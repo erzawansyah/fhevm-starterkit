@@ -8,10 +8,11 @@
     "scripts": {
         "template:init": "ts-node scripts/template-init.ts",
         "template:update": "ts-node scripts/template-update.ts",
-        "starter:use": "node scripts/starter-use.ts",
-        "starter:init": "node scripts/starter-init.ts",
-        "docs": "node scripts/docs-build.ts",
-        "check": "node scripts/check.ts",
+        "starter:use": "node scripts/starter-use.js",
+        "starter:init": "node scripts/starter-init.js",
+        "docs": "node scripts/docs-build.js",
+        "check": "node scripts/check.js",
+        "validate:metadata": "ts-node scripts/validate-metadata.ts",
         "web": "npm --prefix apps/web run dev",
         "build:web": "npm --prefix apps/web run build",
         "lint": "eslint .",
@@ -19,6 +20,7 @@
     },
     "devDependencies": {
         "@types/node": "^20.19.26",
+        "ajv": "^8.12.0",
         "ts-node": "^10.9.2",
         "typescript": "^5.8.3"
     }
