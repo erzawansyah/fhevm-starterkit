@@ -15,6 +15,7 @@
         "decryption",
         "homomorphic operations"
     ],
+    "has_ui": true,
     "authors": [
         {
             "name": "Nama Penulis",
