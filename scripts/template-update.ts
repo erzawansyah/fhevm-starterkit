@@ -1,5 +1,6 @@
 // scripts/template-update.ts
 // @script `npm run template-update`
+// Script untuk memperbarui template FHEVM Hardhat yang sudah ada
 
 import fs from "fs";
 import path from "path";

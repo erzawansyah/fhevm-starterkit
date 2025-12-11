@@ -5,7 +5,7 @@
 import fs from "fs";
 import path from "path";
 import { logger } from "./helper/logger";
-import { quotePath, run } from "./helper/utils";
+import { quotePath, run, isEmptyDir } from "./helper/utils";
 const config = require("../starterkit.config");
 
 // Konfigurasi template dari starterkit.config
@@ -24,11 +24,6 @@ const EXCLUDED_SCRIPT_FILES: string[] =
  * @param dir - Path direktori yang akan diperiksa
  * @returns true jika direktori tidak ada atau kosong
  */
-function isEmptyDir(dir: string) {
-  if (!fs.existsSync(dir)) return true; // Direktori tidak ada
-  const files = fs.readdirSync(dir); // Baca semua file dalam direktori
-  return files.length === 0; // Return true jika tidak ada file
-}
 
 /**
  * Menyalin file-file script dari direktori scripts ke dalam direktori template
