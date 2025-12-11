@@ -1,27 +1,21 @@
 // scripts/template-update.ts
 // @script `npm run template-update`
 
-import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
+import { quotePath, run } from "./helper/utils";
+import { logger } from "./helper/logger";
+const config = require("../starterkit.config");
 
-// CommonJS require karena starterkit.config.js formatnya module.exports
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const starterkitConfig = require("../starterkit.config");
-
-const TEMPLATE_DIR = path.join(__dirname, "..", starterkitConfig.template.dir);
-
-function quotePath(p: string) {
-  return `"${p.replace(/\\/g, "/")}"`;
-}
-
-function run(cmd: string) {
-  execSync(cmd, { stdio: "inherit" });
-}
+const TEMPLATE_DIR = path.join(
+  __dirname,
+  "..",
+  config.template.fhevmHardhat.dir
+);
 
 function main() {
   if (!fs.existsSync(TEMPLATE_DIR)) {
-    console.error(
+    logger.error(
       "Template folder not found. Run `npm run template-init` first."
     );
     process.exit(1);
@@ -29,14 +23,14 @@ function main() {
 
   const gitFolder = path.join(TEMPLATE_DIR, ".git");
   if (!fs.existsSync(gitFolder)) {
-    console.error("Template folder exists but is NOT a git repository.");
-    console.error("Delete it manually and run `npm run template-init`.");
+    logger.error("Template folder exists but is NOT a git repository.");
+    logger.error("Delete it manually and run `npm run template-init`.");
     process.exit(1);
   }
 
-  console.log("Updating FHEVM Hardhat Template via git pull...");
+  logger.info("Updating FHEVM Hardhat Template via git pull...");
   run(`git -C ${quotePath(TEMPLATE_DIR)} pull`);
-  console.log("Template update complete.");
+  logger.success("Template update complete.");
 }
 
 main();
