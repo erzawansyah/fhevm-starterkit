@@ -24,3 +24,6 @@ Thumbs.db
 # Cache
 .cache/
 *.tsbuildinfo
+
+# Internal notes
+NOTE.md
