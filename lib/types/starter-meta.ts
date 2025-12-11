@@ -1,31 +1,76 @@
-/**
- * Type definition for starter.meta.json files
- */
 export interface StarterMeta {
-  /** Unique identifier for the starter */
-  id: string;
-
-  /** Display name of the starter */
+  /**
+   * Internal identifier for the starter.
+   * Must be lowercase and dash-case (validated via schema).
+   */
   name: string;
 
-  /** Brief description of what this starter demonstrates */
+  /**
+   * Human-readable name displayed in UI or documentation.
+   */
+  label: string;
+
+  /**
+   * Short explanation of what this starter does.
+   * Max length: 300 characters.
+   */
   description: string;
 
-  /** Difficulty level */
-  difficulty: "beginner" | "intermediate" | "advanced";
+  /**
+   * Starter version in semantic versioning (e.g., 1.0.0).
+   */
+  version: string;
 
-  /** Tags for categorization */
+  /**
+   * Compatible FHEVM version used by this starter.
+   */
+  fhevm_version: string;
+
+  /**
+   * Educational level or type of the starter.
+   * Must be one of: fundamental | patterns | applied | advanced
+   */
+  category: "fundamental" | "patterns" | "applied" | "advanced";
+
+  /**
+   * Flexible tags for filtering or grouping.
+   */
   tags: string[];
 
-  /** FHE operations demonstrated */
-  fheOperations?: string[];
+  /**
+   * Technical or educational concepts demonstrated by this starter.
+   */
+  concepts: string[];
 
-  /** Author information (optional) */
-  author?: {
-    name: string;
-    url?: string;
-  };
+  /**
+   * Indicates whether this starter includes a user interface.
+   */
+  has_ui: boolean;
 
-  /** Version of the starter */
-  version?: string;
+  /**
+   * List of authors or contributors.
+   */
+  authors: AuthorEntry[];
+}
+
+/**
+ * Single author object definition.
+ */
+export interface AuthorEntry {
+  /**
+   * Name of the contributor.
+   */
+  name: string;
+
+  /**
+   * Email address of the contributor.
+   * Optional.
+   */
+  email?: string;
+
+  /**
+   * Link to the contributor's profile or website.
+   * Optional.
+   */
+  url?: string;
 }
