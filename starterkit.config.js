@@ -35,7 +35,7 @@ const config = {
 
         // Relayer UI Template (TODO: Create this repo)
         relayerUI: {
-            repo: "https://github.com/YOUR-USERNAME/relayer-ui-template.git",
+            repo: "https://github.com/erzawansyah/relayer-ui-template.git",
             dir: "base/relayer-ui-template",
             branch: "main",
         },
