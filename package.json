@@ -17,7 +17,7 @@
         "build:web": "npm --prefix apps/web run build",
         "lint": "eslint .",
         "format": "prettier --write .",
-        "debug:logger": "ts-node scripts/logger-test.ts"
+        "debug:logger": "ts-node scripts/debug/logger-test.ts"
     },
     "devDependencies": {
         "@types/node": "^20.19.26",

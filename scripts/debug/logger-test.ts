@@ -1,4 +1,4 @@
-import { logger } from "./helper/logger";
+import { logger } from "../helper/logger";
 
 logger.section("🧪 Logger Test");
 
