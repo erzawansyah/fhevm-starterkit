@@ -1,0 +1,24 @@
+{
+    "name": "contoh-nama-starter",
+    "label": "Contoh Nama Starter",
+    "description": "Ini adalah deskripsi untuk contoh nama starter.",
+    "version": "1.0.0",
+    "fhevm_version": "0.9.1",
+    "category": "fundamental/patterns/applied/advanced",
+    "tags": [
+        "defi",
+        "infra",
+        "consumer"
+    ],
+    "concepts": [
+        "encryption",
+        "decryption",
+        "homomorphic operations"
+    ],
+    "authors": [
+        {
+            "name": "Nama Penulis",
+            "url": "https://contoh.com"
+        }
+    ]
+}
