@@ -1,20 +1,18 @@
 {
-    "id": "fhe-add",
-    "name": "FHE Addition",
-    "description": "Learn how to perform encrypted addition operations using Fully Homomorphic Encryption",
-    "difficulty": "beginner",
-    "tags": [
-        "fhe",
-        "addition",
-        "arithmetic"
-    ],
-    "fheOperations": [
-        "add",
-        "euint32"
-    ],
+    "name": "fhe-add",
+    "label": "FHE Addition Starter",
+    "description": "This starter demonstrates basic addition operations using Fully Homomorphic Encryption (FHE).",
     "version": "1.0.0",
-    "author": {
-        "name": "mew3",
-        "url": "https://mew3.xyz"
-    }
+    "fhevm_version": "0.9.1",
+    "category": "fundamental",
+    "tags": [],
+    "concepts": [],
+    "has_ui": true,
+    "authors": [
+        {
+            "name": "M.E.W",
+            "email": "erzawansyah@gmail.com",
+            "url": "https://github.com/erzawansyah"
+        }
+    ]
 }

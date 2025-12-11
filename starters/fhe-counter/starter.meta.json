@@ -1,16 +1,18 @@
 {
-    "id": "fhe-counter",
-    "name": "FHE Counter",
-    "description": "Build a simple encrypted counter with increment operations on encrypted values",
-    "difficulty": "beginner",
-    "tags": [
-        "fhe",
-        "counter",
-        "state-management"
-    ],
-    "fheOperations": [
-        "add",
-        "euint32"
-    ],
-    "version": "1.0.0"
+    "name": "fhe-counter",
+    "label": "FHE Counter Starter",
+    "description": "This starter demonstrates a simple counter application using Fully Homomorphic Encryption (FHE).",
+    "version": "1.0.0",
+    "fhevm_version": "0.9.1",
+    "category": "applied",
+    "tags": [],
+    "concepts": [],
+    "has_ui": true,
+    "authors": [
+        {
+            "name": "M.E.W",
+            "email": "erzawansyah@gmail.com",
+            "url": "https://github.com/erzawansyah"
+        }
+    ]
 }
