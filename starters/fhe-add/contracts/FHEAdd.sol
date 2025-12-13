@@ -4,65 +4,76 @@ pragma solidity ^0.8.24;
 import {FHE, euint8, externalEuint8} from "@fhevm/solidity/lib/FHE.sol";
 import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
-/// @title FHEAdd Contract - Encrypted Addition of Two Numbers
-/// @author M.E.W
-/// @notice This contract will demonstrate how to perform addition on encrypted uint8 numbers using Fully Homomorphic Encryption (FHE).
-/// @custom:section How it works:
-/// - Users provide encrypted inputs along with zk-proofs to verify their validity.
-/// - The contract uses FHE operations to compute the sum directly on the ciphertexts.
-/// - Permissions are managed to ensure only authorized users can decrypt the result.
+/**
+ * @title FHE Add
+ * @author M.E.W
+ * @notice This contreact demonstrates how to perform addition on encrypted uint8 (`euint8`) values using Fully Homomorphic Encryption (FHE).
+ * @dev Usage summary:
+ * 1. Set encrypted inputs A and B using `setA` and `setB` functions.
+ * 2. Compute the encrypted sum A + B using `computeAPlusB` function.
+ * 3. Retrieve the encrypted result using the `result` function.
+ */
 contract FHEAdd is ZamaEthereumConfig {
-    /// @notice Encrypted uint8 variables to hold input A
+    /// @notice Encrypted input A stored in internal `euint8` format.
     euint8 private _a;
 
-    /// @notice Encrypted uint8 variable to hold input B
+    /// @notice Encrypted input B stored in internal `euint8` format.
     euint8 private _b;
 
-    /// @notice Encrypted uint8 variable to hold the result of A + B
+    /// @notice Encrypted result of A + B stored in internal `euint8` format.
     euint8 private _a_plus_b;
 
-    /// @notice Stores encrypted input A into the contract.
-    /// @param inputA chipertext handle for encrypted input A. Encrypted from the client side
-    /// @param inputProof proof verifying the validity of the ciphertext
+    /**
+     * @notice Store encrypted input A into the contract.
+     * @dev Converts the external ciphertext into an internal `euint8` value using `FHE.fromExternal`.
+     * The provided proof must be valid, otherwise the call will revert.
+     * Calling this function again will overwrite the previously stored value.
+     * @param inputA External encrypted uint8 value provided by the caller.
+     * @param inputProof Zero-knowledge proof validating the encrypted input.
+     */
     function setA(externalEuint8 inputA, bytes calldata inputProof) external {
-        /// @dev Convert external representation of input A to internal representation
         _a = FHE.fromExternal(inputA, inputProof);
-
-        /// @dev Granted permission for contract to operate the chipertext
         FHE.allowThis(_a);
     }
 
-    /// @notice Stores encrypted input B into the contract.
-    /// @param inputB chipertext handle for encrypted input B. Encrypted from the client side
-    /// @param inputProof proof verifying the validity of the ciphertext
+    /**
+     * @notice Store encrypted input B into the contract.
+     * @dev Converts the external ciphertext into an internal `euint8` value using `FHE.fromExternal`.
+     * The provided proof must be valid, otherwise the call will revert.
+     * Calling this function again will overwrite the previously stored value.
+     * @param inputB External encrypted uint8 value provided by the caller.
+     * @param inputProof Zero-knowledge proof validating the encrypted input.
+     */
     function setB(externalEuint8 inputB, bytes calldata inputProof) external {
-        /// @dev Convert external representation of input B to internal representation
         _b = FHE.fromExternal(inputB, inputProof);
-
-        /// @dev Granted permission for contract to operate the chipertext
         FHE.allowThis(_b);
     }
 
-    /// @notice Computes the encrypted sum of A and B
-    /// @dev The result is stored in the contract and permissions are set for the caller to decrypt it
+    /**
+     * @notice Compute the encrypted sum of inputs A and B.
+     * @dev Prerequisites:
+     * - Input A must be initialized using `setA`.
+     * - Input B must be initialized using `setB`.
+     * This function performs homomorphic addition on encrypted values and stores
+     * the resulting ciphertext inside the contract.
+     * The caller is granted permission to decrypt the result.
+     * @custom:security This function should not be called with untrusted or invalid encrypted inputs.
+     */
     function computeAPlusB() external {
-        /// @dev Ensure that both inputs have been initialized
         require(FHE.isInitialized(_a), "Input A not set");
         require(FHE.isInitialized(_b), "Input B not set");
 
-        /// @dev Perform homomorphic addition on the encrypted inputs
         _a_plus_b = FHE.add(_a, _b);
 
-        /// @dev Grant decrypt permissions to the contract itself to manage the result
         FHE.allowThis(_a_plus_b);
-        /// @dev Grant decrypt permissions to the caller so they can access the result
         FHE.allow(_a_plus_b, msg.sender);
     }
 
     /**
-     * @notice Returns the encrypted result of A + B.
-     * @dev Caller must have decrypt permissions.
-     * @return euint8 ciphertext of A+B
+     * @notice Return the encrypted result of A + B.
+     * @dev The returned value is an internal `euint8` handle.
+     * The caller must have decryption permission to obtain the plaintext value off-chain.
+     * @return The encrypted result of the homomorphic addition.
      */
     function result() public view returns (euint8) {
         return _a_plus_b;
