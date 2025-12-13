@@ -27,3 +27,6 @@ Thumbs.db
 
 # Internal notes
 NOTE.md
+
+# Ignore generated files md (rekursif) in docs/* 
+docs/**/*.md
