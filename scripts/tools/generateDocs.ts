@@ -30,6 +30,16 @@ function formatDocsAsMarkdown(output: any, metadata: StarterMeta): string {
     lines.push("");
     lines.push(output.notice);
     lines.push("");
+  } else if (metadata.description) {
+    lines.push(`## Overview`);
+    lines.push("");
+    lines.push(metadata.description);
+    lines.push("");
+  } else {
+    lines.push(`## Overview`);
+    lines.push("");
+    lines.push("No description provided.");
+    lines.push("");
   }
 
   // Dev sections
@@ -37,6 +47,7 @@ function formatDocsAsMarkdown(output: any, metadata: StarterMeta): string {
     if (output.dev.usage && output.dev.usage.length > 0) {
       lines.push(`## Usage`);
       lines.push("");
+      // output.dev.usage.shift();
       for (const item of output.dev.usage) {
         lines.push(`- ${item}`);
       }
@@ -46,6 +57,7 @@ function formatDocsAsMarkdown(output: any, metadata: StarterMeta): string {
     if (output.dev.prerequisites && output.dev.prerequisites.length > 0) {
       lines.push(`## Prerequisites`);
       lines.push("");
+      // output.dev.prerequisites.shift();
       for (const item of output.dev.prerequisites) {
         lines.push(`- ${item}`);
       }
@@ -72,6 +84,69 @@ function formatDocsAsMarkdown(output: any, metadata: StarterMeta): string {
     }
   }
 
+  // Enums
+  if (output.enums && output.enums.length > 0) {
+    lines.push(`## Enums`);
+    lines.push("");
+    for (const enumItem of output.enums) {
+      lines.push(`### \`${enumItem.name}\``);
+      lines.push("");
+      if (enumItem.docs?.notice) {
+        lines.push(enumItem.docs.notice);
+        lines.push("");
+      }
+      if (enumItem.docs?.values && enumItem.docs.values.length > 0) {
+        lines.push(`**Values:**`);
+        lines.push("");
+        for (const val of enumItem.docs.values) {
+          lines.push(`- \`${val.name}\`: ${val.notice || "-"}`);
+        }
+        lines.push("");
+      }
+    }
+  }
+
+  // Constants
+  if (output.constants && output.constants.length > 0) {
+    lines.push(`## Constants`);
+    lines.push("");
+    for (const constant of output.constants) {
+      lines.push(`### \`${constant.name}\``);
+      lines.push("");
+      lines.push(`- **Type:** \`${constant.type}\``);
+      if (constant.docs?.notice) {
+        lines.push(`- **Description:** ${constant.docs.notice}`);
+      }
+      lines.push("");
+    }
+  }
+
+  // Structs
+  if (output.structs && output.structs.length > 0) {
+    lines.push(`## Structs`);
+    lines.push("");
+    for (const struct of output.structs) {
+      lines.push(`### \`${struct.name}\``);
+      lines.push("");
+      if (struct.docs?.notice) {
+        lines.push(struct.docs.notice);
+        lines.push("");
+      }
+      if (struct.docs?.fields && struct.docs.fields.length > 0) {
+        lines.push(`**Fields:**`);
+        lines.push("");
+        for (const field of struct.docs.fields) {
+          lines.push(
+            `- \`${field.name}\`${field.type ? ` (${field.type})` : ""}: ${
+              field.notice || "-"
+            }`
+          );
+        }
+        lines.push("");
+      }
+    }
+  }
+
   // State Variables
   if (output.stateVariables && output.stateVariables.length > 0) {
     lines.push(`## State Variables`);
@@ -89,6 +164,35 @@ function formatDocsAsMarkdown(output: any, metadata: StarterMeta): string {
         for (const devNote of stateVar.docs.dev) {
           lines.push(`  - ${devNote}`);
         }
+      }
+      lines.push("");
+    }
+  }
+
+  // Constructor
+  if (output.constructor) {
+    lines.push(`## Constructor`);
+    lines.push("");
+    if (output.constructor.notice) {
+      lines.push(output.constructor.notice);
+      lines.push("");
+    }
+    if (output.constructor.params && output.constructor.params.length > 0) {
+      lines.push(`**Parameters:**`);
+      lines.push("");
+      lines.push(`| Name | Description |`);
+      lines.push(`|------|-------------|`);
+      for (const param of output.constructor.params) {
+        const desc = param.description || "-";
+        lines.push(`| \`${param.name}\` | ${desc} |`);
+      }
+      lines.push("");
+    }
+    if (output.constructor.dev && output.constructor.dev.length > 0) {
+      lines.push(`**Details:**`);
+      lines.push("");
+      for (const devNote of output.constructor.dev) {
+        lines.push(`- ${devNote}`);
       }
       lines.push("");
     }
@@ -143,133 +247,6 @@ function formatDocsAsMarkdown(output: any, metadata: StarterMeta): string {
           lines.push("");
         }
       }
-    }
-  }
-
-  // Structs
-  if (output.structs && output.structs.length > 0) {
-    lines.push(`## Structs`);
-    lines.push("");
-    for (const struct of output.structs) {
-      lines.push(`### \`${struct.name}\``);
-      lines.push("");
-      if (struct.docs?.notice) {
-        lines.push(struct.docs.notice);
-        lines.push("");
-      }
-      if (struct.docs?.fields && struct.docs.fields.length > 0) {
-        lines.push(`**Fields:**`);
-        lines.push("");
-        for (const field of struct.docs.fields) {
-          lines.push(
-            `- \`${field.name}\`${field.type ? ` (${field.type})` : ""}: ${
-              field.notice || "-"
-            }`
-          );
-        }
-        lines.push("");
-      }
-    }
-  }
-
-  // Enums
-  if (output.enums && output.enums.length > 0) {
-    lines.push(`## Enums`);
-    lines.push("");
-    for (const enumItem of output.enums) {
-      lines.push(`### \`${enumItem.name}\``);
-      lines.push("");
-      if (enumItem.docs?.notice) {
-        lines.push(enumItem.docs.notice);
-        lines.push("");
-      }
-      if (enumItem.docs?.values && enumItem.docs.values.length > 0) {
-        lines.push(`**Values:**`);
-        lines.push("");
-        for (const val of enumItem.docs.values) {
-          lines.push(`- \`${val.name}\`: ${val.notice || "-"}`);
-        }
-        lines.push("");
-      }
-    }
-  }
-
-  // Constants
-  if (output.constants && output.constants.length > 0) {
-    lines.push(`## Constants`);
-    lines.push("");
-    for (const constant of output.constants) {
-      lines.push(`### \`${constant.name}\``);
-      lines.push("");
-      lines.push(`- **Type:** \`${constant.type}\``);
-      if (constant.docs?.notice) {
-        lines.push(`- **Description:** ${constant.docs.notice}`);
-      }
-      lines.push("");
-    }
-  }
-
-  // Constructor
-  if (output.constructor) {
-    lines.push(`## Constructor`);
-    lines.push("");
-    if (output.constructor.notice) {
-      lines.push(output.constructor.notice);
-      lines.push("");
-    }
-    if (output.constructor.params && output.constructor.params.length > 0) {
-      lines.push(`**Parameters:**`);
-      lines.push("");
-      lines.push(`| Name | Description |`);
-      lines.push(`|------|-------------|`);
-      for (const param of output.constructor.params) {
-        const desc = param.description || "-";
-        lines.push(`| \`${param.name}\` | ${desc} |`);
-      }
-      lines.push("");
-    }
-    if (output.constructor.dev && output.constructor.dev.length > 0) {
-      lines.push(`**Details:**`);
-      lines.push("");
-      for (const devNote of output.constructor.dev) {
-        lines.push(`- ${devNote}`);
-      }
-      lines.push("");
-    }
-  }
-
-  // Metadata footer
-  lines.push(`---`);
-  lines.push("");
-  lines.push(`## Starter Metadata`);
-  lines.push("");
-  lines.push(`- **Name:** ${metadata.name}`);
-  lines.push(`- **Label:** ${metadata.label}`);
-  lines.push(`- **Category:** ${metadata.category}`);
-  lines.push(`- **Version:** ${metadata.version}`);
-  lines.push(`- **FHEVM Version:** ${metadata.fhevm_version}`);
-  if (metadata.description) {
-    lines.push(`- **Description:** ${metadata.description}`);
-  }
-  if (metadata.tags && metadata.tags.length > 0) {
-    lines.push(`- **Tags:** ${metadata.tags.join(", ")}`);
-  }
-  if (metadata.concepts && metadata.concepts.length > 0) {
-    lines.push(`- **Concepts:** ${metadata.concepts.join(", ")}`);
-  }
-  if (metadata.has_ui !== undefined) {
-    lines.push(`- **Has UI:** ${metadata.has_ui ? "Yes" : "No"}`);
-  }
-  if (metadata.authors && metadata.authors.length > 0) {
-    lines.push("");
-    lines.push(`**Authors:**`);
-    lines.push("");
-    for (const author of metadata.authors) {
-      const authorLine = [];
-      if (author.name) authorLine.push(author.name);
-      if (author.email) authorLine.push(`<${author.email}>`);
-      if (author.url) authorLine.push(`(${author.url})`);
-      lines.push(`- ${authorLine.join(" ")}`);
     }
   }
 
