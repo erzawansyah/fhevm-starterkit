@@ -19,15 +19,8 @@ function formatDocsAsMarkdown(output: any, metadata: StarterMeta): string {
   lines.push(`# ${output.title || metadata.label || metadata.name}`);
   lines.push("");
 
-  if (output.author) {
-    lines.push(`**Author:** ${output.author}`);
-    lines.push("");
-  }
-
   // Notice
   if (output.notice) {
-    lines.push(`## Overview`);
-    lines.push("");
     lines.push(output.notice);
     lines.push("");
   } else if (metadata.description) {
