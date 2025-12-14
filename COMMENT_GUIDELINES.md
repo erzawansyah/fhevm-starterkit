@@ -1,6 +1,6 @@
 # Guideline Anotasi Komentar Kontrak dan Test
 
-**Untuk Auto-Generate Dokumentasi FHEVM Example Hub**
+## Untuk Auto-Generate Dokumentasi FHEVM Example Hub
 
 Dokumen ini menjelaskan standar komentar (anotasi) yang **WAJIB** dan **OPSIONAL** digunakan pada kontrak dan file test agar dokumentasi dapat digenerate secara otomatis, konsisten, dan edukatif.
 
