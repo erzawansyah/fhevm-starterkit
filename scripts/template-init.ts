@@ -3,7 +3,6 @@
 // Script untuk menginisialisasi template FHEVM Hardhat ke dalam proyek
 
 import fs from "fs";
-import path from "path";
 import { logger } from "./helper/logger";
 import { quotePath, run, isEmptyDir } from "./helper/utils";
 import config from "../starterkit.config";
@@ -95,66 +94,6 @@ async function cloneFrontendTemplate() {
   logger.success("Template Frontend berhasil dikloning.");
 }
 
-const removeDirsActions = () => {
-  if (ACTIONS.removeDirs && ACTIONS.removeDirs.length > 0) {
-    logger.info("Menghapus direktori yang tidak diperlukan...");
-    for (const dir of ACTIONS.removeDirs) {
-      const targetDir = path.join(HARDHAT_TARGET_DIR, dir);
-      if (fs.existsSync(targetDir)) {
-        fs.rmSync(targetDir, { recursive: true, force: true });
-        logger.info(`- Direktori dihapus: ${targetDir}`);
-      }
-    }
-    logger.success("Direktori yang tidak diperlukan berhasil dihapus.");
-  }
-};
-
-const removeFilesActions = () => {
-  if (ACTIONS.removeFiles && ACTIONS.removeFiles.length > 0) {
-    logger.info("Menghapus file yang tidak diperlukan...");
-    for (const file of ACTIONS.removeFiles) {
-      const targetFile = path.join(HARDHAT_TARGET_DIR, file);
-      if (fs.existsSync(targetFile)) {
-        fs.rmSync(targetFile, { force: true });
-        logger.info(`- File dihapus: ${targetFile}`);
-      }
-    }
-    logger.success("File yang tidak diperlukan berhasil dihapus.");
-  }
-};
-
-const copyFilesActions = () => {
-  if (ACTIONS.copyFiles && ACTIONS.copyFiles.length > 0) {
-    logger.info("Menyalin file tambahan...");
-    for (const fileAction of ACTIONS.copyFiles) {
-      const fromPath = path.join(__dirname, "..", fileAction.from);
-      const toPath = path.join(__dirname, "..", fileAction.to);
-      fs.copyFileSync(fromPath, toPath);
-      logger.info(`- File disalin dari ${fromPath} ke ${toPath}`);
-    }
-    logger.success("File tambahan berhasil disalin.");
-  }
-};
-
-const createFilesActions = () => {
-  if (ACTIONS.createFiles && ACTIONS.createFiles.length > 0) {
-    logger.info("Membuat file tambahan...");
-    for (const fileAction of ACTIONS.createFiles) {
-      const targetPath = path.join(HARDHAT_TARGET_DIR, fileAction.path);
-      fs.writeFileSync(targetPath, fileAction.content, "utf8");
-      logger.info(`- File dibuat: ${targetPath}`);
-    }
-    logger.success("File tambahan berhasil dibuat.");
-  }
-};
-
-const actionHandler = () => {
-  removeDirsActions();
-  removeFilesActions();
-  copyFilesActions();
-  createFilesActions();
-};
-
 const main = async () => {
   if (USE_LATEST_FLAG) {
     const rl = readline.createInterface({ input, output });
@@ -178,7 +117,6 @@ const main = async () => {
 
   await cloneHardhatTemplate();
   await cloneFrontendTemplate();
-  actionHandler();
 };
 
 main()

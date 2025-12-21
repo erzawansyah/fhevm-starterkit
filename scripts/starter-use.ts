@@ -1,23 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from "child_process";
 import { logger } from "./helper/logger";
 
-// lakukan ini saat proses dijalankan
-// example: npm run starter:use fhe-counter
-// - baca starter/fhe-counter, apakah ada?
-// - jika ada, cek apakah dev/fhe-counter sudah ada?
-// - jika belum ada, copy semua file dari base/fhevm-hardhat-template ke dev/fhe-counter
-// - jika sudah ada, tampilkan pesan bahwa folder sudah ada, kemudian kasih pilihan untuk skip atau overwrite (hapus dan copy ulang)
-// - Jika berhasil atau berlanjut, kosongkan folder dev/fhe-counter/contracts/*, dev/fhe-counter/test/*.
-// - Copy file contract di starter/fhe-counter/contracts/* ke dev/fhe-counter/contracts/*
-// - Copy file test di starter/fhe-counter/test/* ke dev/fhe-counter/test/*
-// Catatan:
-// Gunakan logger untuk menampilkan pesan ke user pada setiap langkah penting
-// Jika berhasil, beri intruksi kepada user untuk:
-// cd dev/fhe-counter
-// npm install
-// npm run test
+// cari dist directory untuk frontend.
 
 const args = process.argv.slice(2);
 
