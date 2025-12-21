@@ -91,6 +91,13 @@
                     }
                 }
             }
+        },
+        "constructor_args": {
+            "type": "array",
+            "description": "List of constructor arguments for the smart contract.",
+            "items": {
+                "type": "string"
+            }
         }
     },
     "additionalProperties": false

@@ -75,7 +75,7 @@ contract FHEAdd is ZamaEthereumConfig {
      * The caller must have decryption permission to obtain the plaintext value off-chain.
      * @return The encrypted result of the homomorphic addition.
      */
-    function result() public view returns (euint8) {
+    function getResult() public view returns (euint8) {
         return _a_plus_b;
     }
 }
