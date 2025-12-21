@@ -2,3 +2,8 @@
 starters/
 starters/**
 /starters/**
+
+# base templates
+base/
+base/**
+/base/**

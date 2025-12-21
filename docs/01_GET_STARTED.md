@@ -50,7 +50,7 @@ Ini adalah langkah yang sebenarnya opsional, namun sangat disarankan apabila And
 Anda bisa mengikuti panduan resmi dari [dokumentasi zama](https://docs.zama.org/protocol/solidity-guides/getting-started/setup#set-up-the-hardhat-configuration-variables-optional) untuk mengatur variabel lingkungan yang dibutuhkan, atau menjalankan perintah berikut:
 
 ```bash
-npm run hardhat:setup
+npm run setup:hardhat
 
 # Di background, perintah ini akan menjalankan skrip
 # 1. npx hardhat vars set MNEMONIC
@@ -60,12 +60,14 @@ npm run hardhat:setup
 Jika Anda berencana menggunakan explorer frontend, yang mana adalah fitur utama dari FHEVM StarterKit, Anda juga perlu mengatur variabel lingkungan tambahan dengan menjalankan perintah berikut:
 
 ```bash
-npm run frontend:setup
+npm run setup:frontend
 
 # Di background, perintah ini akan membuat file
 # .env.local di dalam folder ./base/fhevm-relayer-template
 # dan meminta Anda untuk mengisi variabel lingkungan yang dibutuhkan.
 ```
+
+Anda juga bisa mengatur variabel lingkungan ini secara manual dengan membuat file `.env.local` di dalam folder `./base/fhevm-relayer-template` dan menambahkan variabel lingkungan yang dibutuhkan.
 
 Variabel lingkungan yang dibutuhkan adalah Wallet Connect Project ID yang bisa Anda dapatkan dengan mendaftar di [Wallet Connect](https://dashboard.walletconnect.com/).
 
