@@ -1,0 +1,4 @@
+# Ignore project starters (examples, templates) from ESLint
+starters/
+starters/**
+/starters/**
