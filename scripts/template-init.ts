@@ -6,96 +6,187 @@ import fs from "fs";
 import path from "path";
 import { logger } from "./helper/logger";
 import { quotePath, run, isEmptyDir } from "./helper/utils";
-const config = require("../starterkit.config");
+import config from "../starterkit.config";
+import readline from "readline/promises";
+import { stdin as input, stdout as output } from "process";
 
-// Konfigurasi template dari starterkit.config
-const TEMPLATE_REPO: string = config.template.fhevmHardhat.repo; // URL repository template
-const TEMPLATE_DIR = path.join(
-  __dirname,
-  "..",
-  config.template.fhevmHardhat.dir
-); // Direktori tujuan template
-const UPDATE_SCRIPT: string = config.template.updateScript; // Script untuk update template
-const EXCLUDED_SCRIPT_FILES: string[] =
-  config.template.excludedScriptFiles || []; // File script yang tidak perlu dicopy // File script yang tidak perlu dicopy
+const HARDHAT_TEMPLATE_REPO = config.template.hardhat.repo;
+const HARDHAT_TARGET_DIR = config.template.hardhat.dir;
+const HARDHAT_TEMPLATE_COMMITHASH = config.template.hardhat.commit;
 
-/**
- * Memeriksa apakah direktori kosong atau tidak ada
- * @param dir - Path direktori yang akan diperiksa
- * @returns true jika direktori tidak ada atau kosong
- */
+const FRONTEND_TEMPLATE_REPO = config.template.frontend.repo;
+const FRONTEND_TARGET_DIR = config.template.frontend.dir;
+const FRONTEND_TEMPLATE_COMMITHASH = config.template.frontend.commit;
 
-/**
- * Menyalin file-file script dari direktori scripts ke dalam direktori template
- * Hanya menyalin file .ts dan .js yang tidak ada dalam daftar excluded
- */
-function copyScripts() {
-  logger.info("Copying scripts into template directory...");
+// CLI flag handling
+const ARGS = process.argv.slice(2);
+const USE_LATEST_FLAG = ARGS.includes("--latest") || ARGS.includes("-l");
+let SKIP_CHECKOUT = false;
 
-  const SCRIPTS_DIR = __dirname; // Direktori scripts saat ini
-  const scriptFiles = fs.readdirSync(SCRIPTS_DIR); // Baca semua file dalam direktori scripts
+const ACTIONS = config.template.actions || {};
 
-  // Loop setiap file dalam direktori scripts
-  scriptFiles.forEach((file) => {
-    const ext = path.extname(file); // Ambil ekstensi file
-    const base = path.basename(file); // Ambil nama file
+// Pastikan direktori target ada dan kosong
+function ensureEmptyDir(dir: string) {
+  logger.info(`Cek apakah direktori target ${dir} ada dan kosong...`);
+  if (!fs.existsSync(dir)) {
+    logger.info(`Membuat direktori target ${dir}...`);
+    fs.mkdirSync(dir, { recursive: true });
+  } else if (!isEmptyDir(dir)) {
+    logger.error(`Direktori target ${dir} tidak kosong!`);
+    logger.error(
+      "Hapus isi direktori tersebut dan coba lagi atau jalankan script `npm run template:clean` terlebih dahulu."
+    );
+    process.exit(1);
+  }
+}
 
-    // Cek apakah file adalah TypeScript atau JavaScript dan tidak dalam daftar excluded
-    if (
-      (ext === ".ts" || ext === ".js") &&
-      !EXCLUDED_SCRIPT_FILES.includes(base)
-    ) {
-      const srcPath = path.join(SCRIPTS_DIR, file); // Path sumber
-      const destPath = path.join(TEMPLATE_DIR, file); // Path tujuan
+// Kloning template Hardhat
+async function cloneHardhatTemplate() {
+  ensureEmptyDir(HARDHAT_TARGET_DIR);
+  logger.info("Mengkloning template Hardhat...");
+  await run(
+    `git clone ${quotePath(HARDHAT_TEMPLATE_REPO)} ${quotePath(
+      HARDHAT_TARGET_DIR
+    )}`
+  );
 
-      fs.copyFileSync(srcPath, destPath); // Salin file
-      logger.success(`  ✓ ${file} -> ${config.template.dir}/${file}`);
+  // Checkout ke commit tertentu jika disediakan
+  if (HARDHAT_TEMPLATE_COMMITHASH && !SKIP_CHECKOUT) {
+    logger.info(
+      `Checkout template Hardhat ke commit ${HARDHAT_TEMPLATE_COMMITHASH}...`
+    );
+    await run(
+      `cd ${quotePath(
+        HARDHAT_TARGET_DIR
+      )} && git checkout ${HARDHAT_TEMPLATE_COMMITHASH}`
+    );
+  } else if (HARDHAT_TEMPLATE_COMMITHASH && SKIP_CHECKOUT) {
+    logger.info(
+      "Lewati checkout commit untuk template Hardhat karena --latest dikonfirmasi."
+    );
+  }
+  logger.success("Template Hardhat berhasil dikloning.");
+}
+
+// Kloning template Frontend
+async function cloneFrontendTemplate() {
+  ensureEmptyDir(FRONTEND_TARGET_DIR);
+  logger.info("Mengkloning template Frontend...");
+  await run(
+    `git clone ${quotePath(FRONTEND_TEMPLATE_REPO)} ${quotePath(
+      FRONTEND_TARGET_DIR
+    )}`
+  );
+  // Checkout ke commit tertentu jika disediakan
+  if (FRONTEND_TEMPLATE_COMMITHASH && !SKIP_CHECKOUT) {
+    logger.info(
+      `Checkout template Frontend ke commit ${FRONTEND_TEMPLATE_COMMITHASH}...`
+    );
+    await run(
+      `cd ${quotePath(
+        FRONTEND_TARGET_DIR
+      )} && git checkout ${FRONTEND_TEMPLATE_COMMITHASH}`
+    );
+  } else if (FRONTEND_TEMPLATE_COMMITHASH && SKIP_CHECKOUT) {
+    logger.info(
+      "Lewati checkout commit untuk template Frontend karena --latest dikonfirmasi."
+    );
+  }
+  logger.success("Template Frontend berhasil dikloning.");
+}
+
+const removeDirsActions = () => {
+  if (ACTIONS.removeDirs && ACTIONS.removeDirs.length > 0) {
+    logger.info("Menghapus direktori yang tidak diperlukan...");
+    for (const dir of ACTIONS.removeDirs) {
+      const targetDir = path.join(HARDHAT_TARGET_DIR, dir);
+      if (fs.existsSync(targetDir)) {
+        fs.rmSync(targetDir, { recursive: true, force: true });
+        logger.info(`- Direktori dihapus: ${targetDir}`);
+      }
     }
+    logger.success("Direktori yang tidak diperlukan berhasil dihapus.");
+  }
+};
+
+const removeFilesActions = () => {
+  if (ACTIONS.removeFiles && ACTIONS.removeFiles.length > 0) {
+    logger.info("Menghapus file yang tidak diperlukan...");
+    for (const file of ACTIONS.removeFiles) {
+      const targetFile = path.join(HARDHAT_TARGET_DIR, file);
+      if (fs.existsSync(targetFile)) {
+        fs.rmSync(targetFile, { force: true });
+        logger.info(`- File dihapus: ${targetFile}`);
+      }
+    }
+    logger.success("File yang tidak diperlukan berhasil dihapus.");
+  }
+};
+
+const copyFilesActions = () => {
+  if (ACTIONS.copyFiles && ACTIONS.copyFiles.length > 0) {
+    logger.info("Menyalin file tambahan...");
+    for (const fileAction of ACTIONS.copyFiles) {
+      const fromPath = path.join(__dirname, "..", fileAction.from);
+      const toPath = path.join(__dirname, "..", fileAction.to);
+      fs.copyFileSync(fromPath, toPath);
+      logger.info(`- File disalin dari ${fromPath} ke ${toPath}`);
+    }
+    logger.success("File tambahan berhasil disalin.");
+  }
+};
+
+const createFilesActions = () => {
+  if (ACTIONS.createFiles && ACTIONS.createFiles.length > 0) {
+    logger.info("Membuat file tambahan...");
+    for (const fileAction of ACTIONS.createFiles) {
+      const targetPath = path.join(HARDHAT_TARGET_DIR, fileAction.path);
+      fs.writeFileSync(targetPath, fileAction.content, "utf8");
+      logger.info(`- File dibuat: ${targetPath}`);
+    }
+    logger.success("File tambahan berhasil dibuat.");
+  }
+};
+
+const actionHandler = () => {
+  removeDirsActions();
+  removeFilesActions();
+  copyFilesActions();
+  createFilesActions();
+};
+
+const main = async () => {
+  if (USE_LATEST_FLAG) {
+    const rl = readline.createInterface({ input, output });
+    const answer = await rl.question(
+      "Anda memilih --latest. Menggunakan base 'latest' bisa menyebabkan konflik. Lanjutkan tanpa melakukan checkout ke commit tertentu? (y/N): "
+    );
+    rl.close();
+    const normalized = (answer || "").trim().toLowerCase();
+    if (normalized === "y" || normalized === "yes") {
+      SKIP_CHECKOUT = true;
+      logger.info(
+        "Konfirmasi diterima: akan menggunakan versi latest dan melewati checkout commit."
+      );
+    } else {
+      logger.info(
+        "Dibatalkan oleh pengguna. Tidak ada perubahan yang dilakukan."
+      );
+      process.exit(0);
+    }
+  }
+
+  await cloneHardhatTemplate();
+  await cloneFrontendTemplate();
+  actionHandler();
+};
+
+main()
+  .then(() => {
+    logger.success("Inisialisasi template selesai.");
+  })
+  .catch((error) => {
+    logger.error("Terjadi kesalahan selama inisialisasi template:");
+    console.error(error);
+    process.exit(1);
   });
-}
-
-/**
- * Fungsi utama yang menjalankan alur inisialisasi template
- * Alur:
- * 1. Cek apakah direktori template ada
- * 2. Jika tidak ada atau kosong -> clone template baru
- * 3. Jika sudah ada dan berisi -> update template yang ada
- * 4. Setelah itu, copy script-script ke dalam template
- */
-function main() {
-  // Template Initialization
-  logger.section("🚀 Template Initialization");
-  logger.info("Running template-init...");
-
-  // Cek 1: Apakah direktori template ada?
-  if (!fs.existsSync(TEMPLATE_DIR)) {
-    logger.warning("Template folder not found. Cloning fresh copy...");
-    logger.info("Cloning FHEVM Hardhat Template...");
-    // Jalankan perintah git clone untuk mengunduh template
-    run(`git clone ${TEMPLATE_REPO} ${quotePath(TEMPLATE_DIR)}`);
-    logger.success("Clone complete.");
-    copyScripts(); // Copy scripts ke template
-    return;
-  }
-
-  // Cek 2: Apakah direktori template kosong?
-  if (isEmptyDir(TEMPLATE_DIR)) {
-    logger.warning("Template folder is empty. Cloning fresh copy...");
-    logger.info("Cloning FHEVM Hardhat Template...");
-    // Jalankan perintah git clone untuk mengunduh template
-    run(`git clone ${TEMPLATE_REPO} ${quotePath(TEMPLATE_DIR)}`);
-    logger.success("Clone complete.");
-    copyScripts(); // Copy scripts ke template
-    return;
-  }
-
-  // Jika template sudah ada dan tidak kosong
-  logger.info("Template exists. Running template update script...");
-  // Jalankan script npm untuk update template (biasanya git pull)
-  run(`npm run ${UPDATE_SCRIPT}`);
-
-  copyScripts(); // Copy scripts ke template
-}
-
-// Jalankan fungsi utama
-main();

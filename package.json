@@ -9,6 +9,10 @@
         "template:init": "ts-node scripts/template-init.ts",
         "template:update": "ts-node scripts/template-update.ts",
         "template:reset": "ts-node scripts/template-reset.ts",
+
+        "setup:hardhat": "ts-node scripts/setup-hardhat.ts",
+        "setup:frontend": "ts-node scripts/setup-frontend.ts",
+        
         "docs:generate": "ts-node scripts/docs-generate.ts",
         "starter:use": "ts-node scripts/starter-use.ts",
         "starter:init": "ts-node scripts/starter-init.ts",
