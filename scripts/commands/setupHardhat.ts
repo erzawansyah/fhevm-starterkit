@@ -1,48 +1,52 @@
 import { execSync } from "child_process";
-import { logger } from "../scripts/helper/logger";
-import { run } from "../scripts/helper/utils";
+import { logger } from "../helper/logger";
+import { run } from "../helper/utils";
+import { GlobalOptions } from "../cli";
 
-// get force flags
-const FORCE_FLAG =
-  process.argv.includes("--force") || process.argv.includes("-f");
+export async function runSetupHardhat(
+  input: { force: boolean } & GlobalOptions
+) {
+  if (input.verbose)
+    logger.info(`[debug] setup:hardhat ${JSON.stringify(input)}`);
 
-// Cek apakah vars MNEMONIC Hardhat sudah diatur
-function isHardhatMnemonicSet(): boolean {
-  try {
-    const result = execSync("npx hardhat vars get MNEMONIC").toString().trim();
-    return result.length > 0;
-  } catch (error) {
-    return false;
-  }
-}
+  const isForce = !!input.force;
 
-// Cek apakah vars INFURA_API_KEY
-function isHardhatInfuraKeySet(): boolean {
-  try {
-    const result = execSync("npx hardhat vars get INFURA_API_KEY")
-      .toString()
-      .trim();
-    return result.length > 0;
-  } catch (error) {
-    return false;
-  }
-}
-async function main() {
-  const isForce = FORCE_FLAG;
-
-  if (isForce) {
-    logger.info("Force flag detected. Overwriting existing Hardhat vars...");
-
-    // Konfirmasi apakah user ingin melanjutkan
+  // Cek apakah vars MNEMONIC Hardhat sudah diatur
+  function isHardhatMnemonicSet(): boolean {
     try {
-      execSync("npx hardhat vars unset MNEMONIC");
-      execSync("npx hardhat vars unset INFURA_API_KEY");
-    } catch (error) {
-      logger.info("No existing vars to unset.");
+      const result = execSync("npx hardhat vars get MNEMONIC")
+        .toString()
+        .trim();
+      return result.length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  // Cek apakah vars INFURA_API_KEY sudah diatur
+  function isHardhatInfuraKeySet(): boolean {
+    try {
+      const result = execSync("npx hardhat vars get INFURA_API_KEY")
+        .toString()
+        .trim();
+      return result.length > 0;
+    } catch {
+      return false;
     }
   }
 
   logger.info("Setting up Hardhat configuration variables...");
+
+  if (isForce) {
+    logger.info("Force flag detected. Overwriting existing Hardhat vars...");
+    try {
+      execSync("npx hardhat vars unset MNEMONIC");
+      execSync("npx hardhat vars unset INFURA_API_KEY");
+    } catch {
+      logger.info("No existing vars to unset.");
+    }
+  }
+
   if (!isHardhatMnemonicSet()) {
     const defaultMnemonic =
       "test test test test test test test test test test test junk";
@@ -53,6 +57,7 @@ async function main() {
   } else {
     logger.info("MNEMONIC is already set. Skipping...");
   }
+
   if (!isHardhatInfuraKeySet()) {
     const defaultInfuraKey = "YOUR_INFURA_PROJECT_ID";
     logger.info(
@@ -62,5 +67,7 @@ async function main() {
   } else {
     logger.info("INFURA_API_KEY is already set. Skipping...");
   }
+
   logger.success("Hardhat configuration variables setup complete.");
+  process.exit(0);
 }

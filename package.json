@@ -6,16 +6,17 @@
     "author": "Your Name",
     "license": "MIT",
     "scripts": {
-        "template:init": "ts-node scripts/template-init.ts",
-        "template:update": "ts-node scripts/template-update.ts",
-        "template:reset": "ts-node scripts/template-reset.ts",
+        "template:init": "ts-node scripts/cli.ts template:init",
+        "template:update": "ts-node scripts/cli.ts template:update",
+        "template:reset": "ts-node scripts/cli.ts template:reset",
 
-        "setup:hardhat": "ts-node scripts/setup-hardhat.ts",
-        "setup:frontend": "ts-node scripts/setup-frontend.ts",
+        "setup:hardhat": "ts-node scripts/cli.ts setup:hardhat",
+        "setup:frontend": "ts-node scripts/cli.ts setup:frontend",
+
+        "starter:init": "ts-node scripts/cli.ts starter:init",
+        "starter:use": "ts-node scripts/starter-use.ts",
         
         "docs:generate": "ts-node scripts/docs-generate.ts",
-        "starter:use": "ts-node scripts/starter-use.ts",
-        "starter:init": "ts-node scripts/starter-init.ts",
         "web": "npm --prefix apps/web run dev",
         "check": "ts-node scripts/check.ts",
         "build:web": "npm --prefix apps/web run build",
@@ -28,5 +29,8 @@
         "ajv": "^8.12.0",
         "ts-node": "^10.9.2",
         "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "commander": "^14.0.2"
     }
 }

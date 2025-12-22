@@ -1,17 +1,12 @@
-// scripts/template-reset.ts
-// @script `npm run template:reset`
-// Script untuk mereset template FHEVM Hardhat ke kondisi awal (fresh clone)
-
 import fs from "fs";
 import path from "path";
-import { quotePath, run, isEmptyDir } from "./helper/utils";
-import { logger } from "./helper/logger";
-import config from "../starterkit.config";
+import config from "../../starterkit.config";
+import { logger } from "../helper/logger";
+import { GlobalOptions } from "../cli";
 
 const HARDHAT_TARGET_DIR = config.template.hardhat.dir;
 const FRONTEND_TARGET_DIR = config.template.frontend.dir;
 
-// Empty hardhat template directory
 function emptyDir(dir: string) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -30,20 +25,31 @@ function emptyDir(dir: string) {
         fs.unlinkSync(entryPath);
       }
     } catch (err) {
-      // If any entry cannot be removed, log and continue
-      logger.info(`Failed to remove ${entryPath}: ${err}`);
+      logger.info(`Failed to remove ${entryPath}: ${String(err)}`);
     }
   }
+
   logger.info(`Emptied directory contents: ${dir}`);
 }
 
-function main() {
-  logger.info("Resetting Hardhat template...");
+export async function runTemplateReset(
+  input: { yes: boolean } & GlobalOptions
+) {
+  if (input.verbose)
+    logger.info(`[debug] template:reset ${JSON.stringify(input)}`);
+
+  logger.info("Resetting templates...");
+
+  if (!input.yes) {
+    logger.error("Refusing to reset without confirmation.");
+    logger.info("Run again with: npm run template:reset -- --yes");
+    process.exit(1);
+  }
+
   emptyDir(HARDHAT_TARGET_DIR);
   emptyDir(FRONTEND_TARGET_DIR);
+
   logger.success(
-    "Hardhat template reset complete. You can now run `npm run template:init` to re-initialize the templates."
+    "Template reset complete. You can now run `npm run template:init` to re-initialize the templates."
   );
 }
-
-main();
