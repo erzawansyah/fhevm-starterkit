@@ -5,31 +5,31 @@ import {FHE, euint8, externalEuint8} from "@fhevm/solidity/lib/FHE.sol";
 import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
 /**
- * @title FHE Add
+ * @title Penjumlahan FHE
  * @author M.E.W
- * @notice This contreact demonstrates how to perform addition on encrypted uint8 (`euint8`) values using Fully Homomorphic Encryption (FHE).
+ * @notice Contoh sederhana untuk menjumlahkan nilai `euint8` terenkripsi menggunakan FHE.
  * @dev Usage summary:
- * 1. Set encrypted inputs A and B using `setA` and `setB` functions.
- * 2. Compute the encrypted sum A + B using `computeAPlusB` function.
- * 3. Retrieve the encrypted result using the `result` function.
+ * - Simpan ciphertext input A dan B lewat `setA` dan `setB`.
+ * - Jalankan `computeAPlusB` untuk menjumlahkan ciphertext.
+ * - Ambil ciphertext hasil via `getResult`; pemanggil diberi izin decrypt setelah perhitungan.
+ * @custom:limitations Kontrak demo; validasi input dan penanganan overflow mengikuti pustaka FHE.
  */
 contract FHEAdd is ZamaEthereumConfig {
-    /// @notice Encrypted input A stored in internal `euint8` format.
+    /// @notice Ciphertext input A disimpan sebagai `euint8` internal.
     euint8 private _a;
 
-    /// @notice Encrypted input B stored in internal `euint8` format.
+    /// @notice Ciphertext input B disimpan sebagai `euint8` internal.
     euint8 private _b;
 
-    /// @notice Encrypted result of A + B stored in internal `euint8` format.
+    /// @notice Ciphertext hasil A + B disimpan sebagai `euint8` internal.
     euint8 private _a_plus_b;
 
     /**
-     * @notice Store encrypted input A into the contract.
-     * @dev Converts the external ciphertext into an internal `euint8` value using `FHE.fromExternal`.
-     * The provided proof must be valid, otherwise the call will revert.
-     * Calling this function again will overwrite the previously stored value.
-     * @param inputA External encrypted uint8 value provided by the caller.
-     * @param inputProof Zero-knowledge proof validating the encrypted input.
+     * @notice Menyimpan input terenkripsi A ke state kontrak.
+     * @dev Mengubah ciphertext eksternal menjadi `euint8` internal via `FHE.fromExternal`.
+     * Bukti yang tidak valid akan menyebabkan transaksi revert; pemanggilan ulang menimpa nilai sebelumnya.
+     * @param inputA Ciphertext `euint8` eksternal dari pemanggil.
+     * @param inputProof Bukti zk yang memvalidasi ciphertext input.
      */
     function setA(externalEuint8 inputA, bytes calldata inputProof) external {
         _a = FHE.fromExternal(inputA, inputProof);
@@ -37,12 +37,11 @@ contract FHEAdd is ZamaEthereumConfig {
     }
 
     /**
-     * @notice Store encrypted input B into the contract.
-     * @dev Converts the external ciphertext into an internal `euint8` value using `FHE.fromExternal`.
-     * The provided proof must be valid, otherwise the call will revert.
-     * Calling this function again will overwrite the previously stored value.
-     * @param inputB External encrypted uint8 value provided by the caller.
-     * @param inputProof Zero-knowledge proof validating the encrypted input.
+     * @notice Menyimpan input terenkripsi B ke state kontrak.
+     * @dev Mengubah ciphertext eksternal menjadi `euint8` internal via `FHE.fromExternal`.
+     * Bukti yang tidak valid akan menyebabkan transaksi revert; pemanggilan ulang menimpa nilai sebelumnya.
+     * @param inputB Ciphertext `euint8` eksternal dari pemanggil.
+     * @param inputProof Bukti zk yang memvalidasi ciphertext input.
      */
     function setB(externalEuint8 inputB, bytes calldata inputProof) external {
         _b = FHE.fromExternal(inputB, inputProof);
@@ -50,14 +49,10 @@ contract FHEAdd is ZamaEthereumConfig {
     }
 
     /**
-     * @notice Compute the encrypted sum of inputs A and B.
-     * @dev Prerequisites:
-     * - Input A must be initialized using `setA`.
-     * - Input B must be initialized using `setB`.
-     * This function performs homomorphic addition on encrypted values and stores
-     * the resulting ciphertext inside the contract.
-     * The caller is granted permission to decrypt the result.
-     * @custom:security This function should not be called with untrusted or invalid encrypted inputs.
+     * @notice Menjumlahkan input A dan B terenkripsi lalu menyimpan hasilnya.
+     * @dev Prasyarat: `_a` sudah di-set via `setA` dan `_b` via `setB`.
+     * Menjalankan penjumlahan homomorfik dan memberi izin decrypt kepada pemanggil untuk ciphertext hasil.
+     * @custom:security Izin decrypt diberikan ke `msg.sender` untuk hasil; gunakan hanya dengan ciphertext dan bukti yang valid.
      */
     function computeAPlusB() external {
         require(FHE.isInitialized(_a), "Input A not set");
@@ -70,10 +65,9 @@ contract FHEAdd is ZamaEthereumConfig {
     }
 
     /**
-     * @notice Return the encrypted result of A + B.
-     * @dev The returned value is an internal `euint8` handle.
-     * The caller must have decryption permission to obtain the plaintext value off-chain.
-     * @return The encrypted result of the homomorphic addition.
+     * @notice Mengembalikan ciphertext hasil penjumlahan A + B.
+     * @dev Caller membutuhkan izin decrypt untuk membaca plaintext di luar chain.
+     * @return Ciphertext `euint8` hasil penjumlahan homomorfik.
      */
     function getResult() public view returns (euint8) {
         return _a_plus_b;

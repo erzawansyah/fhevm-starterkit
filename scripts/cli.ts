@@ -6,6 +6,7 @@ import { runTemplateUpdate } from "./commands/templateUpdate";
 import { runSetupHardhat } from "./commands/setupHardhat";
 import { runSetupFrontend } from "./commands/setupFrontend";
 import { runStarterInit } from "./commands/starterInit";
+import { runStarterReset } from "./commands/starterReset";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -142,6 +143,17 @@ async function main() {
         });
       }
     );
+
+  // starter:reset
+  program
+    .command("starter:reset")
+    .description("Hapus semua proyek di ./projects (DANGEROUS)")
+    .option("--yes", "Konfirmasi penghapusan proyek", false)
+    .action(async (opts: { yes?: boolean }) => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
+      await runStarterReset({ yes: !!opts.yes, ...g });
+    });
 
   await program.parseAsync(process.argv);
 }

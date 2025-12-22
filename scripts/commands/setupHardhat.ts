@@ -3,6 +3,7 @@ import { logger } from "../helper/logger";
 import { run } from "../helper/utils";
 import { GlobalOptions } from "../cli";
 
+// Skrip CLI untuk mengatur variabel Hardhat (MNEMONIC, INFURA_API_KEY) dengan nilai default atau paksa overwrite.
 export async function runSetupHardhat(
   input: { force: boolean } & GlobalOptions
 ) {

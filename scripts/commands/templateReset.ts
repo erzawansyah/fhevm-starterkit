@@ -4,6 +4,7 @@ import config from "../../starterkit.config";
 import { logger } from "../helper/logger";
 import { GlobalOptions } from "../cli";
 
+// Skrip CLI untuk mengosongkan direktori template di ./base setelah konfirmasi (--yes).
 const HARDHAT_TARGET_DIR = config.template.hardhat.dir;
 const FRONTEND_TARGET_DIR = config.template.frontend.dir;
 

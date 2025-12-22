@@ -7,6 +7,8 @@ import config from "../../starterkit.config";
 import { logger } from "../helper/logger";
 import { GlobalOptions } from "../cli";
 
+// Skrip CLI untuk menyiapkan environment frontend (.env.local) di template dasar.
+// Alur: cek folder template, salin .env.local dari root jika ada, atau buat dari .env.example lalu minta input user.
 function escapeRegExe(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

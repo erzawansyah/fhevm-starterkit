@@ -5,6 +5,7 @@ import { logger } from "../helper/logger";
 import { quotePath, run } from "../helper/utils";
 import { GlobalOptions } from "../cli";
 
+// Skrip CLI untuk memperbarui template Hardhat & frontend di ./base ke commit pinned atau HEAD (--latest).
 const HARDHAT_TEMPLATE_REPO = config.template.hardhat.repo;
 const HARDHAT_TARGET_DIR = config.template.hardhat.dir;
 const HARDHAT_TEMPLATE_COMMITHASH = config.template.hardhat.commit;

@@ -14,6 +14,7 @@
         "setup:frontend": "ts-node scripts/cli.ts setup:frontend",
 
         "starter:init": "ts-node scripts/cli.ts starter:init",
+        "starter:reset": "ts-node scripts/cli.ts starter:reset",
         "starter:use": "ts-node scripts/starter-use.ts",
         
         "docs:generate": "ts-node scripts/docs-generate.ts",
