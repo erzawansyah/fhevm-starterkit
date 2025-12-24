@@ -1,8 +1,8 @@
-// scripts/template-init.ts
-// @script `npm run template:init`
-// Script untuk menginisialisasi template FHEVM Hardhat dan Frontend ke dalam folder ./base
-
 /**
+ * @path scripts/commands/templateInit.ts
+ * @script `npm run template:init`
+ * @description Script untuk menginisialisasi template FHEVM Hardhat dan Frontend ke dalam folder ./base
+ *
  * What actually does this script do?
  * - Mengkloning template Hardhat dan Frontend dari repositori yang ditentukan ke dalam folder ./base
  * - Secara default, checkout ke commit pinned untuk memastikan konsistensi (berdasarkan hash commit di starterkit.config)
@@ -17,8 +17,8 @@ import readline from "readline/promises";
 import { stdin as input, stdout as output } from "process";
 
 import config from "../../starterkit.config";
-import { logger } from "../helper/logger";
-import { quotePath, run, isEmptyDir } from "../helper/utils";
+import { logger } from "../../lib/helper/logger";
+import { quotePath, run, isEmptyDir } from "../../lib/helper/utils";
 import { GlobalOptions } from "../cli";
 
 // Skrip CLI untuk clone template Hardhat & frontend ke ./base dengan opsi pinned commit atau latest.
@@ -111,20 +111,25 @@ async function cloneRepo(params: {
   skipCheckout: boolean;
   force: boolean;
   label: string;
+  verbose?: boolean;
 }) {
-  const { repo, targetDir, pinnedCommit, skipCheckout, force, label } = params;
+  const { repo, targetDir, pinnedCommit, skipCheckout, force, label, verbose } =
+    params;
 
   // Pastikan direktori target siap
   ensureEmptyDir(targetDir, force);
 
   logger.info(`Mengkloning template ${label}...`);
   // Kloning repositori
-  await run(`git clone ${quotePath(repo)} ${quotePath(targetDir)}`);
+  await run(`git clone ${quotePath(repo)} ${quotePath(targetDir)}`, !!verbose);
 
   // Checkout ke commit pinned jika diperlukan
   if (pinnedCommit && !skipCheckout) {
     logger.info(`Checkout template ${label} ke commit ${pinnedCommit}...`);
-    await run(`cd ${quotePath(targetDir)} && git checkout ${pinnedCommit}`);
+    await run(
+      `cd ${quotePath(targetDir)} && git checkout ${pinnedCommit}`,
+      !!verbose
+    );
   } else if (pinnedCommit && skipCheckout) {
     logger.info(
       `Lewati checkout commit untuk template ${label} karena --latest dikonfirmasi.`
@@ -162,6 +167,7 @@ export const runTemplateInit = async (options: TemplateInitOptions) => {
     skipCheckout,
     force,
     label: "Hardhat",
+    verbose: !!options.verbose,
   });
 
   await cloneRepo({
@@ -171,6 +177,7 @@ export const runTemplateInit = async (options: TemplateInitOptions) => {
     skipCheckout,
     force,
     label: "Frontend",
+    verbose: !!options.verbose,
   });
 
   logger.success("Inisialisasi template selesai.");
