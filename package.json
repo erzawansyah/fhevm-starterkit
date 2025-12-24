@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "description": "A curated collection of FHEVM starter templates and project generators for building privacy-preserving smart contracts.",
-    "author": "Your Name",
+    "author": "M.E.W",
     "license": "MIT",
     "scripts": {
         "template:init": "ts-node scripts/cli.ts template:init",
@@ -19,15 +19,19 @@
         "build:web": "npm --prefix apps/web run build",
         "lint": "eslint .",
         "format": "prettier --write .",
-        "debug:logger": "ts-node scripts/debug/logger-test.ts"
+        "debug:logger": "ts-node scripts/debug/logger-test.ts",
+        "generate:schema": "tsx tools/generateJsonSchema.ts"
     },
     "devDependencies": {
         "@types/node": "^20.19.26",
         "ajv": "^8.12.0",
         "ts-node": "^10.9.2",
-        "typescript": "^5.8.3"
+        "tsx": "^4.21.0",
+        "typescript": "^5.8.3",
+        "zod-to-json-schema": "^3.25.0"
     },
     "dependencies": {
-        "commander": "^14.0.2"
+        "commander": "^14.0.2",
+        "zod": "^4.2.1"
     }
 }

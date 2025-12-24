@@ -1,6 +1,6 @@
 // starterkit.config.js
 
-import { StarterKitConfigType } from "./lib/types/starterkit-config";
+import { StarterKitConfigType } from "./lib/types/starterkitConfig.schema";
 
 /** @type {import("./types").StarterKitConfigType | any} */
 const config: StarterKitConfigType = {
@@ -71,9 +71,22 @@ const config: StarterKitConfigType = {
   // Taxonomy configuration
   taxonomy: {
     // Available categories
+    // - fundamental: Basic starters demonstrating core FHEVM concepts
+    // - patterns: Starters showcasing common design patterns
+    // - applied: Real-world use case implementations
+    // - advanced: Complex starters with advanced FHEVM techniques
     categories: ["fundamental", "patterns", "applied", "advanced"],
 
     // Chapters
+    // - basics: Introductory concepts
+    // - encryption: FHE encryption techniques
+    // - decryption: FHE decryption techniques
+    // - access-control: Access control patterns
+    // - inputproof: Input-proofing strategies
+    // - anti-patterns: Common pitfalls to avoid
+    // - handles: Using FHE handles
+    // - openzeppelin: Integrations with OpenZeppelin libraries
+    // - advanced: Advanced FHEVM topics
     chapters: [
       "basics",
       "encryption",
@@ -101,7 +114,63 @@ const config: StarterKitConfigType = {
       "Science",
     ],
 
-    concepts: ["FHE", "FHEVM"],
+    // Concepts will auto-populate based on FHE used in contracts
+    concepts: {
+      "arithmetic-operations": [
+        "FHE.add",
+        "FHE.sub",
+        "FHE.mul",
+        "FHE.div",
+        "FHE.rem",
+        "FHE.neg",
+        "FHE.min",
+        "FHE.max",
+      ],
+      "bitwise-operations": [
+        "FHE.and",
+        "FHE.or",
+        "FHE.xor",
+        "FHE.not",
+        "FHE.shr",
+        "FHE.shl",
+        "FHE.rotr",
+        "FHE.rotl",
+      ],
+      "comparison-operations": [
+        "FHE.eq",
+        "FHE.ne",
+        "FHE.ge",
+        "FHE.gt",
+        "FHE.le",
+        "FHE.lt",
+      ],
+      "ternary-operations": ["FHE.select"],
+      "random-operations": [
+        "FHE.randEuint256",
+        "FHE.randEuint64",
+        "FHE.randEuint32",
+        "FHE.randEuint16",
+        "FHE.randEuint8",
+        "FHE.randEbool",
+      ],
+      "trivial-encryption": [
+        "FHE.asEbool",
+        "FHE.asEuint8",
+        "FHE.asEuint16",
+        "FHE.asEuint32",
+        "FHE.asEuint64",
+        "FHE.asEuint128",
+        "FHE.asEuint256",
+        "FHE.asEaddress",
+      ],
+      "access-control": [
+        "FHE.allow",
+        "FHE.allowThis",
+        "FHE.allowTransient",
+        "FHE.makePubliclyDecryptable",
+        "FHE.isSenderAllowed",
+      ],
+    },
   },
 
   // Validation rules

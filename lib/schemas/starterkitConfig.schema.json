@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "startersDir": {
+      "type": "string"
+    },
+    "workingDir": {
+      "type": "string"
+    },
+    "path": {
+      "type": "object",
+      "properties": {
+        "frontendDir": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "template": {
+      "type": "object",
+      "properties": {
+        "hardhat": {
+          "type": "object",
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "dir": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "repo",
+            "dir"
+          ],
+          "additionalProperties": false
+        },
+        "frontend": {
+          "type": "object",
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "dir": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "repo",
+            "dir"
+          ],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "removeDirs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "removeFiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "copyFiles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "from",
+                  "to"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "createFiles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "hardhat",
+        "frontend",
+        "actions"
+      ],
+      "additionalProperties": false
+    },
+    "taxonomy": {
+      "type": "object",
+      "properties": {
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "chapters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "commonTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "concepts": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "categories",
+        "chapters",
+        "commonTags",
+        "concepts"
+      ],
+      "additionalProperties": false
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "requiredFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiredFolders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fileTypeRestrictions": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "requiredFiles",
+        "requiredFolders",
+        "fileTypeRestrictions"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "startersDir",
+    "workingDir",
+    "path",
+    "template",
+    "taxonomy",
+    "validation"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9\\-]+$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "details": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "version": {
+      "type": "string"
+    },
+    "fhevm_version": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "fundamental",
+        "patterns",
+        "applied",
+        "advanced"
+      ]
+    },
+    "chapter": {
+      "type": "string",
+      "enum": [
+        "basics",
+        "encryption",
+        "decryption",
+        "access-control",
+        "inputproof",
+        "anti-patterns",
+        "handles",
+        "openzeppelin",
+        "advanced"
+      ]
+    },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "FHE.add",
+          "FHE.sub",
+          "FHE.mul",
+          "FHE.div",
+          "FHE.rem",
+          "FHE.neg",
+          "FHE.min",
+          "FHE.max",
+          "FHE.and",
+          "FHE.or",
+          "FHE.xor",
+          "FHE.not",
+          "FHE.shr",
+          "FHE.shl",
+          "FHE.rotr",
+          "FHE.rotl",
+          "FHE.eq",
+          "FHE.ne",
+          "FHE.ge",
+          "FHE.gt",
+          "FHE.le",
+          "FHE.lt",
+          "FHE.select",
+          "FHE.randEuint256",
+          "FHE.randEuint64",
+          "FHE.randEuint32",
+          "FHE.randEuint16",
+          "FHE.randEuint8",
+          "FHE.randEbool",
+          "FHE.asEbool",
+          "FHE.asEuint8",
+          "FHE.asEuint16",
+          "FHE.asEuint32",
+          "FHE.asEuint64",
+          "FHE.asEuint128",
+          "FHE.asEuint256",
+          "FHE.asEaddress",
+          "FHE.allow",
+          "FHE.allowThis",
+          "FHE.allowTransient",
+          "FHE.makePubliclyDecryptable",
+          "FHE.isSenderAllowed"
+        ]
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "DeFi",
+              "InfoFi",
+              "DeSci",
+              "Infra",
+              "Gaming",
+              "Social",
+              "Governance",
+              "NFT",
+              "Identity",
+              "Storage",
+              "Science"
+            ]
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "has_ui": {
+      "type": "boolean"
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "constructor_args": {
+      "type": "array",
+      "items": {}
+    }
+  },
+  "required": [
+    "name",
+    "label",
+    "description",
+    "category",
+    "chapter",
+    "has_ui",
+    "authors"
+  ],
+  "additionalProperties": false
+}

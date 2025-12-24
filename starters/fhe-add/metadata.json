@@ -2,17 +2,17 @@
     "name": "fhe-add",
     "label": "FHE Addition Starter",
     "description": "This starter demonstrates basic addition operations using Fully Homomorphic Encryption (FHE).",
+    "details": "",
     "version": "1.0.0",
     "fhevm_version": "0.9.1",
     "category": "fundamental",
+    "chapter": "basic",
     "tags": [],
     "concepts": [],
     "has_ui": true,
     "authors": [
         {
-            "name": "M.E.W",
-            "email": "erzawansyah@gmail.com",
-            "url": "https://github.com/erzawansyah"
+            "name": "M.E.W"
         }
     ],
     "constructor_args": []
