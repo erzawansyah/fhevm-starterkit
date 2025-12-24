@@ -2,6 +2,15 @@
 // @script `npm run template:init`
 // Script untuk menginisialisasi template FHEVM Hardhat dan Frontend ke dalam folder ./base
 
+/**
+ * What actually does this script do?
+ * - Mengkloning template Hardhat dan Frontend dari repositori yang ditentukan ke dalam folder ./base
+ * - Secara default, checkout ke commit pinned untuk memastikan konsistensi (berdasarkan hash commit di starterkit.config)
+ * - Menyediakan dua parameter yang bisa digunakan:
+ * - --latest: Melewati checkout ke commit pinned dan menggunakan versi terbaru dari branch utama
+ * - --force: Mengosongkan folder ./base jika sudah ada isinya sebelum mengkloning template
+ */
+
 import fs from "fs";
 import path from "path";
 import readline from "readline/promises";
@@ -26,8 +35,13 @@ type TemplateInitOptions = {
   force: boolean;
 } & GlobalOptions;
 
-// Hapus semua isi dalam direktori tanpa menghapus direktori itu sendiri
+/**
+ * Fungsi untuk menghapus semua isi dalam sebuah direktori tanpa menghapus direktori itu sendiri.
+ * @param dir Direktori yang akan dihapus isinya
+ * @returns void
+ */
 function removeDirContents(dir: string) {
+  // Jika direktori tidak ada, tidak perlu melakukan apa-apa
   if (!fs.existsSync(dir)) return;
 
   for (const entry of fs.readdirSync(dir)) {
@@ -36,18 +50,27 @@ function removeDirContents(dir: string) {
   }
 }
 
-// Pastikan direktori target ada dan kosong, atau kosongkan jika force=true
+/**
+ * Fungsi untuk memastikan sebuah direktori kosong atau membuatnya baru.
+ * @param dir Direktori yang akan dipastikan kosong atau dibuat baru
+ * @param force Jika true, akan mengosongkan direktori jika tidak kosong
+ * @returns void
+ */
 function ensureEmptyDir(dir: string, force: boolean) {
+  // Cek apakah direktori target ada dan kosong
   logger.info(`Cek apakah direktori target ${dir} siap digunakan...`);
 
+  // Jika direktori tidak ada, buat baru
   if (!fs.existsSync(dir)) {
     logger.info(`Membuat direktori target ${dir}...`);
     fs.mkdirSync(dir, { recursive: true });
     return;
   }
 
+  // Jika direktori sudah ada dan kosong, lanjutkan
   if (isEmptyDir(dir)) return;
 
+  // Jika flag --force tidak diaktifkan, hentikan proses dengan error
   if (!force) {
     logger.error(`Direktori target ${dir} tidak kosong!`);
     logger.error(
@@ -59,14 +82,20 @@ function ensureEmptyDir(dir: string, force: boolean) {
   logger.warning(
     `Direktori target ${dir} tidak kosong. --force aktif, mengosongkan isi direktori...`
   );
+  // Hapus semua isi dalam direktori
   removeDirContents(dir);
 }
 
-// Tanyakan konfirmasi pengguna untuk mode --latest
+/**
+ * Fungsi untuk mengonfirmasi dari user apakah ingin melanjutkan dengan mode latest
+ * @returns boolean Apakah user mengonfirmasi untuk melanjutkan dengan mode latest
+ */
 async function confirmLatestMode(): Promise<boolean> {
+  // Buat interface readline untuk input/output
   const rl = readline.createInterface({ input, output });
+  // Tanyakan konfirmasi ke user
   const answer = await rl.question(
-    "Anda memilih --latest. Menggunakan template versi latest bisa menyebabkan perbedaan hasil dan konflik saat update. Lanjutkan tanpa checkout ke commit pinned? (y/N): "
+    "Anda memilih --latest. Menggunakan template versi latest bisa menyebabkan \nperbedaan hasil dan konflik saat update. Lanjutkan tanpa checkout ke commit pinned? (y/N): "
   );
   rl.close();
 
