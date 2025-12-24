@@ -3,10 +3,7 @@ import { Command } from "commander";
 import { runTemplateInit } from "./commands/templateInit";
 import { runTemplateReset } from "./commands/templateReset";
 import { runTemplateUpdate } from "./commands/templateUpdate";
-import { runSetupHardhat } from "./commands/setupHardhat";
-import { runSetupFrontend } from "./commands/setupFrontend";
-import { runStarterInit } from "./commands/starterInit";
-import { runStarterReset } from "./commands/starterReset";
+import { Mode, runStarterList } from "./commands/starterList";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -82,78 +79,86 @@ async function main() {
   // template:update
   program
     .command("template:update")
-    .description(
-      "Update templates in ./base (pinned by default, or latest with --latest)"
-    )
-    .option(
-      "--latest",
-      "Update to latest branch HEAD instead of pinned commit",
-      false
-    )
-    .action(async (opts: { latest?: boolean }) => {
+    .description("Update templates in ./base to the latest branch HEAD")
+    .action(async () => {
       const g = program.opts<GlobalOptions>();
       applyCwd(g.cwd);
-      await runTemplateUpdate({ latest: !!opts.latest, ...g });
-    });
-
-  // setup:hardhat
-  program
-    .command("setup:hardhat")
-    .description("Configure Hardhat vars (MNEMONIC, INFURA_API_KEY)")
-    .option("--force", "Overwrite existing Hardhat vars", false)
-    .action(async (opts: { force?: boolean }) => {
-      const g = program.opts<GlobalOptions>();
-      applyCwd(g.cwd);
-      await runSetupHardhat({ force: !!opts.force, ...g });
+      await runTemplateUpdate({ ...g });
     });
 
   program
-    .command("setup:frontend")
-    .description("Configure frontend env (.env.local) for base UI template")
-    .option("--force", "Overwrite existing .env.local in base template", false)
-    .action(async (o: { force?: boolean }) => {
+    .command("starter:list")
+    .description("List available starter projects")
+    .option("--mode <mode>", "Output mode: json, compact, detailed", "detailed")
+    .option("--count <number>", "Limit number of starters listed", undefined)
+    .action(async (opts: { mode?: string; count?: number }) => {
       const g = program.opts<GlobalOptions>();
       applyCwd(g.cwd);
-      await runSetupFrontend({ force: !!o.force, ...g });
+      await runStarterList({
+        mode: (opts.mode as Mode | "compact" | "json") || "detailed",
+        count: opts.count,
+        ...g,
+      });
     });
+
+  // // setup:hardhat
+  // program
+  //   .command("setup:hardhat")
+  //   .description("Configure Hardhat vars (MNEMONIC, INFURA_API_KEY)")
+  //   .option("--force", "Overwrite existing Hardhat vars", false)
+  //   .action(async (opts: { force?: boolean }) => {
+  //     const g = program.opts<GlobalOptions>();
+  //     applyCwd(g.cwd);
+  //     await runSetupHardhat({ force: !!opts.force, ...g });
+  //   });
+
+  // program
+  //   .command("setup:frontend")
+  //   .description("Configure frontend env (.env.local) for base UI template")
+  //   .option("--force", "Overwrite existing .env.local in base template", false)
+  //   .action(async (o: { force?: boolean }) => {
+  //     const g = program.opts<GlobalOptions>();
+  //     applyCwd(g.cwd);
+  //     await runSetupFrontend({ force: !!o.force, ...g });
+  //   });
 
   // starter:init
-  program
-    .command("starter:init <starterName>")
-    .description("Initialize a starter project into ./projects/<dir>")
-    .option("--dir <name>", "Target directory name (default: starterName)")
-    .option("--skip-ui", "Skip ensuring/building frontend dist", false)
-    .option(
-      "--dry-run",
-      "Do not write files, only print planned operations",
-      false
-    )
-    .action(
-      async (
-        starterName: string,
-        opts: { dir?: string; skipUi?: boolean; dryRun?: boolean }
-      ) => {
-        const g = program.opts<GlobalOptions>();
-        applyCwd(g.cwd);
-        await runStarterInit(starterName, {
-          dir: opts.dir,
-          skipUi: !!opts.skipUi,
-          dryRun: !!opts.dryRun,
-          ...g,
-        });
-      }
-    );
+  // program
+  //   .command("starter:init <starterName>")
+  //   .description("Initialize a starter project into ./projects/<dir>")
+  //   .option("--dir <name>", "Target directory name (default: starterName)")
+  //   .option("--skip-ui", "Skip ensuring/building frontend dist", false)
+  //   .option(
+  //     "--dry-run",
+  //     "Do not write files, only print planned operations",
+  //     false
+  //   )
+  //   .action(
+  //     async (
+  //       starterName: string,
+  //       opts: { dir?: string; skipUi?: boolean; dryRun?: boolean }
+  //     ) => {
+  //       const g = program.opts<GlobalOptions>();
+  //       applyCwd(g.cwd);
+  //       await runStarterInit(starterName, {
+  //         dir: opts.dir,
+  //         skipUi: !!opts.skipUi,
+  //         dryRun: !!opts.dryRun,
+  //         ...g,
+  //       });
+  //     }
+  //   );
 
   // starter:reset
-  program
-    .command("starter:reset")
-    .description("Hapus semua proyek di ./projects (DANGEROUS)")
-    .option("--yes", "Konfirmasi penghapusan proyek", false)
-    .action(async (opts: { yes?: boolean }) => {
-      const g = program.opts<GlobalOptions>();
-      applyCwd(g.cwd);
-      await runStarterReset({ yes: !!opts.yes, ...g });
-    });
+  // program
+  //   .command("starter:reset")
+  //   .description("Hapus semua proyek di ./projects (DANGEROUS)")
+  //   .option("--yes", "Konfirmasi penghapusan proyek", false)
+  //   .action(async (opts: { yes?: boolean }) => {
+  //     const g = program.opts<GlobalOptions>();
+  //     applyCwd(g.cwd);
+  //     await runStarterReset({ yes: !!opts.yes, ...g });
+  //   });
 
   await program.parseAsync(process.argv);
 }
