@@ -26,6 +26,7 @@ type TemplateInitOptions = {
   force: boolean;
 } & GlobalOptions;
 
+// Hapus semua isi dalam direktori tanpa menghapus direktori itu sendiri
 function removeDirContents(dir: string) {
   if (!fs.existsSync(dir)) return;
 
@@ -35,6 +36,7 @@ function removeDirContents(dir: string) {
   }
 }
 
+// Pastikan direktori target ada dan kosong, atau kosongkan jika force=true
 function ensureEmptyDir(dir: string, force: boolean) {
   logger.info(`Cek apakah direktori target ${dir} siap digunakan...`);
 
@@ -60,6 +62,7 @@ function ensureEmptyDir(dir: string, force: boolean) {
   removeDirContents(dir);
 }
 
+// Tanyakan konfirmasi pengguna untuk mode --latest
 async function confirmLatestMode(): Promise<boolean> {
   const rl = readline.createInterface({ input, output });
   const answer = await rl.question(
@@ -71,6 +74,7 @@ async function confirmLatestMode(): Promise<boolean> {
   return normalized === "y" || normalized === "yes";
 }
 
+// Kloning repositori template dengan opsi checkout commit pinned atau tidak
 async function cloneRepo(params: {
   repo: string;
   targetDir: string;
@@ -81,11 +85,14 @@ async function cloneRepo(params: {
 }) {
   const { repo, targetDir, pinnedCommit, skipCheckout, force, label } = params;
 
+  // Pastikan direktori target siap
   ensureEmptyDir(targetDir, force);
 
   logger.info(`Mengkloning template ${label}...`);
+  // Kloning repositori
   await run(`git clone ${quotePath(repo)} ${quotePath(targetDir)}`);
 
+  // Checkout ke commit pinned jika diperlukan
   if (pinnedCommit && !skipCheckout) {
     logger.info(`Checkout template ${label} ke commit ${pinnedCommit}...`);
     await run(`cd ${quotePath(targetDir)} && git checkout ${pinnedCommit}`);
@@ -98,6 +105,7 @@ async function cloneRepo(params: {
   logger.success(`Template ${label} berhasil dikloning.`);
 }
 
+// Fungsi utama untuk menjalankan inisialisasi template
 export const runTemplateInit = async (options: TemplateInitOptions) => {
   const latest = !!options.latest;
   const force = !!options.force;

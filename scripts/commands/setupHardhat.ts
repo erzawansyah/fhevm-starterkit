@@ -4,6 +4,28 @@ import { run } from "../helper/utils";
 import { GlobalOptions } from "../cli";
 
 // Skrip CLI untuk mengatur variabel Hardhat (MNEMONIC, INFURA_API_KEY) dengan nilai default atau paksa overwrite.
+// Cek apakah vars MNEMONIC Hardhat sudah diatur
+function isHardhatMnemonicSet(): boolean {
+  try {
+    const result = execSync("npx hardhat vars get MNEMONIC").toString().trim();
+    return result.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+// Cek apakah vars INFURA_API_KEY sudah diatur
+function isHardhatInfuraKeySet(): boolean {
+  try {
+    const result = execSync("npx hardhat vars get INFURA_API_KEY")
+      .toString()
+      .trim();
+    return result.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export async function runSetupHardhat(
   input: { force: boolean } & GlobalOptions
 ) {
@@ -11,30 +33,6 @@ export async function runSetupHardhat(
     logger.info(`[debug] setup:hardhat ${JSON.stringify(input)}`);
 
   const isForce = !!input.force;
-
-  // Cek apakah vars MNEMONIC Hardhat sudah diatur
-  function isHardhatMnemonicSet(): boolean {
-    try {
-      const result = execSync("npx hardhat vars get MNEMONIC")
-        .toString()
-        .trim();
-      return result.length > 0;
-    } catch {
-      return false;
-    }
-  }
-
-  // Cek apakah vars INFURA_API_KEY sudah diatur
-  function isHardhatInfuraKeySet(): boolean {
-    try {
-      const result = execSync("npx hardhat vars get INFURA_API_KEY")
-        .toString()
-        .trim();
-      return result.length > 0;
-    } catch {
-      return false;
-    }
-  }
 
   logger.info("Setting up Hardhat configuration variables...");
 
