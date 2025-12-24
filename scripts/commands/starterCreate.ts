@@ -1,162 +1,279 @@
 /**
  * @path scripts/commands/starterCreate.ts
- * @script npm run starter:create <starterName> [dir] OR npm run starter:create -- --category ... --chapter ...
- * @description Membuat proyek starter baru berdasarkan template yang tersedia
+ * @script
+ *   - npm run starter:create <starterName...> [dir]
+ *   - npm run starter:create -- --category ... --chapter ... --tags ... --concepts ... [--dir ...]
+ * @description Membuat proyek baru dengan menyalin folder template dari `/starters`.
  *
- * What actually does this script do?
- * - Menyediakan dua jalur pembuatan proyek starter:
- *   1) Jalur single create: Menggunakan argumen posisi <starterName> dan [dir] untuk menentukan template starter dan direktori tujuan
- *   2) Jalur conditional create: Menggunakan opsi --category dan/atau --chapter untuk memilih template starter berdasarkan kategori atau bab
- * - Memvalidasi input pengguna untuk memastikan bahwa hanya satu jalur yang digunakan pada satu waktu
- * - Menampilkan pesan kesalahan yang sesuai jika input tidak valid atau argumen kurang
- * - Menginisialisasi proses pembuatan proyek starter berdasarkan jalur yang dipilih
+ * What this script does:
+ * - Mendukung 3 mode pemilihan starter:
+ *   1) Positional: pilih 1 atau banyak starter via argumen posisi `<starterName...>`
+ *   2) Filter: pilih starter via taksonomi metadata (category, chapter, tags, concepts)
+ *   3) Interaktif: jika tidak ada input yang cukup, user dipandu memilih starter
+ * - Memvalidasi agar mode positional dan filter tidak dipakai bersamaan
+ * - Menyalin folder starter ke direktori tujuan (membuat folder baru)
  *
- * What actually doesn't this script do?
- * - Tidak memodifikasi file atau folder apa pun secara langsung
- * - Tidak mengunduh atau mengkloning template starter apa pun secara langsung
+ * What this script does NOT do:
+ * - Tidak mengunduh atau meng-clone template dari internet
+ * - Tidak mengubah isi starter di folder `/starters`
  */
 
-import { logger } from "../../lib/helper/logger";
-import { GlobalOptions } from "../cli";
 import fs from "fs";
 import path from "path";
-import * as readline from "readline";
+
+import { listStarters } from "../../lib/helper/getStarters";
+import { logger } from "../../lib/helper/logger";
+import {
+  askCheckboxChoices,
+  askConfirm,
+  askInput,
+  askListChoice,
+} from "../../lib/helper/prompter";
+import { GlobalOptions } from "../cli";
+import { StarterMetadataType } from "../../lib/types/starterMetadata.schema";
+import config from "../../starterkit.config";
+
+const METADATA_FILE = "metadata.json";
+const STARTERS_DIR = config.startersDir;
+const WORKSPACE_DIR = config.workingDir;
 
 type StarterCreateOptions = GlobalOptions & {
-  starterName?: string[];
-  dir?: string;
+  starterName?: string[]; // positional list
+  dir?: string; // destination directory
+
+  // filter
   category?: string;
   chapter?: string;
-  tags?: string;
-  concepts?: string;
+  tags?: string; // comma-separated
+  concepts?: string; // comma-separated
 };
 
-/**
- * Fungsi pembantu untuk menanyakan input dari pengguna sekali saja
- * @param promptText  Teks prompt yang ditampilkan kepada pengguna
- * @returns  Jawaban pengguna sebagai string
- */
-async function askOnce(promptText: string): Promise<string> {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-    rl.question(promptText, (answer) => {
-      rl.close();
-      resolve(answer);
-    });
-  });
-}
-
-/**
- * Menanyakan input teks dari pengguna dengan nilai default opsional
- * @param message  Teks pesan yang ditampilkan kepada pengguna
- * @param defaultVal  Nilai default yang digunakan jika pengguna tidak memasukkan apa pun
- * @returns  Jawaban pengguna sebagai string
- */
-async function askInput(message: string, defaultVal?: string): Promise<string> {
-  const suffix = defaultVal ? ` (enter untuk gunakan: ${defaultVal})` : "";
-  const ans = await askOnce(`${message}${suffix}\n> `);
-  const trimmed = ans.trim();
-  return trimmed || (defaultVal ?? "");
-}
-
-/**
- * Menanyakan pilihan dari daftar opsi yang diberikan
- * @param message Teks pesan yang ditampilkan kepada pengguna
- * @param choices Daftar pilihan yang tersedia
- * @returns Nilai pilihan yang dipilih oleh pengguna
- */
-async function askListChoice<T extends string | number>(
-  message: string,
-  choices: { name: string; value: T }[]
-): Promise<T> {
-  console.log(message);
-  choices.forEach((c, i) => console.log(`${i + 1}) ${c.name}`));
-  while (true) {
-    const ans = (await askOnce("Pilih nomor:\n> ")).trim();
-    const idx = parseInt(ans, 10);
-    if (!Number.isNaN(idx) && idx >= 1 && idx <= choices.length) {
-      return choices[idx - 1].value;
+type CreatePlan =
+  | {
+      mode: "positional";
+      starterNames: string[];
+      baseDir?: string;
     }
-    console.log("Pilihan tidak valid, coba lagi.");
-  }
+  | {
+      mode: "filter";
+      starterNames: string[]; // resolved to 1 chosen starter for now
+      baseDir?: string;
+      filters: Record<string, string>;
+    }
+  | {
+      mode: "interactive";
+      starterNames: string[];
+      baseDir?: string;
+    };
+
+/**
+ * Resolve the absolute path to the `starters` directory inside the project.
+ *
+ * This helper centralizes how the script locates the bundled starter templates.
+ * @returns Absolute path to the `starters` folder.
+ */
+function resolveStartersDir(): string {
+  return path.resolve(__dirname, "..", "..", "starters");
 }
 
 /**
- * Menanyakan beberapa pilihan dari daftar opsi yang diberikan
- * @param message Teks pesan yang ditampilkan kepada pengguna
- * @param choices Daftar pilihan yang tersedia
- * @returns Daftar nilai pilihan yang dipilih oleh pengguna
+ * Normalize a comma-separated string into a cleaned array of values.
+ *
+ * Trims whitespace and filters out empty segments. Returns an empty array
+ * for undefined or empty input.
+ * @param input Comma-separated values (e.g. "a, b, c").
+ * @returns Array of trimmed, non-empty values.
  */
-async function askCheckboxChoices(
-  message: string,
-  choices: { name: string; value: string }[]
-): Promise<string[]> {
-  console.log(message);
-  choices.forEach((c, i) => console.log(`${i + 1}) ${c.name}`));
-  const ans = (
-    await askOnce(
-      "Masukkan nomor yang dipilih, pisahkan dengan koma (contoh: 1,3):\n> "
-    )
-  ).trim();
-  if (!ans) return [];
-  const parts = ans
+function normalizeCsv(input?: string): string[] {
+  if (!input) return [];
+  return input
     .split(",")
-    .map((p) => parseInt(p.trim(), 10))
-    .filter((n) => !Number.isNaN(n) && n >= 1 && n <= choices.length);
-  const unique = Array.from(new Set(parts));
-  return unique.map((i) => choices[i - 1].value);
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 /**
- * Menanyakan konfirmasi ya/tidak kepada pengguna
- * @param message Teks pesan yang ditampilkan kepada pengguna
- * @param defaultYes Apakah default adalah 'ya'
- * @returns True jika pengguna mengonfirmasi, false jika tidak
+ * Determine whether any filter option is present in the provided options.
+ *
+ * Checks `category`, `chapter`, `tags`, and `concepts` fields.
  */
-async function askConfirm(
-  message: string,
-  defaultYes = true
-): Promise<boolean> {
-  const hint = defaultYes ? "Y/n" : "y/N";
-  const ans = (await askOnce(`${message} (${hint})\n> `)).trim().toLowerCase();
-  if (!ans) return defaultYes;
-  return ["y", "yes"].includes(ans);
+function hasAnyFilter(opts: StarterCreateOptions): boolean {
+  return !!(opts.category || opts.chapter || opts.tags || opts.concepts);
 }
 
 /**
- * Mendapatkan daftar nama starter yang tersedia dari direktori starters
- * @param startersDir Path ke direktori starters
- * @returns Daftar nama starter yang tersedia
+ * Read and parse a JSON file safely.
+ *
+ * Returns a success object with the parsed data or an error object with the
+ * error message. This avoids throwing and simplifies callers that want to
+ * handle absent/invalid JSON gracefully.
+ * @param filePath Path to the JSON file.
  */
-function listStarters(startersDir: string): string[] {
+function readJsonSafe<T = unknown>(
+  filePath: string
+): { ok: true; data: T } | { ok: false; error: string } {
   try {
-    const entries = fs.readdirSync(startersDir, { withFileTypes: true });
-    return entries
-      .filter((e) => e.isDirectory())
-      .map((d) => d.name)
-      .sort();
+    const raw = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(raw) as T;
+    return { ok: true, data };
   } catch (e) {
-    return [];
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
 }
 
 /**
- * Jalur interaktif untuk membuat starter
- * @param startersDir Path ke direktori starters
- * @param options Opsi pembuatan starter
- * @returns  Promise yang menyelesaikan proses pembuatan starter
+ * Load the lightweight metadata for a starter directory.
+ *
+ * Reads `metadata.json` inside the starter folder and returns a normalized
+ * `StarterMetadataType` object (ensuring `tags` and `concepts` are arrays).
+ * Returns `null` if the metadata file doesn't exist or can't be parsed.
  */
-async function interactiveStarterCreate(
-  startersDir: string,
-  options: StarterCreateOptions
-) {
-  // Tampilkan pilihan untuk memilih jalur pembuatan starter
-  const starters = listStarters(startersDir);
+function getStarterMetadataType(
+  starterDir: string
+): StarterMetadataType | null {
+  const metaPath = path.join(starterDir, METADATA_FILE);
+  if (!fs.existsSync(metaPath)) return null;
 
-  // Tanyakan jalur pembuatan starter
+  const res = readJsonSafe<StarterMetadataType>(metaPath);
+  if (!res.ok) return null;
+
+  // normalize arrays just in case
+  const meta = res.data ?? {};
+  return {
+    ...meta,
+    tags: Array.isArray(meta.tags) ? meta.tags : [],
+    concepts: Array.isArray(meta.concepts) ? meta.concepts : [],
+  };
+}
+
+/**
+ * Check whether a starter with the given name exists under `startersDir`.
+ * @returns `true` if the path exists and is a directory.
+ */
+function starterExists(startersDir: string, name: string): boolean {
+  const p = path.join(startersDir, name);
+  return fs.existsSync(p) && fs.statSync(p).isDirectory();
+}
+
+/**
+ * From a list of candidate names, pick the first one that actually exists
+ * in the `startersDir`. Returns `null` if none of the names match.
+ */
+function pickFirstExistingStarter(
+  startersDir: string,
+  names: string[]
+): string | null {
+  const starters = listStarters(startersDir);
+  for (const n of names) {
+    if (starters.includes(n)) return n;
+  }
+  return null;
+}
+
+/**
+ * Determine whether a starter's metadata matches the provided filter set.
+ *
+ * Matching semantics:
+ * - Filters are grouped by key; a starter must match all provided keys (AND
+ *   across groups).
+ * - Within a group, multiple values act as OR (e.g. tags="defi,game" matches
+ *   if any tag matches).
+ * @param meta Starter metadata to test.
+ * @param filters Map of filterName -> csv string.
+ */
+function matchFilter(
+  meta: StarterMetadataType,
+  filters: Record<string, string>
+): boolean {
+  const category = (meta.category ?? "").toLowerCase();
+  const chapter = (meta.chapter ?? "").toLowerCase();
+  const tags = (meta.tags ?? []).map((t) => String(t).toLowerCase());
+  const concepts = (meta.concepts ?? []).map((c) => String(c).toLowerCase());
+
+  // OR across filter groups, AND inside each group values
+  // Contoh:
+  // - category="fundamental" -> harus match category
+  // - tags="defi,game" -> match salah satu tag
+  // Jika user memilih beberapa jenis filter, starter dianggap match jika memenuhi semua jenis filter yang dipilih.
+  for (const [k, raw] of Object.entries(filters)) {
+    const values = normalizeCsv(raw).map((v) => v.toLowerCase());
+    if (values.length === 0) continue;
+
+    if (k === "category") {
+      if (!values.includes(category)) return false;
+      continue;
+    }
+
+    if (k === "chapter") {
+      if (!values.includes(chapter)) return false;
+      continue;
+    }
+
+    if (k === "tags") {
+      const ok = values.some((v) => tags.includes(v));
+      if (!ok) return false;
+      continue;
+    }
+
+    if (k === "concepts") {
+      const ok = values.some((v) => concepts.includes(v));
+      if (!ok) return false;
+      continue;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Find starter names under `startersDir` whose metadata matches the given
+ * filters. Returns a sorted array of matching starter folder names.
+ */
+function findMatchesByMetadata(
+  startersDir: string,
+  filters: Record<string, string>
+): string[] {
+  const starters = listStarters(startersDir);
+  const matches: string[] = [];
+
+  for (const s of starters) {
+    const sDir = path.join(startersDir, s);
+    const meta = getStarterMetadataType(sDir);
+    if (!meta) continue;
+
+    if (matchFilter(meta, filters)) matches.push(s);
+  }
+
+  return matches.sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Resolve the user-provided `--dir` option to an absolute path, or
+ * return `undefined` when not provided.
+ */
+function resolveDestinationBaseDir(
+  opts: StarterCreateOptions
+): string | undefined {
+  if (!opts.dir) return undefined;
+  return path.resolve(process.cwd(), opts.dir);
+}
+
+/**
+ * Run interactive prompts to build a `CreatePlan` when the user did not
+ * provide sufficient non-interactive inputs. The function will ask whether
+ * the user wants to pick a starter directly or filter by metadata, and then
+ * collect the required values.
+ * @returns Resolved `CreatePlan`.
+ */
+async function interactiveResolvePlan(
+  startersDir: string,
+  opts: StarterCreateOptions
+): Promise<CreatePlan> {
+  const starters = listStarters(startersDir);
+  if (starters.length === 0) {
+    throw new Error("Tidak ada starter tersedia di folder 'starters'.");
+  }
+
   const mode = await askListChoice("Pilih jalur pembuatan starter:", [
     { name: "Pilih starter langsung", value: "starter" },
     {
@@ -165,159 +282,252 @@ async function interactiveStarterCreate(
     },
   ]);
 
-  // Tergantung mode, lanjutkan sesuai pilihan
-  // Jika mode 'starter', maka tanyakan nama starter dan direktori tujuan (jika belum diberikan)
   if (mode === "starter") {
-    // Pastikan apakah
-    if (starters.length === 0) {
-      logger.error("Tidak ada starter tersedia di folder 'starters'.");
-      return;
-    }
     const chosen = await askListChoice(
       "Pilih starter:",
       starters.map((s) => ({ name: s, value: s }))
     );
 
-    options.starterName = [chosen];
-    if (!options.dir) {
-      const dirName = await askInput(
-        "Nama direktori tujuan (enter untuk gunakan nama starter):",
-        chosen
-      );
-      options.dir = dirName || chosen;
-    }
-  } else {
-    // filter flow: ask for which filters to apply and show matching starters (simple OR across metadata files if present)
-    const filters = await askCheckboxChoices(
-      "Pilih taksonomi untuk memfilter starter (akan minta nilai untuk tiap yang dipilih):",
-      [
-        { name: "category", value: "category" },
-        { name: "chapter", value: "chapter" },
-        { name: "tags", value: "tags" },
-        { name: "concepts", value: "concepts" },
-      ]
+    const dirName = await askInput(
+      "Nama direktori tujuan (enter untuk gunakan nama starter):",
+      chosen
     );
 
-    const filterValues: Record<string, string> = {};
-    for (const f of filters) {
-      // ask value for each selected filter (comma-separated values allowed)
-      // eslint-disable-next-line no-await-in-loop
-      const val = await askInput(
-        `Masukkan nilai untuk ${f} (OR across values, pisahkan koma untuk beberapa):`
-      );
-      filterValues[f] = val;
-    }
-
-    // Simple matching: look for starter folders that contain a starter metadata file (starter.json or package.json) and match text
-    const startersList = listStarters(startersDir);
-    const matches: string[] = [];
-
-    // Periksa setiap starter terhadap filter yang diberikan
-    for (const s of startersList) {
-      // Baca metadata file(s) jika ada
-      const metadataFile = "metadata.json";
-      let metaContent = "";
-      try {
-        const metaPath = path.join(startersDir, s, metadataFile);
-        metaContent = fs.readFileSync(metaPath, "utf8");
-      } catch (e) {
-        // Jika tidak ada file metadata, lewati starter ini
-        continue;
-      }
-
-      // Jika metadata ada, lowercase dan periksa kecocokan dengan filter
-      const lowered = metaContent.toLowerCase();
-      logger.info(`Memeriksa starter '${s}' dengan metadata: ${metaContent}`);
-
-      // Cek kecocokan dengan filter (OR across all filter values)
-      // @TODO: Bisa diperluas ke AND logic jika diperlukan
-      let matched = false;
-      for (const [, v] of Object.entries(filterValues)) {
-        if (!v) continue;
-        const parts = v
-          .split(",")
-          .map((p) => p.trim().toLowerCase())
-          .filter(Boolean);
-        for (const p of parts) {
-          if (lowered.includes(p)) {
-            matched = true;
-            break;
-          }
-        }
-        if (matched) break;
-      }
-      if (matched) matches.push(s);
-    }
-
-    if (matches.length === 0) {
-      logger.warning(
-        "Tidak ditemukan starter yang cocok dengan filter yang diberikan."
-      );
-      process.exit(0);
-    }
-
-    const chosen = await askListChoice(
-      "Pilih salah satu starter yang ditemukan:",
-      matches.map((m) => ({ name: m, value: m }))
-    );
-    options.starterName = [chosen];
-    const dirName = await askInput("Nama direktori tujuan:", chosen);
-    options.dir = dirName;
+    return {
+      mode: "interactive",
+      starterNames: [chosen],
+      baseDir: dirName ? path.resolve(process.cwd(), dirName) : undefined,
+    };
   }
+
+  const selectedFilters = await askCheckboxChoices(
+    "Pilih taksonomi untuk memfilter starter (akan minta nilai untuk tiap yang dipilih):",
+    [
+      { name: "category", value: "category" },
+      { name: "chapter", value: "chapter" },
+      { name: "tags", value: "tags" },
+      { name: "concepts", value: "concepts" },
+    ]
+  );
+
+  const filters: Record<string, string> = {};
+  for (const f of selectedFilters) {
+    // eslint-disable-next-line no-await-in-loop
+    const val = await askInput(
+      `Masukkan nilai untuk ${f} (pisahkan koma untuk beberapa):`
+    );
+    filters[f] = val;
+  }
+
+  const matches = findMatchesByMetadata(startersDir, filters);
+
+  if (matches.length === 0) {
+    throw new Error(
+      "Tidak ditemukan starter yang cocok dengan filter yang diberikan."
+    );
+  }
+
+  const chosen = await askListChoice(
+    "Pilih salah satu starter yang ditemukan:",
+    matches.map((m) => ({ name: m, value: m }))
+  );
+
+  const dirName = await askInput(
+    "Nama direktori tujuan (enter untuk gunakan nama starter):",
+    chosen
+  );
+
+  return {
+    mode: "interactive",
+    starterNames: [chosen],
+    baseDir: dirName ? path.resolve(process.cwd(), dirName) : undefined,
+  };
 }
 
-export async function runStarterCreate(options: StarterCreateOptions) {
-  // helper: list available starter names from `starters/` directory
-  const startersDir = path.resolve(__dirname, "..", "..", "starters");
-  logger.info(`Mencari starter di folder: ${startersDir}`);
+/**
+ * Resolve a creation plan from CLI options without interacting. Supports
+ * positional names, metadata filters, or returns an interactive-mode plan
+ * when input is insufficient.
+ *
+ * Throws when conflicting options are provided or when filters match zero
+ * or multiple starters in non-interactive mode.
+ */
+function resolveCreatePlan(
+  startersDir: string,
+  opts: StarterCreateOptions
+): CreatePlan {
+  const names = opts.starterName ?? [];
+  const usingFilters = hasAnyFilter(opts);
 
-  // Apakah script memberikan satu atau lebih nama starter dan/atau filter?
-  const providedStarterNames = options.starterName ?? [];
-
-  // Apakah script memberikan filter taksonomi?
-  const providedFilters = !!(
-    options.category ||
-    options.chapter ||
-    options.tags ||
-    options.concepts
-  );
-  logger.info(
-    `Parameter starterName diberikan: ${
-      providedStarterNames.length > 0
-    }, filter diberikan: ${providedFilters}`
-  );
-
-  // Determine whether `dir` is required
-  let dirRequired = false;
-  if (providedStarterNames.length > 1) dirRequired = true;
-  if (providedFilters) dirRequired = true;
-
-  // If a single starterName provided, dir is optional; if not provided, fill from starterName
-  if (providedStarterNames.length === 1 && !options.dir) {
-    options.dir = providedStarterNames[0];
-  }
-
-  // Interactive flow when no meaningful parameters provided (using readline-based helpers)
-  if (providedStarterNames.length === 0 && !providedFilters) {
-    await interactiveStarterCreate(startersDir, options);
-  }
-
-  // Validate dir requirement now
-  if (dirRequired && !options.dir) {
-    logger.error(
-      "Parameter 'dir' wajib ketika memilih banyak starter atau menggunakan filter."
+  if (names.length > 0 && usingFilters) {
+    throw new Error(
+      "Tidak boleh menggunakan positional starterName bersamaan dengan filter (--category/--chapter/--tags/--concepts)."
     );
+  }
+
+  if (names.length > 0) {
+    return {
+      mode: "positional",
+      starterNames: names,
+      baseDir: resolveDestinationBaseDir(opts),
+    };
+  }
+
+  if (usingFilters) {
+    const filters: Record<string, string> = {};
+    if (opts.category) filters.category = opts.category;
+    if (opts.chapter) filters.chapter = opts.chapter;
+    if (opts.tags) filters.tags = opts.tags;
+    if (opts.concepts) filters.concepts = opts.concepts;
+
+    const matches = findMatchesByMetadata(startersDir, filters);
+    if (matches.length === 0) {
+      throw new Error(
+        "Tidak ditemukan starter yang cocok dengan filter yang diberikan."
+      );
+    }
+
+    // Non-interactive filter: jika match lebih dari 1, paksa user memilih via interactive
+    // Biar deterministik dan tidak bikin kejutan.
+    if (matches.length > 1) {
+      throw new Error(
+        `Filter menghasilkan lebih dari 1 kandidat: ${matches.join(
+          ", "
+        )}. Perjelas filter atau jalankan tanpa argumen agar mode interaktif membantu memilih.`
+      );
+    }
+
+    const chosen = matches[0];
+
+    // Jika dir tidak diberikan, default: pakai nama starter
+    const baseDir =
+      resolveDestinationBaseDir(opts) ?? path.resolve(process.cwd(), chosen);
+
+    return {
+      mode: "filter",
+      starterNames: [chosen],
+      baseDir,
+      filters,
+    };
+  }
+
+  // no meaningful input
+  return {
+    mode: "interactive",
+    starterNames: [],
+    baseDir: undefined,
+  };
+}
+
+/**
+ * Build a small summary object for user confirmation based on the `CreatePlan`.
+ */
+function buildSummary(plan: CreatePlan): Record<string, unknown> {
+  const summary: Record<string, unknown> = {
+    mode: plan.mode,
+    starterNames: plan.starterNames,
+  };
+  if (plan.baseDir) summary.baseDir = plan.baseDir;
+  if (plan.mode === "filter") summary.filters = plan.filters;
+  return summary;
+}
+
+/**
+ * Synchronously copy files and directories recursively from `src` to `dest`.
+ *
+ * This is a small utility replacement for recursive copy. It creates any
+ * missing destination directories and copies files verbatim.
+ */
+function copyRecursiveSync(src: string, dest: string) {
+  const stat = fs.statSync(src);
+
+  if (stat.isDirectory()) {
+    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+    for (const child of fs.readdirSync(src)) {
+      copyRecursiveSync(path.join(src, child), path.join(dest, child));
+    }
     return;
   }
 
-  // Final confirmation
-  const summary: Record<string, any> = {};
-  if (options.starterName) summary.starterName = options.starterName;
-  if (options.dir) summary.dir = options.dir;
-  if (options.category) summary.category = options.category;
-  if (options.chapter) summary.chapter = options.chapter;
-  if (options.tags) summary.tags = options.tags;
-  if (options.concepts) summary.concepts = options.concepts;
+  fs.copyFileSync(src, dest);
+}
+
+/**
+ * Resolve the final destination path for a given starter according to the
+ * provided `CreatePlan`.
+ *
+ * Rules:
+ * - Single starter: `baseDir` (if provided) is the final destination;
+ *   otherwise `./<starterName>` in current working directory.
+ * - Multiple starters: `baseDir` (if provided) acts as parent folder and the
+ *   final path becomes `<baseDir>/<starterName>`; otherwise `./<starterName>`.
+ */
+function resolveDestForStarter(plan: CreatePlan, starterName: string): string {
+  // Rules:
+  // - jika hanya 1 starter:
+  //   - baseDir jika diberikan adalah destinasi final
+  //   - kalau baseDir tidak ada, default: ./<starterName>
+  // - jika multi starter:
+  //   - baseDir jika diberikan jadi folder induk: <baseDir>/<starterName>
+  //   - kalau baseDir tidak ada, default: ./<starterName>
+  const isSingle = plan.starterNames.length === 1;
+
+  if (isSingle) {
+    return plan.baseDir ?? path.resolve(process.cwd(), starterName);
+  }
+
+  const base = plan.baseDir ?? process.cwd();
+  return path.join(base, starterName);
+}
+
+/**
+ * CLI entry point: orchestrate resolving a plan (positional, filter or
+ * interactive), confirm with the user, and create the chosen starter(s).
+ *
+ * This function performs validation, resolves typos to existing starter
+ * names when possible, prompts for confirmation, and delegates the actual
+ * copying to `createStarterFromPlan`.
+ */
+export async function runStarterCreate(options: StarterCreateOptions) {
+  const startersDir = resolveStartersDir();
+  logger.info(`Mencari starter di folder: ${startersDir}`);
+
+  if (!fs.existsSync(startersDir)) {
+    logger.error(`Folder starters tidak ditemukan: ${startersDir}`);
+    return;
+  }
+
+  let plan: CreatePlan;
+  try {
+    plan = resolveCreatePlan(startersDir, options);
+
+    if (plan.mode === "interactive" && plan.starterNames.length === 0) {
+      plan = await interactiveResolvePlan(startersDir, options);
+    }
+  } catch (e) {
+    logger.error(e instanceof Error ? e.message : String(e));
+    return;
+  }
+
+  // Validasi starter name benar-benar ada, plus fallback simple (kalau ada typo)
+  const finalNames: string[] = [];
+  for (const n of plan.starterNames) {
+    if (starterExists(startersDir, n)) {
+      finalNames.push(n);
+      continue;
+    }
+
+    const found = pickFirstExistingStarter(startersDir, [n]);
+    if (!found) {
+      logger.error(`Starter tidak ditemukan: ${n}`);
+      return;
+    }
+
+    finalNames.push(found);
+  }
+  plan = { ...plan, starterNames: finalNames };
+
+  const summary = buildSummary(plan);
 
   const confirm = await askConfirm(
     `Konfirmasi pilihan: ${JSON.stringify(summary)}. Lanjut?`,
@@ -329,11 +539,51 @@ export async function runStarterCreate(options: StarterCreateOptions) {
     return;
   }
 
-  // At this point, we would proceed to create the starter. For now, just log the final choices.
-  logger.info("Menjalankan pembuatan starter dengan opsi:");
-  for (const key of Object.keys(options)) {
-    if (options[key as keyof StarterCreateOptions]) {
-      logger.keyValue(key, options[key as keyof StarterCreateOptions]);
+  try {
+    await createStarterFromPlan(plan, startersDir, false);
+    logger.info("Selesai membuat starter.");
+  } catch (err) {
+    logger.error(
+      `Gagal membuat starter: ${
+        err instanceof Error ? err.message : String(err)
+      }`
+    );
+  }
+}
+
+/**
+ * Execute copying of starter templates according to the resolved `plan`.
+ *
+ * When `dryRun` is true the function only logs intended operations without
+ * making filesystem changes. Throws on errors such as missing starter or
+ * existing destination directory.
+ */
+async function createStarterFromPlan(
+  plan: CreatePlan,
+  startersDir: string,
+  dryRun = true
+) {
+  const names = plan.starterNames;
+  if (names.length === 0) throw new Error("Tidak ada starterName diberikan.");
+
+  for (const n of names) {
+    const starterPath = path.join(startersDir, n);
+    if (!starterExists(startersDir, n)) {
+      throw new Error(`Starter tidak ditemukan: ${n}`);
     }
+
+    const dest = resolveDestForStarter(plan, n);
+
+    logger.info(
+      `Menyalin template '${n}' -> '${dest}'${dryRun ? " (dry run)" : ""}`
+    );
+
+    if (dryRun) continue;
+
+    if (fs.existsSync(dest)) {
+      throw new Error(`Direktori tujuan sudah ada: ${dest}`);
+    }
+
+    copyRecursiveSync(starterPath, dest);
   }
 }
