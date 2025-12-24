@@ -3,7 +3,8 @@ import { Command } from "commander";
 import { runTemplateInit } from "./commands/templateInit";
 import { runTemplateReset } from "./commands/templateReset";
 import { runTemplateUpdate } from "./commands/templateUpdate";
-import { Mode, runStarterList } from "./commands/starterList";
+import { type Mode, runStarterList } from "./commands/starterList";
+import { runStarterCreate } from "./commands/starterCreate";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -89,76 +90,50 @@ async function main() {
   program
     .command("starter:list")
     .description("List available starter projects")
+    .option("--category <category>", "Category (e.g. fundamental, patterns)")
+    .option("--chapter <chapter>", "Chapter (e.g. basic, intermediate)")
+    .option(
+      "--tags <tags>",
+      "Comma-separated tags to filter by (e.g. defi, nft)"
+    )
+    .option(
+      "--concepts <concepts>",
+      "Filter by concepts (e.g. fhe-operations, fhe-encryption)"
+    )
     .option("--mode <mode>", "Output mode: json, compact, detailed", "detailed")
     .option("--count <number>", "Limit number of starters listed", undefined)
-    .action(async (opts: { mode?: string; count?: number }) => {
-      const g = program.opts<GlobalOptions>();
-      applyCwd(g.cwd);
-      await runStarterList({
-        mode: (opts.mode as Mode | "compact" | "json") || "detailed",
-        count: opts.count,
-        ...g,
-      });
+    .action(
+      async (opts: {
+        category?: string;
+        chapter?: string;
+        tags?: string;
+        concepts?: string;
+        mode?: string;
+        count?: number;
+      }) => {
+        const g = program.opts<GlobalOptions>();
+        applyCwd(g.cwd);
+        await runStarterList({
+          mode: (opts.mode as Mode | "compact" | "json") || "detailed",
+          count: opts.count,
+          ...g,
+        });
+      }
+    );
+
+  program
+    .command("starter:create [starterName...]")
+    .description("Create starter project(s) from the hub")
+    .option("-d, --dir <dir>", "Target directory")
+    .option("--category <category...>", "Filter by category (repeatable)")
+    .option("--chapter <chapter...>", "Filter by chapter (repeatable)")
+    .option("--tags <tags...>", "Filter by tags (repeatable)")
+    .option("--concepts <concepts...>", "Filter by concepts (repeatable)")
+    .option("--layout <layout>", "single | workspace", "single")
+    .option("--non-interactive", "Fail instead of prompting", false)
+    .action(async (starterName: string[], opts) => {
+      await runStarterCreate({ starterName, ...opts, ...program.opts() });
     });
-
-  // // setup:hardhat
-  // program
-  //   .command("setup:hardhat")
-  //   .description("Configure Hardhat vars (MNEMONIC, INFURA_API_KEY)")
-  //   .option("--force", "Overwrite existing Hardhat vars", false)
-  //   .action(async (opts: { force?: boolean }) => {
-  //     const g = program.opts<GlobalOptions>();
-  //     applyCwd(g.cwd);
-  //     await runSetupHardhat({ force: !!opts.force, ...g });
-  //   });
-
-  // program
-  //   .command("setup:frontend")
-  //   .description("Configure frontend env (.env.local) for base UI template")
-  //   .option("--force", "Overwrite existing .env.local in base template", false)
-  //   .action(async (o: { force?: boolean }) => {
-  //     const g = program.opts<GlobalOptions>();
-  //     applyCwd(g.cwd);
-  //     await runSetupFrontend({ force: !!o.force, ...g });
-  //   });
-
-  // starter:init
-  // program
-  //   .command("starter:init <starterName>")
-  //   .description("Initialize a starter project into ./projects/<dir>")
-  //   .option("--dir <name>", "Target directory name (default: starterName)")
-  //   .option("--skip-ui", "Skip ensuring/building frontend dist", false)
-  //   .option(
-  //     "--dry-run",
-  //     "Do not write files, only print planned operations",
-  //     false
-  //   )
-  //   .action(
-  //     async (
-  //       starterName: string,
-  //       opts: { dir?: string; skipUi?: boolean; dryRun?: boolean }
-  //     ) => {
-  //       const g = program.opts<GlobalOptions>();
-  //       applyCwd(g.cwd);
-  //       await runStarterInit(starterName, {
-  //         dir: opts.dir,
-  //         skipUi: !!opts.skipUi,
-  //         dryRun: !!opts.dryRun,
-  //         ...g,
-  //       });
-  //     }
-  //   );
-
-  // starter:reset
-  // program
-  //   .command("starter:reset")
-  //   .description("Hapus semua proyek di ./projects (DANGEROUS)")
-  //   .option("--yes", "Konfirmasi penghapusan proyek", false)
-  //   .action(async (opts: { yes?: boolean }) => {
-  //     const g = program.opts<GlobalOptions>();
-  //     applyCwd(g.cwd);
-  //     await runStarterReset({ yes: !!opts.yes, ...g });
-  //   });
 
   await program.parseAsync(process.argv);
 }

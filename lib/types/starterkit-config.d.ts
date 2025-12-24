@@ -24,6 +24,8 @@ export interface TaxonomyConfigType {
 }
 
 export interface StarterKitConfigType {
+  startersDir: string;
+  workingDir: string;
   path: PathConfigType;
   template: {
     hardhat: TemplateConfigType;

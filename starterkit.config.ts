@@ -4,6 +4,9 @@ import { StarterKitConfigType } from "./lib/types/starterkit-config";
 
 /** @type {import("./types").StarterKitConfigType | any} */
 const config: StarterKitConfigType = {
+  startersDir: "starters",
+  workingDir: "workspace",
+
   // Path configuration
   path: {
     frontendDir: "ui", // this mean the frontend directory is located at /ui within the starter kit

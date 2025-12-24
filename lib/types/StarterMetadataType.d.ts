@@ -1,8 +1,10 @@
 export type StarterMetadataType = {
-  name?: string;
+  name: string;
   label?: string;
   description?: string;
   version?: string;
-  category?: string;
+  category: string;
+  chapter: string;
   tags?: string[];
+  concepts?: string[];
 };
