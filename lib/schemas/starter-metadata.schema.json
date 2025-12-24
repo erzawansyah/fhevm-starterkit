@@ -1,0 +1,104 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "FHEVM Starter Metadata Schema",
+    "type": "object",
+    "required": [
+        "name",
+        "label",
+        "description",
+        "version",
+        "fhevm_version",
+        "category",
+        "tags",
+        "concepts",
+        "has_ui",
+        "authors"
+    ],
+    "properties": {
+        "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Internal identifier for the starter. Should be lowercase and dash-case."
+        },
+        "label": {
+            "type": "string",
+            "description": "Human-readable name displayed in UI or documentation."
+        },
+        "description": {
+            "type": "string",
+            "description": "Short explanation of what this starter does.",
+            "maxLength": 300
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "Starter version in semantic versioning format (e.g., 1.0.0)."
+        },
+        "fhevm_version": {
+            "type": "string",
+            "description": "Compatible FHEVM version used by this starter."
+        },
+        "category": {
+            "type": "string",
+            "enum": [
+                "fundamental",
+                "patterns",
+                "applied",
+                "advanced"
+            ],
+            "description": "Educational level or type of the starter. Must be one of the predefined categories."
+        },
+        "tags": {
+            "type": "array",
+            "description": "Flexible tags for classification, filtering, or grouping.",
+            "items": {
+                "type": "string"
+            }
+        },
+        "has_ui": {
+            "type": "boolean",
+            "description": "Indicates whether this starter includes a user interface."
+        },
+        "concepts": {
+            "type": "array",
+            "description": "Technical or educational concepts demonstrated by this starter.",
+            "items": {
+                "type": "string"
+            }
+        },
+        "authors": {
+            "type": "array",
+            "description": "List of authors or contributors.",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the contributor."
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Email address of the contributor."
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Link to the contributor's profile or website."
+                    }
+                }
+            }
+        },
+        "constructor_args": {
+            "type": "array",
+            "description": "List of constructor arguments for the smart contract.",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "additionalProperties": false
+}

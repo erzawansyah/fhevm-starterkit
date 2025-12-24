@@ -19,7 +19,8 @@
         ]
     },
     "include": [
-        "scripts/**/*"
+        "scripts/**/*",
+        "lib/helper"
     ],
     "exclude": [
         "node_modules",
