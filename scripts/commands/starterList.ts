@@ -15,8 +15,9 @@
  * -   -- json: Output JSON (cocok untuk CI)
  * -   -- count: Hanya menampilkan --count starter (tetap menghitung peringatan)
  *
- * Behavior:
- * - Read-only: tidak memodifikasi file/folder apa pun
+ * What actually doesn't this script do?
+ * - Tidak memodifikasi file atau folder apa pun (read-only)
+ * - Tidak mengunduh atau mengkloning template starter apa pun
  */
 import fs from "fs";
 import path from "path";
@@ -90,7 +91,6 @@ function parseCount(count: StarterListOptions["count"]): number | undefined {
 
   return fixed;
 }
-
 function loadStarters(startersDir: string) {
   const entries = fs.readdirSync(startersDir, { withFileTypes: true });
   const folders = entries.filter((e) => e.isDirectory()).map((e) => e.name);
@@ -102,14 +102,14 @@ function loadStarters(startersDir: string) {
     const starterPath = path.join(startersDir, slug);
     const metadataPath = path.join(starterPath, "metadata.json");
 
-    let meta: StarterMetadataType = {};
+    let meta: Partial<StarterMetadataType> = {};
     let hasMetadata = false;
     let metadataError: string | undefined;
 
     if (fs.existsSync(metadataPath)) {
       const res = safeReadJson(metadataPath);
       if (res.ok) {
-        meta = res.data ?? {};
+        meta = (res.data ?? {}) as Partial<StarterMetadataType>;
         hasMetadata = true;
       } else {
         warningCount++;
