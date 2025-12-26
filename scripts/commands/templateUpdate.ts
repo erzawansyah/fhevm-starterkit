@@ -21,8 +21,8 @@ import {
   getRemoteHeadCommitHash,
   checkoutRepoCommit,
 } from "../../lib/helper/utils";
-import { askConfirm } from "../../lib/helper/prompter";
 import { GlobalOptions } from "../cli";
+import { prompt } from "enquirer";
 
 // Inisialisasi konstanta untuk repositori template dan direktori target
 const HARDHAT_TEMPLATE_REPO = config.template.hardhat.repo;
@@ -135,10 +135,15 @@ async function updateTemplate(params: {
 
 // Confirm update
 async function confirmUpdate(): Promise<boolean> {
-  return askConfirm(
-    "Anda yakin ingin memperbarui template ke versi terbaru dari branch utama?",
-    false
-  );
+  const answer = await prompt({
+    type: "confirm",
+    name: "confirmation",
+    message:
+      "Apakah Anda yakin ingin memperbarui template ke versi terbaru dari repositori resmi? (perubahan lokal akan hilang)",
+    initial: false,
+  }) as { confirmation: boolean };
+
+  return answer.confirmation;
 }
 
 export async function runTemplateUpdate(input: TemplateUpdateOptions) {

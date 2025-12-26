@@ -16,8 +16,8 @@ import fs from "fs";
 import config from "../../starterkit.config";
 import { logger } from "../../lib/helper/logger";
 import { quotePath, run, isEmptyDir, emptyDir } from "../../lib/helper/utils";
-import { askConfirm } from "../../lib/helper/prompter";
 import { GlobalOptions } from "../cli";
+import { prompt } from "enquirer";
 
 // Skrip CLI untuk clone template Hardhat & frontend ke ./base dengan opsi pinned commit atau latest.
 const HARDHAT_TEMPLATE_REPO = config.template.hardhat.repo;
@@ -74,10 +74,14 @@ function ensureEmptyDir(dir: string, force: boolean) {
  * @returns boolean Apakah user mengonfirmasi untuk melanjutkan dengan mode latest
  */
 async function confirmLatestMode(): Promise<boolean> {
-  return askConfirm(
-    "Anda memilih --latest. Menggunakan template versi latest bisa menyebabkan\nperbedaan hasil dan konflik saat update. Lanjutkan tanpa checkout ke commit pinned?",
-    false
-  );
+  const answer = await prompt<{ confirmLatest: boolean }>({
+    type: "confirm",
+    name: "confirmLatest",
+    message:
+      "Anda memilih --latest. Menggunakan template versi latest bisa menyebabkan\nperbedaan hasil dan konflik saat update. Lanjutkan tanpa checkout ke commit pinned?",
+    initial: false,
+  });
+  return answer.confirmLatest;
 }
 
 // Kloning repositori template dengan opsi checkout commit pinned atau tidak

@@ -17,8 +17,8 @@ import fs from "fs";
 import config from "../../starterkit.config";
 import { logger } from "../../lib/helper/logger";
 import { emptyDir } from "../../lib/helper/utils";
-import { askConfirm } from "../../lib/helper/prompter";
 import { GlobalOptions } from "../cli";
+import { prompt } from "enquirer";
 
 // Inisialisasi konstanta direktori template dari konfigurasi
 const HARDHAT_TARGET_DIR = config.template.hardhat.dir;
@@ -64,10 +64,13 @@ export async function runTemplateReset(input: TemplateResetOptions) {
   }
 
   if (!input.yes) {
-    const ok = await askConfirm(
-      `Anda yakin ingin menghapus semua template di dari folder base berikut?\n- ${HARDHAT_TARGET_DIR}\n- ${FRONTEND_TARGET_DIR}\nIni TIDAK DAPAT DIBATALKAN!`,
-      false
-    );
+    const ok = await prompt<{ confirmReset: boolean }>({
+      type: "confirm",
+      name: "confirmReset",
+      message:
+        "Apakah Anda yakin ingin mengosongkan semua template di folder ./base? Tindakan ini tidak dapat dibatalkan.",
+      initial: false,
+    }).then((answer) => answer.confirmReset);
     if (!ok) {
       logger.warning("Operasi dibatalkan oleh user.");
       return;
