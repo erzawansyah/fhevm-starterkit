@@ -5,7 +5,7 @@ import { runTemplateReset } from "./commands/templateReset";
 import { runTemplateUpdate } from "./commands/templateUpdate";
 import { type Mode, runStarterList } from "./commands/starterList";
 import { runStarterCreate } from "./commands/starterCreate";
-import { runSetupFrontend } from "./commands/setupFrontend";
+import { runTemplateBuildUI } from "./commands/templateBuildUi";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -68,12 +68,12 @@ async function main() {
     });
 
   program
-    .command("setup:frontend")
+    .command("template:build-ui")
     .description("Setup the frontend template")
     .action(async () => {
       const g = program.opts<GlobalOptions>();
       applyCwd(g.cwd);
-      await runSetupFrontend({ ...g });
+      await runTemplateBuildUI({ ...g });
     });
 
   // template:reset

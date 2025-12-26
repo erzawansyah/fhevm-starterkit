@@ -18,11 +18,11 @@ import { quotePath, run } from "../../lib/helper/utils";
 import config from "../../starterkit.config";
 import { GlobalOptions } from "../cli";
 
-const FRONTEND_TARGET_DIR = config.template.frontend.dir;
-const FRONTEND_ENV_SOURCE = path.join(process.cwd(), ".env.local");
+const FRONTEND_TARGET_DIR = path.join(__dirname, "..", "..", config.template.frontend.dir);
+const FRONTEND_ENV_SOURCE = path.join(__dirname, "..", "..", ".env.local");
 const FRONTEND_ENV_TARGET = path.join(FRONTEND_TARGET_DIR, ".env.local");
 
-export async function runSetupFrontend(opts: GlobalOptions) {
+export async function runTemplateBuildUI(opts: GlobalOptions) {
   // Cek apakah template frontend sudah di-clone
   if (!fs.existsSync(FRONTEND_TARGET_DIR)) {
     logger.error(
@@ -48,12 +48,9 @@ export async function runSetupFrontend(opts: GlobalOptions) {
   logger.info(`Menyalin .env.local ke ${quotePath(FRONTEND_ENV_TARGET)}...`);
 
   // Jalankan npm install di dalam folder template frontend
-  logger.info("Menjalankan npm install di dalam template frontend...");
-  logger.loading("Menginstal dependensi...");
-
   logger.info(`Menjalankan npm install di dalam template frontend...`);
   logger.loading("Menginstal dependensi... (Bisa memakan waktu beberapa menit)");
-  await run(`npm install`, {
+  await run(`npm ci`, {
     cwd: FRONTEND_TARGET_DIR,
     silent: !opts.verbose,
   });
@@ -66,12 +63,7 @@ export async function runSetupFrontend(opts: GlobalOptions) {
     cwd: FRONTEND_TARGET_DIR,
     silent: !opts.verbose,
   });
-  // Remove node_modules installed to reduce size
-  const nodeModulesPath = path.join(FRONTEND_TARGET_DIR, "node_modules");
-  if (fs.existsSync(nodeModulesPath)) {
-    logger.info("Menghapus folder node_modules untuk mengurangi ukuran...");
-    logger.loading("Membersihkan node_modules...");
-    fs.rmSync(nodeModulesPath, { recursive: true, force: true });
-  }
+
+  // Selesai
   logger.success("Aplikasi frontend berhasil dibangun dan siap digunakan.");
 }
