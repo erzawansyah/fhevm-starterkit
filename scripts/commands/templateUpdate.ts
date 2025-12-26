@@ -11,12 +11,17 @@
 
 import fs from "fs";
 import { execSync } from "child_process";
-import readline from "readline/promises";
 import { stdin as input, stdout as output } from "process";
 
 import config from "../../starterkit.config";
 import { logger } from "../../lib/helper/logger";
-import { quotePath, run } from "../../lib/helper/utils";
+import {
+  quotePath,
+  run,
+  getRemoteHeadCommitHash,
+  checkoutRepoCommit,
+} from "../../lib/helper/utils";
+import { askConfirm } from "../../lib/helper/prompter";
 import { GlobalOptions } from "../cli";
 
 // Inisialisasi konstanta untuk repositori template dan direktori target
@@ -57,38 +62,7 @@ function ensureTemplateInitialized() {
  * @param branch Branch yang ingin diambil commit HEAD-nya (default: "main")
  * @returns string Commit hash dari remote HEAD
  */
-function getRemoteHeadCommitHash(repo: string, branch = "main"): string {
-  // output: "<sha>\trefs/heads/main"
-  const out = execSync(`git ls-remote ${quotePath(repo)} refs/heads/${branch}`)
-    .toString()
-    .trim();
-  const sha = out.split(/\s+/)[0];
-  if (!sha || sha.length < 7) {
-    throw new Error(
-      `Gagal mengambil remote HEAD commit untuk ${repo} (branch: ${branch}).`
-    );
-  }
-  return sha;
-}
-
-/**
- * Fungsi untuk checkout ke commit tertentu di dalam repositori git lokal.
- * @param targetDir Direktori target repositori git lokal
- * @param commitHash Commit hash yang akan di-checkout
- * @returns Promise<void>
- */
-async function checkoutRepoCommit(
-  targetDir: string,
-  commitHash: string,
-  verbose = true
-) {
-  await run(
-    `cd ${quotePath(
-      targetDir
-    )} && git fetch --all --prune && git checkout ${commitHash}`,
-    verbose
-  );
-}
+// git helpers (getRemoteHeadCommitHash, checkoutRepoCommit) moved to lib/helper/utils
 
 /**
  * Fungsi untuk memperbarui template di direktori target ke commit tertentu.
@@ -161,13 +135,10 @@ async function updateTemplate(params: {
 
 // Confirm update
 async function confirmUpdate(): Promise<boolean> {
-  const rl = readline.createInterface({ input, output });
-  const answer = await rl.question(
-    "Anda yakin ingin memperbarui template ke versi terbaru dari branch utama? (y/N): "
+  return askConfirm(
+    "Anda yakin ingin memperbarui template ke versi terbaru dari branch utama?",
+    false
   );
-  rl.close();
-  const normalized = (answer || "").trim().toLowerCase();
-  return normalized === "y" || normalized === "yes";
 }
 
 export async function runTemplateUpdate(input: TemplateUpdateOptions) {

@@ -14,10 +14,10 @@
  */
 
 import fs from "fs";
-import path from "path";
-import readline from "readline/promises";
 import config from "../../starterkit.config";
 import { logger } from "../../lib/helper/logger";
+import { emptyDir } from "../../lib/helper/utils";
+import { askConfirm } from "../../lib/helper/prompter";
 import { GlobalOptions } from "../cli";
 
 // Inisialisasi konstanta direktori template dari konfigurasi
@@ -33,30 +33,7 @@ type TemplateResetOptions = {
  * @param dir Direktori yang akan dikosongkan
  * @returns null
  */
-function emptyDir(dir: string) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-    logger.info(`Directory did not exist, created: ${dir}`);
-    return;
-  }
-
-  const entries = fs.readdirSync(dir);
-  for (const entry of entries) {
-    const entryPath = path.join(dir, entry);
-    try {
-      const stat = fs.lstatSync(entryPath);
-      if (stat.isDirectory()) {
-        fs.rmSync(entryPath, { recursive: true, force: true });
-      } else {
-        fs.unlinkSync(entryPath);
-      }
-    } catch (err) {
-      logger.info(`Failed to remove ${entryPath}: ${String(err)}`);
-    }
-  }
-
-  logger.info(`Emptied directory contents: ${dir}`);
-}
+// use shared `emptyDir` from lib/helper/utils
 
 /**
  * Fungsi untuk mengecek apakah folder ./base/hardhat dan ./base/frontend exist dan tidak kosong
@@ -86,24 +63,16 @@ export async function runTemplateReset(input: TemplateResetOptions) {
     return;
   }
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
   if (!input.yes) {
-    const answer = await rl.question(
-      `Anda yakin ingin menghapus semua template di dari folder base berikut?
-- ${HARDHAT_TARGET_DIR}
-- ${FRONTEND_TARGET_DIR}
-Ini TIDAK DAPAT DIBATALKAN! (type 'yes' or 'y' to confirm): `
+    const ok = await askConfirm(
+      `Anda yakin ingin menghapus semua template di dari folder base berikut?\n- ${HARDHAT_TARGET_DIR}\n- ${FRONTEND_TARGET_DIR}\nIni TIDAK DAPAT DIBATALKAN!`,
+      false
     );
-    if (answer.toLowerCase() !== "yes" && answer.toLowerCase() !== "y") {
+    if (!ok) {
       logger.warning("Operasi dibatalkan oleh user.");
-      rl.close();
       return;
     }
   }
-  rl.close();
 
   logger.info("Mengosongkan folder ./base...");
   emptyDir(HARDHAT_TARGET_DIR);

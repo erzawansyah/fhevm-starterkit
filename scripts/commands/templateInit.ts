@@ -12,13 +12,11 @@
  */
 
 import fs from "fs";
-import path from "path";
-import readline from "readline/promises";
-import { stdin as input, stdout as output } from "process";
 
 import config from "../../starterkit.config";
 import { logger } from "../../lib/helper/logger";
-import { quotePath, run, isEmptyDir } from "../../lib/helper/utils";
+import { quotePath, run, isEmptyDir, emptyDir } from "../../lib/helper/utils";
+import { askConfirm } from "../../lib/helper/prompter";
 import { GlobalOptions } from "../cli";
 
 // Skrip CLI untuk clone template Hardhat & frontend ke ./base dengan opsi pinned commit atau latest.
@@ -40,16 +38,6 @@ type TemplateInitOptions = {
  * @param dir Direktori yang akan dihapus isinya
  * @returns void
  */
-function removeDirContents(dir: string) {
-  // Jika direktori tidak ada, tidak perlu melakukan apa-apa
-  if (!fs.existsSync(dir)) return;
-
-  for (const entry of fs.readdirSync(dir)) {
-    const fullPath = path.join(dir, entry);
-    fs.rmSync(fullPath, { recursive: true, force: true });
-  }
-}
-
 /**
  * Fungsi untuk memastikan sebuah direktori kosong atau membuatnya baru.
  * @param dir Direktori yang akan dipastikan kosong atau dibuat baru
@@ -57,20 +45,16 @@ function removeDirContents(dir: string) {
  * @returns void
  */
 function ensureEmptyDir(dir: string, force: boolean) {
-  // Cek apakah direktori target ada dan kosong
   logger.info(`Cek apakah direktori target ${dir} siap digunakan...`);
 
-  // Jika direktori tidak ada, buat baru
   if (!fs.existsSync(dir)) {
     logger.info(`Membuat direktori target ${dir}...`);
     fs.mkdirSync(dir, { recursive: true });
     return;
   }
 
-  // Jika direktori sudah ada dan kosong, lanjutkan
   if (isEmptyDir(dir)) return;
 
-  // Jika flag --force tidak diaktifkan, hentikan proses dengan error
   if (!force) {
     logger.error(`Direktori target ${dir} tidak kosong!`);
     logger.error(
@@ -82,8 +66,7 @@ function ensureEmptyDir(dir: string, force: boolean) {
   logger.warning(
     `Direktori target ${dir} tidak kosong. --force aktif, mengosongkan isi direktori...`
   );
-  // Hapus semua isi dalam direktori
-  removeDirContents(dir);
+  emptyDir(dir);
 }
 
 /**
@@ -91,16 +74,10 @@ function ensureEmptyDir(dir: string, force: boolean) {
  * @returns boolean Apakah user mengonfirmasi untuk melanjutkan dengan mode latest
  */
 async function confirmLatestMode(): Promise<boolean> {
-  // Buat interface readline untuk input/output
-  const rl = readline.createInterface({ input, output });
-  // Tanyakan konfirmasi ke user
-  const answer = await rl.question(
-    "Anda memilih --latest. Menggunakan template versi latest bisa menyebabkan \nperbedaan hasil dan konflik saat update. Lanjutkan tanpa checkout ke commit pinned? (y/N): "
+  return askConfirm(
+    "Anda memilih --latest. Menggunakan template versi latest bisa menyebabkan\nperbedaan hasil dan konflik saat update. Lanjutkan tanpa checkout ke commit pinned?",
+    false
   );
-  rl.close();
-
-  const normalized = (answer || "").trim().toLowerCase();
-  return normalized === "y" || normalized === "yes";
 }
 
 // Kloning repositori template dengan opsi checkout commit pinned atau tidak
