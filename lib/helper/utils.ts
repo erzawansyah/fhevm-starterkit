@@ -83,10 +83,6 @@ export function formatTags(tags?: string[], maxTags = 5): string {
   return `[${shown.join(", ")}${more}]`;
 }
 
-export function getStartersDir(): string {
-  return require("path").resolve(process.cwd(), "starters");
-}
-
 export function parseCount(count: any): number | undefined {
   if (count === undefined || count === null) return undefined;
   const n = typeof count === "number" ? count : Number(String(count).trim());

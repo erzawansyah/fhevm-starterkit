@@ -22,10 +22,16 @@ export const CreateFileSchema = z.object({
   content: z.string(),
 });
 
+/**
+ * Template Actions Configuration Schema
+ * Defines actions to be performed when copying templates
+ */
 export const TemplateActionsConfigSchema = z.object({
-  removeDirs: z.array(z.string()).optional(),
-  removeFiles: z.array(z.string()).optional(),
-  copyFiles: z.array(CopyFileSchema).optional(),
+  /** Directories to exclude during copy (e.g., .git, node_modules) to avoid locked files */
+  excludeDirs: z.array(z.string()).optional(),
+  /** Files to exclude during copy (e.g., example contracts, tests) */
+  excludeFiles: z.array(z.string()).optional(),
+  /** Files to create during copy (e.g., new configuration files) */
   createFiles: z.array(CreateFileSchema).optional(),
 });
 export type TemplateActionsConfigType = z.infer<
@@ -41,14 +47,15 @@ export const TaxonomyConfigSchema = z.object({
 export type TaxonomyConfigType = z.infer<typeof TaxonomyConfigSchema>;
 
 export const StarterKitConfigSchema = z.object({
-  startersDir: z.string(),
-  workingDir: z.string(),
-  metadataFile: z.string(),
-  starterFrontendDir: z.string().optional(),
+  startersDir: z.string(), // place where all starters are stored
+  workingDir: z.string(), // place where starters will be created
+  metadataFile: z.string(), // metadata file name inside each starter
+  starterFrontendDir: z.string().optional(), // frontend directory inside each starter (built from frontend template)
   template: z.object({
-    hardhat: TemplateConfigSchema,
-    frontend: TemplateConfigSchema,
-    actions: TemplateActionsConfigSchema,
+    hardhat: TemplateConfigSchema, // hardhat template config
+    frontend: TemplateConfigSchema, // frontend template config
+    actions: TemplateActionsConfigSchema, // actions to perform when copying templates
+    overrides: z.string() // overrides template directory
   }),
   taxonomy: TaxonomyConfigSchema,
   validation: z.object({

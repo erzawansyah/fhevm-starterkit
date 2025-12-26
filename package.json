@@ -6,14 +6,16 @@
     "author": "M.E.W",
     "license": "MIT",
     "scripts": {
+        "start": "npm run template:init && npm run template:build-ui",
         "template:init": "ts-node scripts/cli.ts template:init",
         "template:update": "ts-node scripts/cli.ts template:update",
-        "template:reset": "ts-node scripts/cli.ts template:reset",
         "template:clean": "ts-node scripts/cli.ts template:clean",
+        "template:reset": "ts-node scripts/cli.ts template:reset",
         "template:build-ui": "ts-node scripts/cli.ts template:build-ui",
         "starter:list": "ts-node scripts/cli.ts starter:list",
-        "start": "npm run template:init && npm run template:build-ui",
         "starter:create": "ts-node scripts/cli.ts starter:create",
+        "starter:clean": "ts-node scripts/cli.ts starter:clean",
+        "starter:reset": "ts-node scripts/cli.ts starter:reset",
         "docs:generate": "ts-node scripts/docs-generate.ts",
         "web": "npm --prefix apps/web run dev",
         "check": "ts-node scripts/check.ts",
@@ -29,8 +31,7 @@
         "rimraf": "^6.1.2",
         "ts-node": "^10.9.2",
         "tsx": "^4.21.0",
-        "typescript": "^5.8.3",
-        "zod-to-json-schema": "^3.25.0"
+        "typescript": "^5.8.3"
     },
     "dependencies": {
         "commander": "^14.0.2",

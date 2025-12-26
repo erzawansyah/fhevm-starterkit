@@ -3,58 +3,8 @@ import path from "path";
 import config from "../../starterkit.config";
 import { logger } from "./logger";
 import { StarterMetadataType } from "../types/starterMetadata.schema";
-
-const STARTERS_DIR = config.startersDir;
-const WORKSPACE_DIR = config.workingDir;
-const METADATA_FILE = config.metadataFile;
-
-/**
- * Resolve the absolute path to the `starters` directory inside the project.
- *
- * This helper centralizes how the script locates the bundled starter templates.
- * @returns Absolute path to the `starters` folder.
- */
-export function resolveStartersDir(): string {
-    return path.resolve(__dirname, "..", "..", STARTERS_DIR);
-}
-
-/**
- * Resolve the absolute path to the working directory where starters will be
- * created.
- * @returns Absolute path to the working directory.
- */
-export function resolveWorkspaceDir(): string {
-    return path.resolve(__dirname, "..", "..", WORKSPACE_DIR);
-}
-
-/**
- * Resolve the absolute path to a metadata file inside the starters directory.
- * 
- * @param starterName Name of the starter project
- * @returns Absolute path to the metadata file 
- */
-export function resolveStarterDir(starterName: string): string {
-    return path.join(resolveStartersDir(), starterName);
-}
-
-/**
- * Resolve the absolute path to a metadata file inside the starters directory.
- * 
- * @param starterName Name of the starter project
- * @returns Absolute path to the metadata file 
- */
-export function resolveStarterMetadataFile(starterName: string): string {
-    return path.join(resolveStartersDir(), starterName, METADATA_FILE);
-}
-
-/**
- * Resolve the absolute path to a destination directory for creating starter(s).
- * @param dir Optional relative path provided by user
- * @returns Absolute path to the destination directory
- */
-export function resolveDestinationDir(dir: string): string {
-    return path.join(resolveWorkspaceDir(), dir);
-}
+import { resolveFrontendTemplateDir, resolveHardhatTemplateDir, resolveOverridesTemplateDir, resolveStarterDir, resolveStarterMetadataFile, resolveStartersDir, resolveUiStarterDir, resolveWorkspaceDir, resolveWorkspaceStarterDir } from "./path-utils";
+import { quotePath } from "./utils";
 
 /**
  * Get all available starter project names from the starters directory.
@@ -161,4 +111,95 @@ export async function getFilteredStarter(
         return filter.every((f) => lowerValues.includes(f));
     });
     return filteredStarters.map((meta) => meta.name);
+}
+
+
+/**
+ * Copy template to starter
+ * 
+ * @param targetDir string directory of the target starter project (not absolute path)
+ * @param skipUi boolean Whether to skip copying the frontend template or not (default: false)
+ */
+export function copyTemplateToStarter(targetDir: string, skipUi: boolean = false): void {
+    const hardhatTemplate = resolveHardhatTemplateDir(); // /base/hardhat-template
+    const frontendTemplate = resolveFrontendTemplateDir() // /base/frontend-template
+    const overridesTemplate = resolveOverridesTemplateDir(); // /base/overrides
+    const workspaceStarter = resolveWorkspaceStarterDir(targetDir)
+    const workspaceUiStarterDir = resolveUiStarterDir(targetDir)
+    const actions = config.template.actions;
+
+
+    // Create workspace/<starter-name> directory if not exists
+    if (!fs.existsSync(workspaceStarter)) {
+        fs.mkdirSync(workspaceStarter, { recursive: true });
+    }
+
+    // Filter function to exclude unwanted directories and files from config
+    const excludeDirs = actions.excludeDirs || [];
+    const excludeFiles = actions.excludeFiles || [];
+
+    // Create filter function for specific source directory
+    const createFilterFunc =
+        (sourceDir: string) =>
+            (src: string, dest: string): boolean => {
+                const absSourceDir = path.resolve(sourceDir);
+                const absSrc = path.resolve(src);
+
+                // Normalize relative path (posix style) from source directory
+                const relRaw = path.relative(absSourceDir, absSrc);
+
+                // If src is the root itself, always include
+                if (!relRaw) return true;
+
+                const rel = relRaw.split(path.sep).join("/"); // Windows-safe to POSIX
+                const parts = rel.split("/");
+
+                // Exclude directory names anywhere in the path
+                // Example: node_modules/... should be excluded even if it's nested
+                if (parts.some((p) => excludeDirs.includes(p))) {
+                    return false;
+                }
+
+                // Exclude exact relative file path
+                // Example: contracts/FHECounter.sol
+                if (excludeFiles.includes(rel)) {
+                    return false;
+                }
+
+                return true;
+            };
+
+    // Copy hardhat template
+    // from /base/hardhat-template to /workspace/<starter-name>
+    logger.info(`Menyalin template Hardhat ke ${quotePath(workspaceStarter)}...`);
+    fs.cpSync(hardhatTemplate, workspaceStarter, {
+        recursive: true,
+        filter: createFilterFunc(hardhatTemplate)
+    });
+
+    // Copy overrides (merge into starter directory)
+    // from /base/overrides to /workspace/<starter-name>
+    logger.info(`Menyalin overrides ke ${quotePath(workspaceStarter)}...`);
+    fs.cpSync(overridesTemplate, workspaceStarter, {
+        recursive: true,
+    });
+
+    // Copy frontend template if not skipped
+    if (!skipUi) {
+        // from /base/frontend-template to /workspace/<starter-name>/ui
+        logger.info(`Menyalin template Frontend ke ${quotePath(workspaceUiStarterDir)}...`);
+        const builtUiDir = path.join(frontendTemplate, 'dist');
+        fs.cpSync(builtUiDir, workspaceUiStarterDir, {
+            recursive: true,
+            filter: createFilterFunc(frontendTemplate)
+        });
+        // Build index.json for frontend (ui/contracts/index.json)
+        const indexJsonPath = path.join(workspaceUiStarterDir, 'contracts', 'index.json');
+        // Content is array of available starters (e.g. ["basic-defi", "intermediate-nft"])
+        const availableStarters = fs.readdirSync(path.join(__dirname, "..", "..", "starters"))
+            .filter(name => fs.lstatSync(path.join(__dirname, "..", "..", "starters", name)).isDirectory());
+        fs.writeFileSync(indexJsonPath, JSON.stringify(availableStarters, null, 2), 'utf-8');
+        logger.info(`Generated ${quotePath(indexJsonPath)} for frontend starter.`);
+
+    }
 }

@@ -27,41 +27,19 @@ const config: StarterKitConfigType = {
       commit: "daaff464231f32be03564e2f7cfe2d162490ebca",
     },
     actions: {
-      removeDirs: [".github", ".vscode"],
-      removeFiles: [
+      // Directories to exclude when copying templates (to avoid locked files and unnecessary data)
+      excludeDirs: [".git", "node_modules", ".vscode", ".github"],
+      excludeFiles: [
         "contracts/FHECounter.sol",
         "test/FHECounter.ts",
         "test/FHECounterSepolia.ts",
-        "tasks/FHECounterTask.ts",
-        "deploy/deploy.ts",
+        "tasks/FHECounter.ts",
       ],
-      copyFiles: [
-        {
-          from: "base/extensions/deploy.ts",
-          to: "base/hardhat-template/deploy/deploy.ts",
-        },
-        {
-          from: ".env.example",
-          to: "base/frontend-template/.env.example",
-        },
-      ],
-      createFiles: [
-        {
-          path: "contract-list.json",
-          content: JSON.stringify(
-            [
-              {
-                name: "",
-                file: "",
-                slug: "",
-              },
-            ],
-            null,
-            2
-          ),
-        },
-      ],
+      // Directories to remove after copying
+      // You can use `override` directory in base templates to provide your own files als
+      createFiles: [],
     },
+    overrides: "base/overrides",
   },
 
   // Taxonomy configuration
