@@ -1,5 +1,7 @@
 {
     "name": "fhe-counter",
+    "contract_name": "FHECounter",
+    "contract_filename": "FHECounter.sol",
     "label": "FHE Counter Starter",
     "description": "This starter demonstrates a simple counter application using Fully Homomorphic Encryption (FHE).",
     "version": "1.0.0",

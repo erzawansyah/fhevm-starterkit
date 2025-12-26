@@ -10,12 +10,23 @@ const TagsEnum = z.union([CommonTagsEnum, z.string()]);
 
 export const StarterMetadataSchema = z.object({
   // unique identifier, no spaces, lowercase, hyphens
+  // Example: fhe-counter
   name: z
     .string()
     .min(1)
     .regex(/^[a-z0-9\-]+$/, {
       message: "Name must be lowercase alphanumeric with hyphens",
     }),
+  // Name in contract files
+  // Example: FHECounter
+  contract_name: z.string().min(1).max(100, {
+    message: "Contract name max length is 100",
+  }),
+  // Filename of the main contract
+  // Example: FHECounter.sol
+  contract_filename: z.string().min(1).max(100, {
+    message: "Contract filename max length is 100",
+  }),
   // human-readable title
   label: z.string().min(1).max(100, { message: "Label max length is 100" }),
   description: z
@@ -41,6 +52,12 @@ export const StarterMetadataSchema = z.object({
 
   // Does the starter include a frontend project
   has_ui: z.boolean(),
+
+  // Additional solidity files to include in the starter
+  // Paths are relative to the contracts/ directory
+  // Example: ["libraries/Helper.sol"]
+  // Used for multi-file contracts
+  additional_files: z.array(string().min(1)).optional(),
 
   // Used for deployment scripts
   constructor_args: z.array(z.any()).optional(),

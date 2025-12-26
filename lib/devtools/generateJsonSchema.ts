@@ -5,12 +5,12 @@ import { pathToFileURL } from "url";
 import * as z from "zod";
 
 async function main() {
-  const schemasDir = path.join(__dirname, "..", "lib", "schemas");
+  const schemasDir = path.join(__dirname, "..", "..", "lib", "schemas");
   if (!fs.existsSync(schemasDir)) {
     fs.mkdirSync(schemasDir, { recursive: true });
   }
 
-  const typesDir = path.join(__dirname, "..", "lib", "types");
+  const typesDir = path.join(__dirname, "..", "..", "lib", "types");
   if (!fs.existsSync(typesDir)) {
     console.error(`Types directory not found: ${typesDir}`);
     process.exit(1);

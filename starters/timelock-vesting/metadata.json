@@ -1,5 +1,7 @@
 {
     "name": "timelock-vesting",
+    "contract_name": "TimelockVesting",
+    "contract_filename": "TimelockVesting.sol",
     "label": "Timelock Vesting",
     "description": "A simple timelock/vesting contract starter.",
     "details": "Demonstrates locking tokens/ETH for a beneficiary until a release timestamp.",

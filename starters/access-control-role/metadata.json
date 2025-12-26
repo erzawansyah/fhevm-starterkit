@@ -1,5 +1,7 @@
 {
     "name": "access-control-role",
+    "contract_name": "RoleAccess",
+    "contract_filename": "RoleAccess.sol",
     "label": "Access Control (Role)",
     "description": "A role-based access control starter using a simple role mapping.",
     "details": "Illustrates a lightweight role-based pattern (assign/revoke/check role) suitable for permissioned flows.",

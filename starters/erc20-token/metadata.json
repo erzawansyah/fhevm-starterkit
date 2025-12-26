@@ -1,5 +1,7 @@
 {
     "name": "erc20-token",
+    "contract_name": "SimpleERC20",
+    "contract_filename": "SimpleERC20.sol",
     "label": "ERC20 Token",
     "description": "A minimal ERC-20 token implementation starter.",
     "details": "Shows a simple ERC-20 contract with minting and transfer functionality for testing and learning.",

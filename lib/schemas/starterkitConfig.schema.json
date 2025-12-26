@@ -11,14 +11,8 @@
     "metadataFile": {
       "type": "string"
     },
-    "path": {
-      "type": "object",
-      "properties": {
-        "frontendDir": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
+    "starterFrontendDir": {
+      "type": "string"
     },
     "template": {
       "type": "object",
@@ -70,35 +64,22 @@
         "actions": {
           "type": "object",
           "properties": {
-            "removeDirs": {
+            "excludeDirs": {
               "type": "array",
               "items": {
                 "type": "string"
               }
             },
-            "removeFiles": {
+            "excludeFiles": {
               "type": "array",
               "items": {
                 "type": "string"
               }
             },
-            "copyFiles": {
+            "createDirs": {
               "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "from": {
-                    "type": "string"
-                  },
-                  "to": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "from",
-                  "to"
-                ],
-                "additionalProperties": false
+                "type": "string"
               }
             },
             "createFiles": {
@@ -122,12 +103,20 @@
             }
           },
           "additionalProperties": false
+        },
+        "overrides": {
+          "type": "string"
+        },
+        "markdown": {
+          "type": "string"
         }
       },
       "required": [
         "hardhat",
         "frontend",
-        "actions"
+        "actions",
+        "overrides",
+        "markdown"
       ],
       "additionalProperties": false
     },
@@ -213,7 +202,6 @@
     "startersDir",
     "workingDir",
     "metadataFile",
-    "path",
     "template",
     "taxonomy",
     "validation"

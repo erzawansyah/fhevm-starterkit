@@ -7,6 +7,16 @@
       "minLength": 1,
       "pattern": "^[a-z0-9\\-]+$"
     },
+    "contract_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "contract_filename": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
     "label": {
       "type": "string",
       "minLength": 1,
@@ -154,6 +164,13 @@
     "has_ui": {
       "type": "boolean"
     },
+    "additional_files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
     "constructor_args": {
       "type": "array",
       "items": {}
@@ -182,6 +199,8 @@
   },
   "required": [
     "name",
+    "contract_name",
+    "contract_filename",
     "label",
     "description",
     "category",

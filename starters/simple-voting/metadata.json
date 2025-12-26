@@ -1,5 +1,7 @@
 {
     "name": "simple-voting",
+    "contract_name": "SimpleVoting",
+    "contract_filename": "SimpleVoting.sol",
     "label": "Simple Voting",
     "description": "A basic voting contract where addresses can vote for candidates.",
     "details": "Illustrates a simple voting flow and vote counting; suitable for governance examples.",

@@ -13,15 +13,6 @@ export const TemplateConfigSchema = z.object({
 });
 export type TemplateConfigType = z.infer<typeof TemplateConfigSchema>;
 
-export const CopyFileSchema = z.object({
-  from: z.string(),
-  to: z.string(),
-});
-export const CreateFileSchema = z.object({
-  path: z.string(),
-  content: z.string(),
-});
-
 /**
  * Template Actions Configuration Schema
  * Defines actions to be performed when copying templates
@@ -31,8 +22,13 @@ export const TemplateActionsConfigSchema = z.object({
   excludeDirs: z.array(z.string()).optional(),
   /** Files to exclude during copy (e.g., example contracts, tests) */
   excludeFiles: z.array(z.string()).optional(),
+  /** Directories to create during copy (e.g., docs) */
+  createDirs: z.array(z.string()).optional(),
   /** Files to create during copy (e.g., new configuration files) */
-  createFiles: z.array(CreateFileSchema).optional(),
+  createFiles: z.array(z.object({
+    path: z.string(),
+    content: z.string(),
+  })).optional(),
 });
 export type TemplateActionsConfigType = z.infer<
   typeof TemplateActionsConfigSchema
@@ -55,7 +51,8 @@ export const StarterKitConfigSchema = z.object({
     hardhat: TemplateConfigSchema, // hardhat template config
     frontend: TemplateConfigSchema, // frontend template config
     actions: TemplateActionsConfigSchema, // actions to perform when copying templates
-    overrides: z.string() // overrides template directory
+    overrides: z.string(), // overrides template directory
+    markdown: z.string()
   }),
   taxonomy: TaxonomyConfigSchema,
   validation: z.object({

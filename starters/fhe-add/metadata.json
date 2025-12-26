@@ -1,5 +1,7 @@
 {
     "name": "fhe-add",
+    "contract_name": "FHEAdd",
+    "contract_filename": "FHEAdd.sol",
     "label": "FHE Addition Starter",
     "description": "This starter demonstrates basic addition operations using Fully Homomorphic Encryption (FHE).",
     "details": "",

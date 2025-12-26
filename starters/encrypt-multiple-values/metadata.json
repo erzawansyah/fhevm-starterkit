@@ -1,5 +1,7 @@
 {
     "name": "encrypt-multiple-values",
+    "contract_name": "EncryptMultipleValues",
+    "contract_filename": "EncryptMultipleValues.sol",
     "label": "Encrypt Multiple Values",
     "description": "Starter demonstrating storing arbitrary encrypted payloads on-chain (placeholder for FHE workflows).",
     "details": "Provides a simple storage interface for encrypted blobs and a baseline test. Adapt the ABI and storage to your FHE pipeline.",

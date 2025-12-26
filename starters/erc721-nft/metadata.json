@@ -1,5 +1,7 @@
 {
     "name": "erc721-nft",
+    "contract_name": "SimpleERC721",
+    "contract_filename": "SimpleERC721.sol",
     "label": "ERC721 NFT",
     "description": "A minimal ERC-721 NFT contract starter.",
     "details": "Simple ERC-721 implementation for minting unique tokens; good for NFT onboarding.",
