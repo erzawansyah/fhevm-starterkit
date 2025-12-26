@@ -367,13 +367,30 @@ class Logger {
   /**
    * Display a table-like structure
    */
-  table(data: Record<string, any>): void {
+  table(
+    data: Record<string, any>,
+    orientation: "horizontal" | "vertical" = "horizontal"
+  ): void {
     if (!this.shouldLog("info")) return;
     this.stopSpinner();
-    Object.entries(data).forEach(([key, value]) => {
-      this.keyValue(key, value);
-    });
+
+    if (orientation === "vertical") {
+      const rows = Object.entries(data).map(([key, value]) => ({
+        field: key,
+        value:
+          typeof value === "object"
+            ? JSON.stringify(value)
+            : String(value),
+      }));
+
+      console.table(rows);
+      return;
+    }
+
+    console.table(data);
   }
+
+
 
   /**
    * Add blank line

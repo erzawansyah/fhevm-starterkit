@@ -1,5 +1,4 @@
 import fs from "fs";
-import { StarterMetadataType } from "../types/StarterMetadataType";
 import { logger } from "./logger";
 
 /**
@@ -21,7 +20,7 @@ function listStarters(startersDir: string): string[] {
 
 function listStartersWithMetadata(
   startersDir: string
-): { name: string; metadata: StarterMetadataType }[] {
+): { name: string; metadata: Record<string, any> }[] {
   const starters = listStarters(startersDir);
   const inValidStarters: string[] = [];
   const validStarters = starters.map((name) => {
@@ -37,7 +36,7 @@ function listStartersWithMetadata(
         }
       } catch (e) {}
     }
-    return { name, metadata: metadata as StarterMetadataType };
+    return { name, metadata: metadata as Record<string, any> };
   });
 
   if (inValidStarters.length > 0) {
