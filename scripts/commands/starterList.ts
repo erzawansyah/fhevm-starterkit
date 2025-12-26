@@ -23,11 +23,11 @@ import fs from "fs";
 import { logger } from "../../lib/helper/logger";
 import { GlobalOptions } from "../cli";
 import {
-  getStartersDir,
   parseCount,
 } from "../../lib/helper/utils";
 import { StarterMetadataType } from "../../lib/types/starterMetadata.schema";
 import { getAllStarterMetadata } from "../../lib/helper/starters";
+import { resolveStartersDir } from "../../lib/helper/path-utils";
 
 // Definisikan tipe mode output
 export type Mode = "detailed" | "compact" | "json" | "table";
@@ -130,7 +130,7 @@ function outputTable(
 
 
 export async function runStarterList(opts: StarterListOptions) {
-  const startersDir = getStartersDir();
+  const startersDir = resolveStartersDir();
   const mode = opts.mode || "detailed";
   const count = parseCount(opts.count);
 

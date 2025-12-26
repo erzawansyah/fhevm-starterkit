@@ -21,11 +21,15 @@
 import { logger } from "../../lib/helper/logger";
 import { GlobalOptions } from "../cli";
 import { prompt } from "enquirer";
-import { checkStarterExists, resolveDestinationDir, getFilteredStarter, resolveStartersDir, getAllStarterMetadata } from "../../lib/helper/starters";
-
+import { checkStarterExists, copyTemplateToWorkspace, getFilteredStarter, getAllStarterMetadata, copyStarterToWorkspace, generateWorkspaceReadmeFromStarters } from "../../lib/helper/starters";
+import config from "../../starterkit.config";
+import path from "path";
+import fs from "fs";
+import { resolveWorkspaceStarterDir } from "../../lib/helper/path-utils";
+import { quotePath } from "../../lib/helper/utils";
 
 // Options for creating starter(s)
-type StarterCreateOptions = GlobalOptions & {
+export type StarterCreateOptions = GlobalOptions & {
   starterNames?: string[]; // positional list
   dir?: string; // destination directory
 
@@ -35,6 +39,8 @@ type StarterCreateOptions = GlobalOptions & {
   tags?: string[]; // comma-separated
   concepts?: string[]; // comma-separated
   and?: boolean; // operator for tags/concepts
+  skipUI?: boolean; // skip copying frontend files
+  force?: boolean; // overwrite existing files in target directory
 };
 
 /**
@@ -59,7 +65,8 @@ type StarterCreateAction = "single" | "multiple"
 type StarterCreatePlan = {
   mode: StarterCreateFetchMode;
   starterNames: string[];
-  destinationDir: string;
+  destinationDir: string; // workspace directory name
+  destinationPath: string; // work
   action: StarterCreateAction;
 };
 
@@ -67,15 +74,19 @@ type StarterCreatePlan = {
 /**
  * Resolve destination directory based on action type
  * @param starterNames
- * @returns Promise<{ destinationDir: string; actionType: StarterCreateAction }>
- * - destinationDir: resolved destination directory
+ * @returns Promise<{ destinationPath: string; actionType: StarterCreateAction }>
+ * - destinationDir: destinationdirectory name inside workspace
+ * - destinationPath: resolved destination absolute path
  * - actionType: "single" | "multiple"
  */
 async function resolveActionType(starterNames: string[], dir?: string, forcePrompt: boolean = false): Promise<{
+
   destinationDir: string;
+  destinationPath: string;
   actionType: StarterCreateAction;
 }> {
   let destinationDir = "";
+  let destinationPath = "";
   let actionType: StarterCreateAction = "single";
   //  Error kalau tidak ada starter name yang diberikan
   if (starterNames.length === 0) {
@@ -87,7 +98,8 @@ async function resolveActionType(starterNames: string[], dir?: string, forceProm
   if (starterNames.length === 1) {
     actionType = "single";
     if (dir) {
-      destinationDir = resolveDestinationDir(dir);
+      destinationDir = dir;
+      destinationPath = resolveWorkspaceStarterDir(dir);
     } else {
       if (forcePrompt) {
         const answer = await prompt<{ name: string }>({
@@ -96,9 +108,11 @@ async function resolveActionType(starterNames: string[], dir?: string, forceProm
           message: `Enter the destination directory for starter "${starterNames[0]}":`,
           initial: starterNames[0],
         })
-        destinationDir = resolveDestinationDir(answer.name);
+        destinationDir = answer.name;
+        destinationPath = resolveWorkspaceStarterDir(answer.name);
       } else {
-        destinationDir = resolveDestinationDir(starterNames[0]);
+        destinationDir = starterNames[0];
+        destinationPath = resolveWorkspaceStarterDir(starterNames[0]);
       }
     }
   } else {
@@ -106,19 +120,21 @@ async function resolveActionType(starterNames: string[], dir?: string, forceProm
 
     // Kalau banyak starter, --dir harus disediain
     if (dir) {
-      destinationDir = resolveDestinationDir(dir);
+      destinationDir = dir;
+      destinationPath = resolveWorkspaceStarterDir(dir);
     } else {
       const answer = await prompt<{ name: string }>({
         type: "input",
         name: "name",
         message: "You are creating multiple starters. Enter the workspace directory:",
-        initial: "my-starters",
+        initial: "my-first-starters",
       })
-      destinationDir = resolveDestinationDir(answer.name);
+      destinationDir = answer.name;
+      destinationPath = resolveWorkspaceStarterDir(answer.name);
     }
   };
 
-  return { destinationDir, actionType };
+  return { destinationDir, destinationPath, actionType };
 }
 
 /**
@@ -152,7 +168,7 @@ function resolveFetchMode(opts: StarterCreateOptions): StarterCreateFetchMode {
  * @param opts 
  * @returns  Promise<StarterCreatePlan>
  */
-const handlePositionalMode = async (opts: StarterCreateOptions): Promise<StarterCreatePlan> => {
+async function handlePositionalMode(opts: StarterCreateOptions): Promise<StarterCreatePlan> {
   const { starterNames } = opts
   const unAvailableStarters = (starterNames || []).filter((name) => {
     return !checkStarterExists(name);
@@ -167,11 +183,12 @@ const handlePositionalMode = async (opts: StarterCreateOptions): Promise<Starter
     logger.error("No starter names provided for positional mode.");
     process.exit(1);
   }
-  const { destinationDir, actionType } = await resolveActionType(starterNames, opts.dir);
+  const { destinationDir, destinationPath, actionType } = await resolveActionType(starterNames, opts.dir);
   return {
     mode: "positional",
     starterNames,
     destinationDir,
+    destinationPath,
     action: actionType,
   }
 };
@@ -241,12 +258,13 @@ async function handleFilterMode(opts: StarterCreateOptions): Promise<StarterCrea
   logger.info(`Total starters selected after applying filters: ${combinedStarters.length}`);
   logger.info(`Starters: ${combinedStarters.join(", ")}`);
 
-  const { actionType, destinationDir } = await resolveActionType(combinedStarters, opts.dir, true);
+  const { actionType, destinationDir, destinationPath } = await resolveActionType(combinedStarters, opts.dir, true);
 
   return {
     mode: "filter",
     starterNames: combinedStarters,
     destinationDir: destinationDir,
+    destinationPath: destinationPath,
     action: actionType,
   }
 }
@@ -258,7 +276,7 @@ async function handleFilterMode(opts: StarterCreateOptions): Promise<StarterCrea
  *
  * Constraints:
  * - Tidak bikin fungsi di dalam fungsi
- * - Memanfaatkan helper yang sudah ada: getAllStarterMetadata, getFilteredStarter, resolveActionType, resolveDestinationDir
+ * - Memanfaatkan helper yang sudah ada: getAllStarterMetadata, getFilteredStarter, resolveActionType, resolvedestinationPath
  *
  * Behavior:
  * 1) User pilih metode: pick by name atau filter by taxonomy
@@ -326,12 +344,13 @@ async function handleInteractiveMode(): Promise<StarterCreatePlan> {
       process.exit(1);
     }
 
-    const { destinationDir, actionType } = await resolveActionType(picked, undefined, true);
+    const { destinationDir, destinationPath, actionType } = await resolveActionType(picked, undefined, true);
 
     return {
       mode: "interactive",
       starterNames: picked,
       destinationDir,
+      destinationPath,
       action: actionType,
     };
   }
@@ -492,33 +511,99 @@ async function handleInteractiveMode(): Promise<StarterCreatePlan> {
 
 
   let dir: string | undefined = undefined;
-  const { destinationDir, actionType } = await resolveActionType(combined, dir, true);
+  const { destinationDir, destinationPath, actionType } = await resolveActionType(combined, dir, true);
 
   return {
     mode: "interactive",
     starterNames: combined,
     destinationDir,
+    destinationPath,
     action: actionType,
   };
 }
 
+/**
+ * Main function to create starter(s) based on provided options.
+ * @param plan StarterCreatePlan 
+ * - mode: StarterCreateFetchMode
+ * - starterNames: string[]
+ * - destinationPath: string
+ * - action: StarterCreateAction
+ * @returns Promise<void>
+ */
+async function createStarters(plan: StarterCreatePlan, skipUI: boolean = false): Promise<void> {
+  const { starterNames, destinationPath, destinationDir } = plan;
+  const starterFrontendDir = path.join(destinationPath, config.starterFrontendDir || "ui");
+  // Step 1: Copy base template (hardhat + frontend + overrides)
+  logger.section("Step 1: Copying base templates...");
+  await copyTemplateToWorkspace(destinationDir, skipUI);
+  logger.success("Base templates copied.");
+
+  // Step 2: Copy necessary starter(s) files to workspace directory
+  logger.section(`Step 2: Copying ${starterNames.length} starter(s)...`);
+  await copyStarterToWorkspace(starterNames, destinationDir, skipUI);
+  logger.success("Starters copied.");
+
+  // Step 3: Generate index.json for frontend
+  logger.section("Step 3: Generating contracts index...");
+  const indexPath = path.join(starterFrontendDir, "contracts", "index.json");
+  fs.writeFileSync(indexPath, JSON.stringify(starterNames, null, 2));
+  logger.success(`Contracts index generated at ${indexPath}`);
+
+  // Step 4: Modify README.md
+  logger.section("Step 4: Modifying README.md...");
+  generateWorkspaceReadmeFromStarters("README.md.hbs", destinationDir);
+  logger.success("README.md generated.");
+
+  // Kasih tau user untuk next steps
+  const shortDestPath = path.relative(process.cwd(), destinationPath);
+  logger.section("All done!");
+  logger.banner({
+    emoji: "📦",
+    tag: "Next Steps",
+    tagColor: "bgBlue",
+    rows: [
+      { label: "Navigate", value: `cd ${quotePath(shortDestPath)}`, valueColor: "green" },
+      { label: "Install", value: "npm install", valueColor: "green" },
+      { label: "Start", value: "Start developing your FHE smart contracts!", valueColor: "cyan" },
+    ],
+  });
+  logger.newLine();
+  logger.newLine();
+}
+
+
 export async function runStarterCreate(opts: StarterCreateOptions) {
   const fetchMode = resolveFetchMode(opts);
+  let plan: StarterCreatePlan;
 
   if (fetchMode === "positional") {
-    const plan = await handlePositionalMode(opts);
-    logger.info(`Creating starter(s) in ${plan.destinationDir} using mode: ${plan.mode}`);
-    logger.info(`Starters to create: ${plan.starterNames.join(", ")}`);
-    process.exit(0);
+    plan = await handlePositionalMode(opts);
+    logger.info(`Creating starter(s) in ${plan.destinationPath} using mode: ${plan.mode}`);
+    logger.info(`Starters to create: ${plan.starterNames.join(", ")} `);
   } else if (fetchMode === "filter") {
-    const plan = await handleFilterMode(opts);
-    logger.info(`Creating starter(s) in ${plan.destinationDir} using mode: ${plan.mode}`);
-    logger.info(`Starters to create: ${plan.starterNames.join(", ")}`);
-    process.exit(0);
+    plan = await handleFilterMode(opts);
+    logger.info(`Creating starter(s) in ${plan.destinationPath} using mode: ${plan.mode}`);
+    logger.info(`Starters to create: ${plan.starterNames.join(", ")} `);
   } else {
-    const plan = await handleInteractiveMode();
-    logger.info(`Creating starter(s) in ${plan.destinationDir} using mode: ${plan.mode}`);
-    logger.info(`Starters to create: ${plan.starterNames.join(", ")}`);
-    process.exit(0);
+    plan = await handleInteractiveMode();
+    logger.info(`Creating starter(s) in ${plan.destinationPath} using mode: ${plan.mode}`);
+    logger.info(`Starters to create: ${plan.starterNames.join(", ")} `);
   }
+
+  // Check wheter workspace directory already exists
+  if (fs.existsSync(plan.destinationPath)) {
+    if (opts.force) {
+      logger.warning(`Destination directory ${plan.destinationPath} already exists.Overwriting due to--force option.`);
+      // delete existing directory
+      fs.rmSync(plan.destinationPath, { recursive: true, force: true });
+      logger.warning(`Deleted existing directory ${plan.destinationPath}.`);
+    } else {
+      logger.error(`Destination directory ${plan.destinationPath} already exists.Use--force to overwrite.`);
+      process.exit(1);
+    }
+  }
+
+  await createStarters(plan, opts.skipUI);
+  process.exit(0);
 }

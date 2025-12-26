@@ -4,8 +4,9 @@ import { runTemplateInit } from "./commands/templateInit";
 import { runTemplateReset } from "./commands/templateReset";
 import { runTemplateUpdate } from "./commands/templateUpdate";
 import { type Mode, runStarterList } from "./commands/starterList";
-import { runStarterCreate } from "./commands/starterCreate";
-import { runTemplateBuildUI } from "./commands/templateBuildUi";
+import { runStarterCreate, StarterCreateOptions } from "./commands/starterCreate";
+import { runStarterClean } from "./commands/starterClean";
+import { runTemplateBuildUI } from "./commands/templateBuildUI";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -146,8 +147,23 @@ async function main() {
       'Use AND operator when filtering by multiple tags/concepts (default: OR)',
       false
     )
-    .action(async (starterNames: string[], opts) => {
+    .option("--skip-ui", "Skip copying frontend files", false)
+    .option("--force", "Overwrite existing files in target directory", false)
+    .action(async (starterNames: string[], opts: StarterCreateOptions) => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
       await runStarterCreate({ starterNames, ...opts, ...program.opts() });
+    });
+
+  program
+    .command("starter:reset [starterNames...]")
+    .alias("starter:clean")
+    .description("Delete starter project(s) in the workspace (DANGEROUS)")
+    .option("--force", "Skip confirmation prompt", false)
+    .action(async (starterNames: string[], opts: { force?: boolean }) => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
+      await runStarterClean(starterNames, { force: !!opts.force, ...g });
     });
 
   await program.parseAsync(process.argv);

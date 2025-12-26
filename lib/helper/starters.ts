@@ -3,8 +3,10 @@ import path from "path";
 import config from "../../starterkit.config";
 import { logger } from "./logger";
 import { StarterMetadataType } from "../types/starterMetadata.schema";
-import { resolveFrontendTemplateDir, resolveHardhatTemplateDir, resolveOverridesTemplateDir, resolveStarterDir, resolveStarterMetadataFile, resolveStartersDir, resolveUiStarterDir, resolveWorkspaceDir, resolveWorkspaceStarterDir } from "./path-utils";
+import { resolveFrontendTemplateDir, resolveHardhatTemplateDir, resolveMarkdownTemplateDir, resolveOverridesTemplateDir, resolveStarterDir, resolveStarterMetadataFile, resolveStartersDir, resolveUiStarterDir, resolveWorkspaceDir, resolveWorkspaceStarterDir } from "./path-utils";
 import { quotePath } from "./utils";
+import { renderHbsFile } from "./renderHbs";
+import { ReadmeTemplateData } from "../types/markdownFile.schema";
 
 /**
  * Get all available starter project names from the starters directory.
@@ -113,6 +115,25 @@ export async function getFilteredStarter(
     return filteredStarters.map((meta) => meta.name);
 }
 
+/**
+ * Hanlde skipUi option for starter project setup.
+ * @param skipUi boolean | undefined
+ * @returns boolean
+ */
+export function handleSkipUi(skipUi: boolean | undefined): void {
+    const builtUiDir = path.join(resolveFrontendTemplateDir(), 'dist');
+    // Jika skipUi true, maka tidak perlu cek dist
+    // Jika false atau undefined, maka cek dist
+    if (!skipUi) {
+        // Check apakah dist direktori ada di frontend template
+        if (!fs.existsSync(builtUiDir)) {
+            logger.error(`Direktori dist tidak ditemukan di template frontend: ${quotePath(builtUiDir)}`);
+            logger.error(`Silakan jalankan ${quotePath('npm start')} atau ${quotePath('npm run template:build-ui')} dari root project terlebih dahulu.`);
+            process.exit(1);
+        }
+    }
+}
+
 
 /**
  * Copy template to starter
@@ -120,13 +141,15 @@ export async function getFilteredStarter(
  * @param targetDir string directory of the target starter project (not absolute path)
  * @param skipUi boolean Whether to skip copying the frontend template or not (default: false)
  */
-export function copyTemplateToStarter(targetDir: string, skipUi: boolean = false): void {
+export async function copyTemplateToWorkspace(targetDir: string, skipUi: boolean = false): Promise<void> {
     const hardhatTemplate = resolveHardhatTemplateDir(); // /base/hardhat-template
     const frontendTemplate = resolveFrontendTemplateDir() // /base/frontend-template
     const overridesTemplate = resolveOverridesTemplateDir(); // /base/overrides
     const workspaceStarter = resolveWorkspaceStarterDir(targetDir)
     const workspaceUiStarterDir = resolveUiStarterDir(targetDir)
+    const builtUiDir = path.join(frontendTemplate, 'dist');
     const actions = config.template.actions;
+    handleSkipUi(skipUi);
 
 
     // Create workspace/<starter-name> directory if not exists
@@ -184,22 +207,145 @@ export function copyTemplateToStarter(targetDir: string, skipUi: boolean = false
         recursive: true,
     });
 
+    // Create additional directories
+    const createDirs = actions.createDirs || [];
+    for (const dirRel of createDirs) {
+        const dirPath = path.join(workspaceStarter, dirRel);
+        if (!fs.existsSync(dirPath)) {
+            logger.info(`Membuat direktori tambahan: ${quotePath(dirPath)}...`);
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+    }
+
+    // Create additional files
+    const createFiles = actions.createFiles || [];
+    for (const file of createFiles) {
+        const filePath = path.join(workspaceStarter, file.path);
+        logger.info(`Membuat file tambahan: ${quotePath(filePath)}...`);
+        fs.writeFileSync(filePath, file.content, { encoding: "utf-8" });
+    }
+
     // Copy frontend template if not skipped
     if (!skipUi) {
         // from /base/frontend-template to /workspace/<starter-name>/ui
         logger.info(`Menyalin template Frontend ke ${quotePath(workspaceUiStarterDir)}...`);
-        const builtUiDir = path.join(frontendTemplate, 'dist');
         fs.cpSync(builtUiDir, workspaceUiStarterDir, {
             recursive: true,
-            filter: createFilterFunc(frontendTemplate)
         });
-        // Build index.json for frontend (ui/contracts/index.json)
-        const indexJsonPath = path.join(workspaceUiStarterDir, 'contracts', 'index.json');
-        // Content is array of available starters (e.g. ["basic-defi", "intermediate-nft"])
-        const availableStarters = fs.readdirSync(path.join(__dirname, "..", "..", "starters"))
-            .filter(name => fs.lstatSync(path.join(__dirname, "..", "..", "starters", name)).isDirectory());
-        fs.writeFileSync(indexJsonPath, JSON.stringify(availableStarters, null, 2), 'utf-8');
-        logger.info(`Generated ${quotePath(indexJsonPath)} for frontend starter.`);
-
     }
+}
+
+/**
+ * Copy starter project files to workspace directory.
+ * 
+ * @param starterName string Name of the starter project
+ * @param targetDir string Directory of the target starter project (not absolute path)
+ * @param skipUi boolean Whether to skip copying the frontend files or not (default: false)
+ */
+export async function copyStarterToWorkspace(starterNames: string[], destinationDir: string, skipUi: boolean = false): Promise<void> {
+    handleSkipUi(skipUi);
+    const targetDir = resolveWorkspaceStarterDir(destinationDir);
+    const contractList: {
+        slug: string;
+        name: string;
+        file: string;
+    }[] = [];
+
+    // Create workspace/<destinationDir> directory if not exists
+    if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    // Loop through each starter name
+    for (const starterName of starterNames) {
+        // Get a starter's source directory
+        const sourceDir = resolveStarterDir(starterName);
+        const sourceReadmeFile = path.join(sourceDir, "README.md"); // ini akan menjadi disimpan ke dalam docs
+
+        // Copy starters/<starter-name>/contracts to workspace/<destinationDir>/contracts
+        const sourceContractsDir = path.join(sourceDir, "contracts");
+        const targetContractsDir = path.join(targetDir, "contracts");
+        logger.info(`Menyalin contracts dari starter ${quotePath(starterName)} ke ${quotePath(targetContractsDir)}...`);
+        fs.cpSync(sourceContractsDir, targetContractsDir, {
+            recursive: true,
+        });
+
+        // Copy starters/<starter-name>/tests to workspace/<destinationDir>/tests
+        const sourceTestsDir = path.join(sourceDir, "test");
+        const targetTestsDir = path.join(targetDir, "test");
+        logger.info(`Menyalin tests dari starter ${quotePath(starterName)} ke ${quotePath(targetTestsDir)}...`);
+        fs.cpSync(sourceTestsDir, targetTestsDir, {
+            recursive: true,
+        });
+
+        // Jika tidak skipUi, copy metadata ke workspace/<destinationDir>/ui/metadata.json
+        if (!skipUi) {
+            const sourceMetadataFile = resolveStarterMetadataFile(starterName);
+            const targetUiMetadataDir = path.join(targetDir, "ui", "contracts", starterName);
+            // Create target ui/<starter-name> directory if not exists
+            if (!fs.existsSync(targetUiMetadataDir)) {
+                fs.mkdirSync(targetUiMetadataDir, { recursive: true });
+            }
+            const targetUiMetadataFile = path.join(targetUiMetadataDir, "metadata.json");
+            logger.info(`Menyalin metadata ke UI dari starter ${quotePath(starterName)} ke ${quotePath(targetUiMetadataFile)}...`);
+            fs.copyFileSync(sourceMetadataFile, targetUiMetadataFile);
+        }
+        // push to contract list
+        contractList.push({
+            slug: (await getStarterMetadataField(starterName, "name")).name,
+            name: (await getStarterMetadataField(starterName, "contract_name")).contract_name,
+            file: (await getStarterMetadataField(starterName, "contract_filename")).contract_filename,
+        });
+
+
+        // Copy README.md to workspace/<destinationDir>/docs/<starter-name>.md
+        if (fs.existsSync(sourceReadmeFile)) {
+            const targetDocsDir = path.join(targetDir, "docs");
+            if (!fs.existsSync(targetDocsDir)) {
+                fs.mkdirSync(targetDocsDir, { recursive: true });
+            }
+            const targetReadmeFile = path.join(targetDocsDir, `${starterName}.md`);
+            logger.info(`Menyalin README.md dari starter ${quotePath(starterName)} ke ${quotePath(targetReadmeFile)}...`);
+            fs.copyFileSync(sourceReadmeFile, targetReadmeFile);
+        }
+        // 
+    }
+
+    // Copy contractList to workspace/<destinationDir>/contract-list.json
+    const contractListFile = path.join(targetDir, "contract-list.json");
+    fs.writeFileSync(contractListFile, JSON.stringify(contractList, null, 2), { encoding: "utf-8" });
+    logger.info(`✔ Semua starter telah disalin ke workspace/${destinationDir}`)
+}
+
+
+/**
+ * Generate readme for workspace/starter projects using the starter's README.md.hbs template.
+ * // TODO: Logika ini harus diganti. Begitu juga yang ada di /base/markdown-templates/README.md.hbs
+ * 
+ * @param fileName string Name of the output readme file (e.g., README.md)
+ * @param starterNames string[] List of starter project names to include in the readme
+ */
+export function generateWorkspaceReadmeFromStarters(fileName: string, starterName: string): void {
+    const targetFile = resolveWorkspaceStarterDir(starterName);
+    const markdownTemplateDir = resolveMarkdownTemplateDir();
+    const sourceFile = path.join(markdownTemplateDir, fileName);
+    if (!fs.existsSync(sourceFile)) {
+        logger.error(`Template file ${quotePath(sourceFile)} tidak ditemukan.`);
+        return;
+    }
+    const targetReadmeFile = path.join(targetFile, "README.md");
+
+    // Baca template
+    const templateContent = renderHbsFile<ReadmeTemplateData>(sourceFile, {
+        title: `Starter Project: ${starterName}`,
+        description: `This is the README for the starter project "${starterName}". It provides an overview of the project structure, features, and instructions to get started.`,
+        features: [
+            "Smart contract templates",
+            "Automated testing setup",
+            "Frontend integration (optional)",
+        ],
+        hasFrontend: fs.existsSync(resolveUiStarterDir(starterName)),
+    });
+    fs.writeFileSync(targetReadmeFile, templateContent, { encoding: "utf-8" });
+
 }
