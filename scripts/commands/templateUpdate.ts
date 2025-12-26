@@ -11,13 +11,10 @@
 
 import fs from "fs";
 import { execSync } from "child_process";
-import { stdin as input, stdout as output } from "process";
 
 import config from "../../starterkit.config";
 import { logger } from "../../lib/helper/logger";
 import {
-  quotePath,
-  run,
   getRemoteHeadCommitHash,
   checkoutRepoCommit,
 } from "../../lib/helper/utils";
