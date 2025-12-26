@@ -125,9 +125,6 @@
         ]
       }
     },
-    "has_ui": {
-      "type": "boolean"
-    },
     "authors": {
       "type": "array",
       "items": {
@@ -154,9 +151,33 @@
         "additionalProperties": false
       }
     },
+    "has_ui": {
+      "type": "boolean"
+    },
     "constructor_args": {
       "type": "array",
       "items": {}
+    },
+    "additional_packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name",
+          "version"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
@@ -165,8 +186,8 @@
     "description",
     "category",
     "chapter",
-    "has_ui",
-    "authors"
+    "authors",
+    "has_ui"
   ],
   "additionalProperties": false
 }

@@ -43,6 +43,7 @@ export type TaxonomyConfigType = z.infer<typeof TaxonomyConfigSchema>;
 export const StarterKitConfigSchema = z.object({
   startersDir: z.string(),
   workingDir: z.string(),
+  metadataFile: z.string(),
   path: PathConfigSchema,
   template: z.object({
     hardhat: TemplateConfigSchema,

@@ -8,6 +8,9 @@
     "workingDir": {
       "type": "string"
     },
+    "metadataFile": {
+      "type": "string"
+    },
     "path": {
       "type": "object",
       "properties": {
@@ -209,6 +212,7 @@
   "required": [
     "startersDir",
     "workingDir",
+    "metadataFile",
     "path",
     "template",
     "taxonomy",
