@@ -6,6 +6,7 @@ import { StarterKitConfigType } from "./lib/types/starterkitConfig.schema";
 const config: StarterKitConfigType = {
   startersDir: "starters",
   workingDir: "workspace",
+  metadataFile: "metadata.json",
 
   // Path configuration
   path: {
