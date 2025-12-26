@@ -48,8 +48,13 @@ const config: StarterKitConfigType = {
         ],
       },
       additionalScripts: {
-        "serve:ui": "serve -s ui -l 3000",
+        // deploys to localhost and sepolia, then starts hardhat node
+        "starter:dev": "npx hardhat deploy && npx hardhat deploy --network sepolia && npx hardhat node",
+        // serves the frontend on port 3000
+        "starter:start-ui": "serve -s ui -l 3000",
+        // builds the frontend template
         "starter:build": "echo 'Run template:build-ui command to build the frontend template'",
+        // placeholder for publishing starter
         "starter:publish": "echo 'Publish your starter project to your own repository'",
       },
     },
