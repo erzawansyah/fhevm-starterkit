@@ -7,11 +7,7 @@ const config: StarterKitConfigType = {
   startersDir: "starters",
   workingDir: "workspace",
   metadataFile: "metadata.json",
-
-  // Path configuration
-  path: {
-    frontendDir: "ui", // this mean the frontend directory is located at /ui within the starter kit
-  },
+  starterFrontendDir: "ui",
 
   // Template repositories configuration
   template: {
@@ -30,7 +26,6 @@ const config: StarterKitConfigType = {
       branch: "main",
       commit: "daaff464231f32be03564e2f7cfe2d162490ebca",
     },
-
     actions: {
       removeDirs: [".github", ".vscode"],
       removeFiles: [

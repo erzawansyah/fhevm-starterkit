@@ -44,7 +44,7 @@ export const StarterKitConfigSchema = z.object({
   startersDir: z.string(),
   workingDir: z.string(),
   metadataFile: z.string(),
-  path: PathConfigSchema,
+  starterFrontendDir: z.string().optional(),
   template: z.object({
     hardhat: TemplateConfigSchema,
     frontend: TemplateConfigSchema,

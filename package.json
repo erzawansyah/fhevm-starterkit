@@ -21,7 +21,7 @@
         "lint": "eslint .",
         "format": "prettier --write .",
         "debug:logger": "ts-node scripts/debug/logger-test.ts",
-        "generate:schema": "tsx tools/generateJsonSchema.ts"
+        "generate:schema": "tsx lib/devtools/generateJsonSchema.ts"
     },
     "devDependencies": {
         "@types/node": "^20.19.26",
