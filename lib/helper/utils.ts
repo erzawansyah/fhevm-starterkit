@@ -1,5 +1,6 @@
 import { execSync, spawn } from "child_process";
 import fs from "fs";
+import path from "path";
 
 export type RunOptions = { cwd?: string; silent?: boolean };
 
@@ -117,3 +118,48 @@ export async function checkoutRepoCommit(
     verbose
   );
 }
+
+export type RemoveLinesOptions = {
+  exact?: boolean; // trim and compare equality
+  regex?: boolean; // treat `match` as a RegExp (accepts `/pat/flags` or plain pattern)
+};
+
+export function removeLinesFromFile(
+  filePath: string,
+  match: string,
+  opts: RemoveLinesOptions = {}
+): { changed: boolean; before: string; after: string } {
+  const abs = path.resolve(filePath);
+  if (!fs.existsSync(abs)) throw new Error(`File not found: ${abs}`);
+  const raw = fs.readFileSync(abs, "utf8");
+  const lines = raw.split(/\r?\n/);
+
+  let matcher: RegExp | undefined;
+  if (opts.regex) {
+    if (match.startsWith("/") && match.lastIndexOf("/") > 0) {
+      const last = match.lastIndexOf("/");
+      const pattern = match.slice(1, last);
+      const flags = match.slice(last + 1);
+      matcher = new RegExp(pattern, flags);
+    } else {
+      matcher = new RegExp(match);
+    }
+  }
+
+  let outLines: string[];
+  if (opts.exact) {
+    const target = match.trim();
+    outLines = lines.filter((l) => l.trim() !== target);
+  } else if (opts.regex && matcher) {
+    outLines = lines.filter((l) => !matcher!.test(l));
+  } else {
+    outLines = lines.filter((l) => l.indexOf(match) === -1);
+  }
+
+  const before = lines.join("\n");
+  const after = outLines.join("\n");
+  const changed = before !== after;
+  if (changed) fs.writeFileSync(abs, after, "utf8");
+  return { changed, before, after };
+}
+

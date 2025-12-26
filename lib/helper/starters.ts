@@ -4,7 +4,7 @@ import config from "../../starterkit.config";
 import { logger } from "./logger";
 import { StarterMetadataType } from "../types/starterMetadata.schema";
 import { resolveFrontendTemplateDir, resolveHardhatTemplateDir, resolveMarkdownTemplateDir, resolveOverridesTemplateDir, resolveStarterDir, resolveStarterMetadataFile, resolveStartersDir, resolveUiStarterDir, resolveWorkspaceDir, resolveWorkspaceStarterDir } from "./path-utils";
-import { quotePath } from "./utils";
+import { quotePath, removeLinesFromFile } from "./utils";
 import { renderHbsFile } from "./renderHbs";
 import { ReadmeTemplateData } from "../types/markdownFile.schema";
 
@@ -224,6 +224,17 @@ export async function copyTemplateToWorkspace(targetDir: string, skipUi: boolean
         logger.info(`Membuat file tambahan: ${quotePath(filePath)}...`);
         fs.writeFileSync(filePath, file.content, { encoding: "utf-8" });
     }
+
+    // Remove unwanted text in specified files
+    // In this case, we want to remove `import "./tasks/FHECounter"`,
+    // from base/hardhat-template/hardhat.config.ts
+    // TODO: Remove hardcoded path. Make it configurable from config file.
+    // Menghapus baris di file tertentu
+    removeLinesFromFile(
+        'base/hardhat-template/hardhat.config.ts',
+        'import \"./tasks/FHECounter\"',
+        { exact: false }
+    );
 
     // Copy frontend template if not skipped
     if (!skipUi) {

@@ -33,3 +33,8 @@ tools/
 
 # Workspace settings
 workspace/
+
+
+# Devtools
+AGENTS.md
+lib/devtools/agents-guidelines.md
