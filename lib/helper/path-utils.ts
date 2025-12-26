@@ -9,6 +9,7 @@ const HARDHAT_TEMPLATE_DIR = config.template.hardhat.dir; // dir name of hardhat
 const FRONTEND_TEMPLATE_DIR = config.template.frontend.dir; // dir name of frontend template e.g. 'base/frontend-template'
 const OVERRIDES_TEMPLATE_DIR = config.template.overrides; // dir name of overrides template e.g. 'base/overrides'
 const UI_STARTER_DIR = config.starterFrontendDir || 'ui'; // dir name of frontend inside each starter e.g. 'ui'
+const MARKDOWN_TEMPLATE_DIR = config.template.markdown || "markdown-template"; // markdown template file name e.g. 'README_TEMPLATE.md'
 
 /**
  * Resolve the absolute path to the `starters` directory inside the project.
@@ -100,4 +101,14 @@ export function resolveOverridesTemplateDir(): string {
 export function resolveUiStarterDir(starterName: string): string {
     const workspace = resolveWorkspaceDir();
     return path.join(workspace, starterName, UI_STARTER_DIR);
+}
+
+
+/**
+ * Resolve the absolute path to the markdown template file
+ * 
+ * @returns {string} Absolute path to markdown template file
+ */
+export function resolveMarkdownTemplateDir(): string {
+    return path.join(__dirname, "..", "..", MARKDOWN_TEMPLATE_DIR);
 }

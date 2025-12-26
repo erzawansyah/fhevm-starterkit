@@ -19,7 +19,7 @@ const config: StarterKitConfigType = {
       commit: "27606858ef15f7960c1e7589827945356ebcb8b2",
     },
 
-    // Relayer UI Template (TODO: Create this repo)
+    // Relayer UI Template
     frontend: {
       repo: "https://github.com/erzawansyah/relayer-ui-template.git",
       dir: "base/frontend-template",
@@ -37,9 +37,13 @@ const config: StarterKitConfigType = {
       ],
       // Directories to remove after copying
       // You can use `override` directory in base templates to provide your own files als
+      createDirs: [
+        "docs",
+      ],
       createFiles: [],
     },
     overrides: "base/overrides",
+    markdown: "base/markdown-template",
   },
 
   // Taxonomy configuration

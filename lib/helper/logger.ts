@@ -413,6 +413,62 @@ class Logger {
       )}`
     );
   }
+
+  command(message: string): void {
+    if (!this.shouldLog("info")) return;
+    this.stopSpinner();
+    this.writeOut(
+      `${this.prefix()}${this.c(
+        `${colors.bright}${colors.green}> ${message}${colors.reset}`
+      )}`
+    );
+  }
+
+  /**
+   * Flexible banner / header printer.
+   * Example: prints a boxed tag + title and rows like Local / Network.
+   */
+  banner(options: {
+    emoji?: string;
+    tag?: string; // e.g. 'astro' or 'VITE'
+    tagColor?: keyof typeof colors; // color for the tag label
+    message?: string; // main title / subtitle
+    rows?: Array<{ label: string; value: any; valueColor?: keyof typeof colors }>;
+    note?: string; // optional yellow note line
+  }): void {
+    if (!this.shouldLog("info")) return;
+    this.stopSpinner();
+
+    const e = options.emoji ? `${options.emoji} ` : "";
+
+    const tagColored = options.tag
+      ? this.c(
+        `${options.tagColor ? (colors as any)[options.tagColor] : ""}${colors.bright} ${options.tag} ${colors.reset}`
+      )
+      : "";
+
+    const msg = options.message ? this.c(`${colors.green}${options.message}${colors.reset}`) : "";
+
+    // Header line: emoji + tag + message
+    const headerParts = [e, tagColored, msg].filter(Boolean).join(" ");
+    if (headerParts) this.writeOut(this.prefix() + headerParts);
+
+    // Rows (like Local / Network)
+    if (options.rows && options.rows.length) {
+      for (const r of options.rows) {
+        const label = this.c(`${colors.dim}${r.label}${colors.reset}`);
+        const value = r.valueColor
+          ? this.c(`${(colors as any)[r.valueColor]}${r.value}${colors.reset}`)
+          : String(r.value);
+        this.writeOut(`${this.prefix()}${label}: ${value}`);
+      }
+    }
+
+    if (options.note) {
+      this.writeOut(this.prefix() + this.c(`${colors.yellow}${options.note}${colors.reset}`));
+    }
+  }
+
 }
 
 // Export singleton instance
