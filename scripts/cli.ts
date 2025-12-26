@@ -5,6 +5,7 @@ import { runTemplateReset } from "./commands/templateReset";
 import { runTemplateUpdate } from "./commands/templateUpdate";
 import { type Mode, runStarterList } from "./commands/starterList";
 import { runStarterCreate } from "./commands/starterCreate";
+import { runSetupFrontend } from "./commands/setupFrontend";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -66,9 +67,20 @@ async function main() {
       });
     });
 
+  program
+    .command("setup:frontend")
+    .description("Setup the frontend template")
+    .action(async () => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
+      await runSetupFrontend({ ...g });
+    });
+
   // template:reset
   program
     .command("template:reset")
+    // alias for template:reset
+    .alias("template:clean")
     .description("Delete ./base templates (DANGEROUS)")
     .option("--yes", "Confirm deletion of ./base", false)
     .action(async (opts: { yes?: boolean }) => {
@@ -100,7 +112,7 @@ async function main() {
       "--concepts <concepts>",
       "Filter by concepts (e.g. fhe-operations, fhe-encryption)"
     )
-    .option("--mode <mode>", "Output mode: json, compact, detailed", "detailed")
+    .option("--mode <mode>", "Output mode: table, json, detailed", "table")
     .option("--count <number>", "Limit number of starters listed", undefined)
     .action(
       async (opts: {
@@ -122,17 +134,20 @@ async function main() {
     );
 
   program
-    .command("starter:create [starterName...]")
+    .command("starter:create [starterNames...]")
     .description("Create starter project(s) from the hub")
     .option("-d, --dir <dir>", "Target directory")
-    .option("--category <category...>", "Filter by category (repeatable)")
-    .option("--chapter <chapter...>", "Filter by chapter (repeatable)")
-    .option("--tags <tags...>", "Filter by tags (repeatable)")
-    .option("--concepts <concepts...>", "Filter by concepts (repeatable)")
-    .option("--layout <layout>", "single | workspace", "single")
-    .option("--non-interactive", "Fail instead of prompting", false)
-    .action(async (starterName: string[], opts) => {
-      await runStarterCreate({ starterName, ...opts, ...program.opts() });
+    .option("--category <category>", "Filter by category")
+    .option("--chapter <chapter>", "Filter by chapter")
+    .option("--tags <tags...>", "Filter by tags")
+    .option("--concepts <concepts...>", "Filter by concepts")
+    .option(
+      "--and",
+      'Use AND operator when filtering by multiple tags/concepts (default: OR)',
+      false
+    )
+    .action(async (starterNames: string[], opts) => {
+      await runStarterCreate({ starterNames, ...opts, ...program.opts() });
     });
 
   await program.parseAsync(process.argv);

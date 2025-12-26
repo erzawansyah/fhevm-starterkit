@@ -18,572 +18,507 @@
  * - Tidak mengubah isi starter di folder `/starters`
  */
 
-import fs from "fs";
-import path from "path";
-
-import { listStarters } from "../../lib/helper/getStarters";
 import { logger } from "../../lib/helper/logger";
-import {
-  askCheckboxChoices,
-  askConfirm,
-  askInput,
-  askListChoice,
-} from "../../lib/helper/prompter";
 import { GlobalOptions } from "../cli";
-import { StarterMetadataType } from "../../lib/types/starterMetadata.schema";
-import config from "../../starterkit.config";
+import { prompt } from "enquirer";
+import { checkStarterExists, resolveDestinationDir, getFilteredStarter, resolveStartersDir, getAllStarterMetadata } from "../../lib/helper/starters";
 
-const METADATA_FILE = "metadata.json";
-const STARTERS_DIR = config.startersDir;
-const WORKSPACE_DIR = config.workingDir;
 
+// Options for creating starter(s)
 type StarterCreateOptions = GlobalOptions & {
-  starterName?: string[]; // positional list
+  starterNames?: string[]; // positional list
   dir?: string; // destination directory
 
   // filter
-  category?: string;
+  category?: string
   chapter?: string;
-  tags?: string; // comma-separated
-  concepts?: string; // comma-separated
+  tags?: string[]; // comma-separated
+  concepts?: string[]; // comma-separated
+  and?: boolean; // operator for tags/concepts
 };
 
-type CreatePlan =
-  | {
-      mode: "positional";
-      starterNames: string[];
-      baseDir?: string;
-    }
-  | {
-      mode: "filter";
-      starterNames: string[]; // resolved to 1 chosen starter for now
-      baseDir?: string;
-      filters: Record<string, string>;
-    }
-  | {
-      mode: "interactive";
-      starterNames: string[];
-      baseDir?: string;
-    };
+/**
+ * Type of fetching mode for selecting starter(s)
+ * - positional: via positional argument `<starterName...>`
+ * - filter: via filter options (category, chapter, tags, concepts)
+ * - interactive: via interactive prompt
+ */
+type StarterCreateFetchMode = "positional" | "filter" | "interactive";
+
 
 /**
- * Resolve the absolute path to the `starters` directory inside the project.
- *
- * This helper centralizes how the script locates the bundled starter templates.
- * @returns Absolute path to the `starters` folder.
+ * Type of action for creating starter(s)
+ * - single: creating one starter
+ * - multiple: creating multiple starters
  */
-function resolveStartersDir(): string {
-  return path.resolve(__dirname, "..", "..", "starters");
-}
+type StarterCreateAction = "single" | "multiple"
 
 /**
- * Normalize a comma-separated string into a cleaned array of values.
- *
- * Trims whitespace and filters out empty segments. Returns an empty array
- * for undefined or empty input.
- * @param input Comma-separated values (e.g. "a, b, c").
- * @returns Array of trimmed, non-empty values.
+ * Type of plan for creating starter(s)
  */
-function normalizeCsv(input?: string): string[] {
-  if (!input) return [];
-  return input
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
+type StarterCreatePlan = {
+  mode: StarterCreateFetchMode;
+  starterNames: string[];
+  destinationDir: string;
+  action: StarterCreateAction;
+};
+
 
 /**
- * Determine whether any filter option is present in the provided options.
- *
- * Checks `category`, `chapter`, `tags`, and `concepts` fields.
+ * Resolve destination directory based on action type
+ * @param starterNames
+ * @returns Promise<{ destinationDir: string; actionType: StarterCreateAction }>
+ * - destinationDir: resolved destination directory
+ * - actionType: "single" | "multiple"
  */
-function hasAnyFilter(opts: StarterCreateOptions): boolean {
-  return !!(opts.category || opts.chapter || opts.tags || opts.concepts);
-}
-
-/**
- * Read and parse a JSON file safely.
- *
- * Returns a success object with the parsed data or an error object with the
- * error message. This avoids throwing and simplifies callers that want to
- * handle absent/invalid JSON gracefully.
- * @param filePath Path to the JSON file.
- */
-function readJsonSafe<T = unknown>(
-  filePath: string
-): { ok: true; data: T } | { ok: false; error: string } {
-  try {
-    const raw = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(raw) as T;
-    return { ok: true, data };
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+async function resolveActionType(starterNames: string[], dir?: string, forcePrompt: boolean = false): Promise<{
+  destinationDir: string;
+  actionType: StarterCreateAction;
+}> {
+  let destinationDir = "";
+  let actionType: StarterCreateAction = "single";
+  //  Error kalau tidak ada starter name yang diberikan
+  if (starterNames.length === 0) {
+    logger.error("No starter names provided.");
+    process.exit(1);
   }
-}
 
-/**
- * Load the lightweight metadata for a starter directory.
- *
- * Reads `metadata.json` inside the starter folder and returns a normalized
- * `StarterMetadataType` object (ensuring `tags` and `concepts` are arrays).
- * Returns `null` if the metadata file doesn't exist or can't be parsed.
- */
-function getStarterMetadataType(
-  starterDir: string
-): StarterMetadataType | null {
-  const metaPath = path.join(starterDir, METADATA_FILE);
-  if (!fs.existsSync(metaPath)) return null;
+  // Kalau cuma satu starter, tanyain pake default nama folder itu
+  if (starterNames.length === 1) {
+    actionType = "single";
+    if (dir) {
+      destinationDir = resolveDestinationDir(dir);
+    } else {
+      if (forcePrompt) {
+        const answer = await prompt<{ name: string }>({
+          type: "input",
+          name: "name",
+          message: `Enter the destination directory for starter "${starterNames[0]}":`,
+          initial: starterNames[0],
+        })
+        destinationDir = resolveDestinationDir(answer.name);
+      } else {
+        destinationDir = resolveDestinationDir(starterNames[0]);
+      }
+    }
+  } else {
+    actionType = "multiple";
 
-  const res = readJsonSafe<StarterMetadataType>(metaPath);
-  if (!res.ok) return null;
-
-  // normalize arrays just in case
-  const meta = res.data ?? {};
-  return {
-    ...meta,
-    tags: Array.isArray(meta.tags) ? meta.tags : [],
-    concepts: Array.isArray(meta.concepts) ? meta.concepts : [],
+    // Kalau banyak starter, --dir harus disediain
+    if (dir) {
+      destinationDir = resolveDestinationDir(dir);
+    } else {
+      const answer = await prompt<{ name: string }>({
+        type: "input",
+        name: "name",
+        message: "You are creating multiple starters. Enter the workspace directory:",
+        initial: "my-starters",
+      })
+      destinationDir = resolveDestinationDir(answer.name);
+    }
   };
+
+  return { destinationDir, actionType };
 }
 
 /**
- * Check whether a starter with the given name exists under `startersDir`.
- * @returns `true` if the path exists and is a directory.
+ * Resolve mode based on provided options. Fetch mode is the method used to select starter(s).
+ * @param opts 
+ * @returns StarterCreateFetchMode
  */
-function starterExists(startersDir: string, name: string): boolean {
-  const p = path.join(startersDir, name);
-  return fs.existsSync(p) && fs.statSync(p).isDirectory();
-}
-
-/**
- * From a list of candidate names, pick the first one that actually exists
- * in the `startersDir`. Returns `null` if none of the names match.
- */
-function pickFirstExistingStarter(
-  startersDir: string,
-  names: string[]
-): string | null {
-  const starters = listStarters(startersDir);
-  for (const n of names) {
-    if (starters.includes(n)) return n;
+function resolveFetchMode(opts: StarterCreateOptions): StarterCreateFetchMode {
+  const { starterNames, category, chapter, tags, concepts } = opts;
+  if (starterNames && starterNames.length > 0) {
+    // Jika ada argumen posisi, berarti mode positional.
+    // Maka, jika tetapi ada filter, itu membingungkan. Jadi, tandai sebagai error dan hentikan eksekusi.
+    if (category || chapter || (tags && tags.length > 0) || (concepts && concepts.length > 0)) {
+      logger.error("Cannot use positional starter names with filter options (category, chapter, tags, concepts). Please choose one mode of selection.");
+      process.exit(1);
+    }
+    return "positional";
   }
-  return null;
+  if (category || chapter || (tags && tags.length > 0) || (concepts && concepts.length > 0)) {
+    // Jika ada setidaknya satu opsi filter, berarti mode filter
+    return "filter";
+  }
+  return "interactive";
 }
 
 /**
- * Determine whether a starter's metadata matches the provided filter set.
+ * Handle fetch starter(s) in positional mode. 
+ * This active when user provides starter names as positional arguments.
+ * If multiple starter names are provided, user will be prompted to confirm workspace directory.
+ * 
+ * @param opts 
+ * @returns  Promise<StarterCreatePlan>
+ */
+const handlePositionalMode = async (opts: StarterCreateOptions): Promise<StarterCreatePlan> => {
+  const { starterNames } = opts
+  const unAvailableStarters = (starterNames || []).filter((name) => {
+    return !checkStarterExists(name);
+  });
+
+  if (unAvailableStarters.length > 0) {
+    logger.error(`The following starter(s) do not exist: ${unAvailableStarters.join(", ")}`);
+    process.exit(1);
+  }
+
+  if (!starterNames || starterNames.length === 0) {
+    logger.error("No starter names provided for positional mode.");
+    process.exit(1);
+  }
+  const { destinationDir, actionType } = await resolveActionType(starterNames, opts.dir);
+  return {
+    mode: "positional",
+    starterNames,
+    destinationDir,
+    action: actionType,
+  }
+};
+
+/**
+ * Handle fetch starter(s) in filter mode.
+ * This active when user provides filter options (category, chapter, tags, concepts).
+ * 
+ * @param opts 
+ * @returns Promise<StarterCreatePlan>
+ */
+async function handleFilterMode(opts: StarterCreateOptions): Promise<StarterCreatePlan> {
+  const { category, chapter, tags, concepts, and = false } = opts;
+  const filtered = {
+    category: [] as string[],
+    chapter: [] as string[],
+    tags: [] as string[],
+    concepts: [] as string[],
+  }
+  // Test filter berdasarkan 1 kategori
+  if (category) {
+    const filteredStarters = await getFilteredStarter("category", category);
+    logger.info(`Found ${filteredStarters.length} starter(s) matching category "${category}".`);
+
+    filtered["category"] = filteredStarters;
+  }
+  if (chapter) {
+    const filteredStarters = await getFilteredStarter("chapter", chapter);
+    logger.info(`Found ${filteredStarters.length} starter(s) matching chapter "${chapter}".`);
+    filtered["chapter"] = filteredStarters;
+  }
+  if (tags && tags.length > 0) {
+    const filteredStarters = await getFilteredStarter("tags", tags.join(","));
+    logger.info(`Found ${filteredStarters.length} starter(s) matching tags "${tags.join(", ")}" with operator "${and ? "and" : "or"}".`);
+    filtered["tags"] = filteredStarters;
+  }
+  if (concepts && concepts.length > 0) {
+    const filteredStarters = await getFilteredStarter("concepts", concepts.join(","));
+    logger.info(`Found ${filteredStarters.length} starter(s) matching concepts "${concepts.join(", ")}" with operator "${and ? "and" : "or"}".`);
+    filtered["concepts"] = filteredStarters;
+  }
+
+  const combinedStartersSet = new Set<string>();
+  if (!and) {
+    // Gabungkan semua hasil filter
+    for (const key in filtered) {
+      const starters = filtered[key as keyof typeof filtered];
+      starters.forEach((s) => combinedStartersSet.add(s));
+    }
+  } else {
+    // Ambil irisan dari semua hasil filter
+    const filteredArrays = Object.values(filtered).filter(arr => arr.length > 0);
+    if (filteredArrays.length > 0) {
+      let intersection = filteredArrays[0];
+      for (let i = 1; i < filteredArrays.length; i++) {
+        intersection = intersection.filter(x => filteredArrays[i].includes(x));
+      }
+      intersection.forEach((s) => combinedStartersSet.add(s));
+    }
+  }
+
+  const combinedStarters = Array.from(combinedStartersSet);
+  if (combinedStarters.length === 0) {
+    logger.error("No starters found matching the provided filters.");
+    process.exit(1);
+  }
+  logger.info(`Total starters selected after applying filters: ${combinedStarters.length}`);
+  logger.info(`Starters: ${combinedStarters.join(", ")}`);
+
+  const { actionType, destinationDir } = await resolveActionType(combinedStarters, opts.dir, true);
+
+  return {
+    mode: "filter",
+    starterNames: combinedStarters,
+    destinationDir: destinationDir,
+    action: actionType,
+  }
+}
+
+
+/**
+ * Handle fetch starter(s) in interactive mode.
+ * This active when user does not provide sufficient input to select starter(s).
  *
- * Matching semantics:
- * - Filters are grouped by key; a starter must match all provided keys (AND
- *   across groups).
- * - Within a group, multiple values act as OR (e.g. tags="defi,game" matches
- *   if any tag matches).
- * @param meta Starter metadata to test.
- * @param filters Map of filterName -> csv string.
+ * Constraints:
+ * - Tidak bikin fungsi di dalam fungsi
+ * - Memanfaatkan helper yang sudah ada: getAllStarterMetadata, getFilteredStarter, resolveActionType, resolveDestinationDir
+ *
+ * Behavior:
+ * 1) User pilih metode: pick by name atau filter by taxonomy
+ * 2) Jika pick: multiselect starter by name
+ * 3) Jika filter: user pilih field yang ingin dipakai, pilih nilainya, pilih operator (AND/OR) untuk combine hasil antar field
+ * 4) Hasil akhir => StarterCreatePlan (mode: interactive)
  */
-function matchFilter(
-  meta: StarterMetadataType,
-  filters: Record<string, string>
-): boolean {
-  const category = (meta.category ?? "").toLowerCase();
-  const chapter = (meta.chapter ?? "").toLowerCase();
-  const tags = (meta.tags ?? []).map((t) => String(t).toLowerCase());
-  const concepts = (meta.concepts ?? []).map((c) => String(c).toLowerCase());
+async function handleInteractiveMode(): Promise<StarterCreatePlan> {
+  // Load metadata sekali untuk membangun pilihan UI
+  const allMetadata = await getAllStarterMetadata();
 
-  // OR across filter groups, AND inside each group values
-  // Contoh:
-  // - category="fundamental" -> harus match category
-  // - tags="defi,game" -> match salah satu tag
-  // Jika user memilih beberapa jenis filter, starter dianggap match jika memenuhi semua jenis filter yang dipilih.
-  for (const [k, raw] of Object.entries(filters)) {
-    const values = normalizeCsv(raw).map((v) => v.toLowerCase());
-    if (values.length === 0) continue;
-
-    if (k === "category") {
-      if (!values.includes(category)) return false;
-      continue;
-    }
-
-    if (k === "chapter") {
-      if (!values.includes(chapter)) return false;
-      continue;
-    }
-
-    if (k === "tags") {
-      const ok = values.some((v) => tags.includes(v));
-      if (!ok) return false;
-      continue;
-    }
-
-    if (k === "concepts") {
-      const ok = values.some((v) => concepts.includes(v));
-      if (!ok) return false;
-      continue;
-    }
+  if (!allMetadata || allMetadata.length === 0) {
+    logger.error("No starters found in starters directory.");
+    process.exit(1);
   }
 
-  return true;
-}
+  // Build option pools (tanpa nested function)
+  const categorySet = new Set<string>();
+  const chapterSet = new Set<string>();
+  const tagSet = new Set<string>();
+  const conceptSet = new Set<string>();
 
-/**
- * Find starter names under `startersDir` whose metadata matches the given
- * filters. Returns a sorted array of matching starter folder names.
- */
-function findMatchesByMetadata(
-  startersDir: string,
-  filters: Record<string, string>
-): string[] {
-  const starters = listStarters(startersDir);
-  const matches: string[] = [];
-
-  for (const s of starters) {
-    const sDir = path.join(startersDir, s);
-    const meta = getStarterMetadataType(sDir);
-    if (!meta) continue;
-
-    if (matchFilter(meta, filters)) matches.push(s);
+  for (const meta of allMetadata) {
+    if (meta.category) categorySet.add(String(meta.category));
+    if (meta.chapter) chapterSet.add(String(meta.chapter));
+    if (Array.isArray(meta.tags)) meta.tags.forEach((t) => tagSet.add(String(t)));
+    if (Array.isArray(meta.concepts)) meta.concepts.forEach((c) => conceptSet.add(String(c)));
   }
 
-  return matches.sort((a, b) => a.localeCompare(b));
-}
+  const categories = Array.from(categorySet).sort((a, b) => a.localeCompare(b));
+  const chapters = Array.from(chapterSet).sort((a, b) => a.localeCompare(b));
+  const tags = Array.from(tagSet).sort((a, b) => a.localeCompare(b));
+  const concepts = Array.from(conceptSet).sort((a, b) => a.localeCompare(b));
 
-/**
- * Resolve the user-provided `--dir` option to an absolute path, or
- * return `undefined` when not provided.
- */
-function resolveDestinationBaseDir(
-  opts: StarterCreateOptions
-): string | undefined {
-  if (!opts.dir) return undefined;
-  return path.resolve(process.cwd(), opts.dir);
-}
+  // Step 1: choose selection method
+  const entry = await prompt<{
+    mode: "pick" | "filter";
+  }>({
+    type: "select",
+    name: "mode",
+    message: "How do you want to select starter(s)?",
+    choices: [
+      { name: "pick", message: "Pick by starter name" },
+      { name: "filter", message: "Filter by taxonomy (category/chapter/tags/concepts)" },
+    ],
+  });
 
-/**
- * Run interactive prompts to build a `CreatePlan` when the user did not
- * provide sufficient non-interactive inputs. The function will ask whether
- * the user wants to pick a starter directly or filter by metadata, and then
- * collect the required values.
- * @returns Resolved `CreatePlan`.
- */
-async function interactiveResolvePlan(
-  startersDir: string,
-  opts: StarterCreateOptions
-): Promise<CreatePlan> {
-  const starters = listStarters(startersDir);
-  if (starters.length === 0) {
-    throw new Error("Tidak ada starter tersedia di folder 'starters'.");
-  }
+  // Mode: pick by starter name
+  if (entry.mode === "pick") {
+    const choices = allMetadata.map((m) => {
+      const label = m.label ? `${m.label} (${m.name})` : m.name;
+      return { name: m.name, message: `${label}` };
+    });
 
-  const mode = await askListChoice("Pilih jalur pembuatan starter:", [
-    { name: "Pilih starter langsung", value: "starter" },
-    {
-      name: "Pilih berdasarkan filter (category/chapter/tags/concepts)",
-      value: "filter",
-    },
-  ]);
+    const selection = await prompt<{ starters: string[] }>({
+      type: "multiselect",
+      name: "starters",
+      message: "Select starter(s) to create (Press <space> to select, <a> to toggle all, <i> to invert selection):",
+      choices,
+    });
 
-  if (mode === "starter") {
-    const chosen = await askListChoice(
-      "Pilih starter:",
-      starters.map((s) => ({ name: s, value: s }))
-    );
+    const picked = (selection.starters || []).filter(Boolean);
+    if (picked.length === 0) {
+      logger.error("No starters selected.");
+      process.exit(1);
+    }
 
-    const dirName = await askInput(
-      "Nama direktori tujuan (enter untuk gunakan nama starter):",
-      chosen
-    );
+    const { destinationDir, actionType } = await resolveActionType(picked, undefined, true);
 
     return {
       mode: "interactive",
-      starterNames: [chosen],
-      baseDir: dirName ? path.resolve(process.cwd(), dirName) : undefined,
+      starterNames: picked,
+      destinationDir,
+      action: actionType,
     };
   }
 
-  const selectedFilters = await askCheckboxChoices(
-    "Pilih taksonomi untuk memfilter starter (akan minta nilai untuk tiap yang dipilih):",
-    [
-      { name: "category", value: "category" },
-      { name: "chapter", value: "chapter" },
-      { name: "tags", value: "tags" },
-      { name: "concepts", value: "concepts" },
-    ]
-  );
+  // Mode: filter by taxonomy
+  const fieldPick = await prompt<{ fields: ("category" | "chapter" | "tags" | "concepts")[] }>({
+    type: "multiselect",
+    name: "fields",
+    message: "Which filters do you want to apply? (Select at least one. Use <space> to select, <a> to toggle all, <i> to invert selection):",
+    choices: [
+      { name: "category", message: "Category" },
+      { name: "chapter", message: "Chapter" },
+      { name: "tags", message: "Tags" },
+      { name: "concepts", message: "Concepts" },
+    ],
+  });
 
-  const filters: Record<string, string> = {};
-  for (const f of selectedFilters) {
-    // eslint-disable-next-line no-await-in-loop
-    const val = await askInput(
-      `Masukkan nilai untuk ${f} (pisahkan koma untuk beberapa):`
-    );
-    filters[f] = val;
+  const fields = (fieldPick.fields || []).filter(Boolean);
+  if (fields.length === 0) {
+    logger.error("No filter selected.");
+    process.exit(1);
   }
 
-  const matches = findMatchesByMetadata(startersDir, filters);
+  // Operator untuk gabung hasil antar field (bukan operator di dalam tags/concepts)
+  const combine = await prompt<{ combine: "or" | "and" }>({
+    type: "select",
+    name: "combine",
+    message: "Combine selected filter fields using:",
+    choices: [
+      { name: "or", message: "OR (union)" },
+      { name: "and", message: "AND (intersection)" },
+    ],
+  });
+  const combineAnd = combine.combine === "and";
 
-  if (matches.length === 0) {
-    throw new Error(
-      "Tidak ditemukan starter yang cocok dengan filter yang diberikan."
-    );
+  // Ambil filter values per field
+  let selectedCategory: string | undefined = undefined;
+  let selectedChapter: string | undefined = undefined;
+  let selectedTags: string[] = [];
+  let selectedConcepts: string[] = [];
+
+  if (fields.includes("category")) {
+    if (categories.length === 0) {
+      logger.warning("No categories found in metadata. Skipping category.");
+    } else {
+      const ans = await prompt<{ category: string }>({
+        type: "select",
+        name: "category",
+        message: "Select category",
+        choices: categories,
+      });
+      selectedCategory = ans.category;
+    }
   }
 
-  const chosen = await askListChoice(
-    "Pilih salah satu starter yang ditemukan:",
-    matches.map((m) => ({ name: m, value: m }))
-  );
+  if (fields.includes("chapter")) {
+    if (chapters.length === 0) {
+      logger.warning("No chapters found in metadata. Skipping chapter.");
+    } else {
+      const ans = await prompt<{ chapter: string }>({
+        type: "select",
+        name: "chapter",
+        message: "Select chapter",
+        choices: chapters,
+      });
+      selectedChapter = ans.chapter;
+    }
+  }
 
-  const dirName = await askInput(
-    "Nama direktori tujuan (enter untuk gunakan nama starter):",
-    chosen
-  );
+  if (fields.includes("tags")) {
+    if (tags.length === 0) {
+      logger.warning("No tags found in metadata. Skipping tags.");
+    } else {
+      const ans = await prompt<{ tags: string[] }>({
+        type: "multiselect",
+        name: "tags",
+        message: "Select tag(s) (Press <space> to select, <a> to toggle all, <i> to invert selection):",
+        choices: tags,
+      });
+      selectedTags = (ans.tags || []).filter(Boolean);
+    }
+  }
+
+  if (fields.includes("concepts")) {
+    if (concepts.length === 0) {
+      logger.warning("No concepts found in metadata. Skipping concepts.");
+    } else {
+      const ans = await prompt<{ concepts: string[] }>({
+        type: "multiselect",
+        name: "concepts",
+        message: "Select concept(s) (Press <space> to select, <a> to toggle all, <i> to invert selection):",
+        choices: concepts,
+      });
+      selectedConcepts = (ans.concepts || []).filter(Boolean);
+    }
+  }
+
+  // Hitung hasil per field pakai helper getFilteredStarter (tanpa nested function)
+  const perFieldResults: string[][] = [];
+
+  if (selectedCategory) {
+    const r = await getFilteredStarter("category", selectedCategory);
+    logger.info(`Found ${r.length} starter(s) matching category "${selectedCategory}".`);
+    perFieldResults.push(r);
+  }
+
+  if (selectedChapter) {
+    const r = await getFilteredStarter("chapter", selectedChapter);
+    logger.info(`Found ${r.length} starter(s) matching chapter "${selectedChapter}".`);
+    perFieldResults.push(r);
+  }
+
+  if (selectedTags.length > 0) {
+    // getFilteredStarter() untuk tags sekarang = "AND" internal (harus include semua tag)
+    // combine antar-field tetap di-handle di bawah.
+    const r = await getFilteredStarter("tags", selectedTags.join(","));
+    logger.info(`Found ${r.length} starter(s) matching tags "${selectedTags.join(", ")}".`);
+    perFieldResults.push(r);
+  }
+
+  if (selectedConcepts.length > 0) {
+    const r = await getFilteredStarter("concepts", selectedConcepts.join(","));
+    logger.info(`Found ${r.length} starter(s) matching concepts "${selectedConcepts.join(", ")}".`);
+    perFieldResults.push(r);
+  }
+
+  if (perFieldResults.length === 0) {
+    logger.error("No effective filters were applied (empty selections).");
+    process.exit(1);
+  }
+
+  // Combine results (union vs intersection)
+  let combined: string[] = [];
+
+  if (!combineAnd) {
+    const set = new Set<string>();
+    for (const arr of perFieldResults) {
+      for (const s of arr) set.add(s);
+    }
+    combined = Array.from(set);
+  } else {
+    combined = perFieldResults[0].slice();
+    for (let i = 1; i < perFieldResults.length; i++) {
+      const next = perFieldResults[i];
+      combined = combined.filter((x) => next.includes(x));
+    }
+  }
+
+  combined = Array.from(new Set(combined)).sort((a, b) => a.localeCompare(b));
+
+  if (combined.length === 0) {
+    logger.error("No starters found after combining filters.");
+    process.exit(1);
+  }
+
+  logger.info(`Total starters selected after combining filters: ${combined.length}`);
+  logger.info(`Starters: ${combined.join(", ")}`);
+
+
+  let dir: string | undefined = undefined;
+  const { destinationDir, actionType } = await resolveActionType(combined, dir, true);
 
   return {
     mode: "interactive",
-    starterNames: [chosen],
-    baseDir: dirName ? path.resolve(process.cwd(), dirName) : undefined,
+    starterNames: combined,
+    destinationDir,
+    action: actionType,
   };
 }
 
-/**
- * Resolve a creation plan from CLI options without interacting. Supports
- * positional names, metadata filters, or returns an interactive-mode plan
- * when input is insufficient.
- *
- * Throws when conflicting options are provided or when filters match zero
- * or multiple starters in non-interactive mode.
- */
-function resolveCreatePlan(
-  startersDir: string,
-  opts: StarterCreateOptions
-): CreatePlan {
-  const names = opts.starterName ?? [];
-  const usingFilters = hasAnyFilter(opts);
+export async function runStarterCreate(opts: StarterCreateOptions) {
+  const fetchMode = resolveFetchMode(opts);
 
-  if (names.length > 0 && usingFilters) {
-    throw new Error(
-      "Tidak boleh menggunakan positional starterName bersamaan dengan filter (--category/--chapter/--tags/--concepts)."
-    );
-  }
-
-  if (names.length > 0) {
-    return {
-      mode: "positional",
-      starterNames: names,
-      baseDir: resolveDestinationBaseDir(opts),
-    };
-  }
-
-  if (usingFilters) {
-    const filters: Record<string, string> = {};
-    if (opts.category) filters.category = opts.category;
-    if (opts.chapter) filters.chapter = opts.chapter;
-    if (opts.tags) filters.tags = opts.tags;
-    if (opts.concepts) filters.concepts = opts.concepts;
-
-    const matches = findMatchesByMetadata(startersDir, filters);
-    if (matches.length === 0) {
-      throw new Error(
-        "Tidak ditemukan starter yang cocok dengan filter yang diberikan."
-      );
-    }
-
-    // Non-interactive filter: jika match lebih dari 1, paksa user memilih via interactive
-    // Biar deterministik dan tidak bikin kejutan.
-    if (matches.length > 1) {
-      throw new Error(
-        `Filter menghasilkan lebih dari 1 kandidat: ${matches.join(
-          ", "
-        )}. Perjelas filter atau jalankan tanpa argumen agar mode interaktif membantu memilih.`
-      );
-    }
-
-    const chosen = matches[0];
-
-    // Jika dir tidak diberikan, default: pakai nama starter
-    const baseDir =
-      resolveDestinationBaseDir(opts) ?? path.resolve(process.cwd(), chosen);
-
-    return {
-      mode: "filter",
-      starterNames: [chosen],
-      baseDir,
-      filters,
-    };
-  }
-
-  // no meaningful input
-  return {
-    mode: "interactive",
-    starterNames: [],
-    baseDir: undefined,
-  };
-}
-
-/**
- * Build a small summary object for user confirmation based on the `CreatePlan`.
- */
-function buildSummary(plan: CreatePlan): Record<string, unknown> {
-  const summary: Record<string, unknown> = {
-    mode: plan.mode,
-    starterNames: plan.starterNames,
-  };
-  if (plan.baseDir) summary.baseDir = plan.baseDir;
-  if (plan.mode === "filter") summary.filters = plan.filters;
-  return summary;
-}
-
-/**
- * Synchronously copy files and directories recursively from `src` to `dest`.
- *
- * This is a small utility replacement for recursive copy. It creates any
- * missing destination directories and copies files verbatim.
- */
-function copyRecursiveSync(src: string, dest: string) {
-  const stat = fs.statSync(src);
-
-  if (stat.isDirectory()) {
-    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
-    for (const child of fs.readdirSync(src)) {
-      copyRecursiveSync(path.join(src, child), path.join(dest, child));
-    }
-    return;
-  }
-
-  fs.copyFileSync(src, dest);
-}
-
-/**
- * Resolve the final destination path for a given starter according to the
- * provided `CreatePlan`.
- *
- * Rules:
- * - Single starter: `baseDir` (if provided) is the final destination;
- *   otherwise `./<starterName>` in current working directory.
- * - Multiple starters: `baseDir` (if provided) acts as parent folder and the
- *   final path becomes `<baseDir>/<starterName>`; otherwise `./<starterName>`.
- */
-function resolveDestForStarter(plan: CreatePlan, starterName: string): string {
-  // Rules:
-  // - jika hanya 1 starter:
-  //   - baseDir jika diberikan adalah destinasi final
-  //   - kalau baseDir tidak ada, default: ./<starterName>
-  // - jika multi starter:
-  //   - baseDir jika diberikan jadi folder induk: <baseDir>/<starterName>
-  //   - kalau baseDir tidak ada, default: ./<starterName>
-  const isSingle = plan.starterNames.length === 1;
-
-  if (isSingle) {
-    return plan.baseDir ?? path.resolve(process.cwd(), starterName);
-  }
-
-  const base = plan.baseDir ?? process.cwd();
-  return path.join(base, starterName);
-}
-
-/**
- * CLI entry point: orchestrate resolving a plan (positional, filter or
- * interactive), confirm with the user, and create the chosen starter(s).
- *
- * This function performs validation, resolves typos to existing starter
- * names when possible, prompts for confirmation, and delegates the actual
- * copying to `createStarterFromPlan`.
- */
-export async function runStarterCreate(options: StarterCreateOptions) {
-  const startersDir = resolveStartersDir();
-  logger.info(`Mencari starter di folder: ${startersDir}`);
-
-  if (!fs.existsSync(startersDir)) {
-    logger.error(`Folder starters tidak ditemukan: ${startersDir}`);
-    return;
-  }
-
-  let plan: CreatePlan;
-  try {
-    plan = resolveCreatePlan(startersDir, options);
-
-    if (plan.mode === "interactive" && plan.starterNames.length === 0) {
-      plan = await interactiveResolvePlan(startersDir, options);
-    }
-  } catch (e) {
-    logger.error(e instanceof Error ? e.message : String(e));
-    return;
-  }
-
-  // Validasi starter name benar-benar ada, plus fallback simple (kalau ada typo)
-  const finalNames: string[] = [];
-  for (const n of plan.starterNames) {
-    if (starterExists(startersDir, n)) {
-      finalNames.push(n);
-      continue;
-    }
-
-    const found = pickFirstExistingStarter(startersDir, [n]);
-    if (!found) {
-      logger.error(`Starter tidak ditemukan: ${n}`);
-      return;
-    }
-
-    finalNames.push(found);
-  }
-  plan = { ...plan, starterNames: finalNames };
-
-  const summary = buildSummary(plan);
-
-  const confirm = await askConfirm(
-    `Konfirmasi pilihan: ${JSON.stringify(summary)}. Lanjut?`,
-    true
-  );
-
-  if (!confirm) {
-    logger.info("Dibatalkan oleh pengguna.");
-    return;
-  }
-
-  try {
-    await createStarterFromPlan(plan, startersDir, false);
-    logger.info("Selesai membuat starter.");
-  } catch (err) {
-    logger.error(
-      `Gagal membuat starter: ${
-        err instanceof Error ? err.message : String(err)
-      }`
-    );
-  }
-}
-
-/**
- * Execute copying of starter templates according to the resolved `plan`.
- *
- * When `dryRun` is true the function only logs intended operations without
- * making filesystem changes. Throws on errors such as missing starter or
- * existing destination directory.
- */
-async function createStarterFromPlan(
-  plan: CreatePlan,
-  startersDir: string,
-  dryRun = true
-) {
-  const names = plan.starterNames;
-  if (names.length === 0) throw new Error("Tidak ada starterName diberikan.");
-
-  for (const n of names) {
-    const starterPath = path.join(startersDir, n);
-    if (!starterExists(startersDir, n)) {
-      throw new Error(`Starter tidak ditemukan: ${n}`);
-    }
-
-    const dest = resolveDestForStarter(plan, n);
-
-    logger.info(
-      `Menyalin template '${n}' -> '${dest}'${dryRun ? " (dry run)" : ""}`
-    );
-
-    if (dryRun) continue;
-
-    if (fs.existsSync(dest)) {
-      throw new Error(`Direktori tujuan sudah ada: ${dest}`);
-    }
-
-    copyRecursiveSync(starterPath, dest);
+  if (fetchMode === "positional") {
+    const plan = await handlePositionalMode(opts);
+    logger.info(`Creating starter(s) in ${plan.destinationDir} using mode: ${plan.mode}`);
+    logger.info(`Starters to create: ${plan.starterNames.join(", ")}`);
+    process.exit(0);
+  } else if (fetchMode === "filter") {
+    const plan = await handleFilterMode(opts);
+    logger.info(`Creating starter(s) in ${plan.destinationDir} using mode: ${plan.mode}`);
+    logger.info(`Starters to create: ${plan.starterNames.join(", ")}`);
+    process.exit(0);
+  } else {
+    const plan = await handleInteractiveMode();
+    logger.info(`Creating starter(s) in ${plan.destinationDir} using mode: ${plan.mode}`);
+    logger.info(`Starters to create: ${plan.starterNames.join(", ")}`);
+    process.exit(0);
   }
 }
