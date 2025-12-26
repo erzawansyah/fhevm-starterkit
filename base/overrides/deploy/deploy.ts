@@ -20,7 +20,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     __dirname,
     "..",
     "ui",
-    "public",
     "contracts"
   );
   const INDEX_FILE_PATH = path.join(CONTRACT_DIRECTORY, "index.json");
