@@ -9,9 +9,10 @@
         "template:init": "ts-node scripts/cli.ts template:init",
         "template:update": "ts-node scripts/cli.ts template:update",
         "template:reset": "ts-node scripts/cli.ts template:reset",
-        "setup:hardhat": "ts-node scripts/cli.ts setup:hardhat",
+        "template:clean": "ts-node scripts/cli.ts template:clean",
         "setup:frontend": "ts-node scripts/cli.ts setup:frontend",
         "starter:list": "ts-node scripts/cli.ts starter:list",
+        "start": "npm run template:init && npm run setup:frontend",
         "starter:create": "ts-node scripts/cli.ts starter:create",
         "docs:generate": "ts-node scripts/docs-generate.ts",
         "web": "npm --prefix apps/web run dev",
@@ -25,6 +26,7 @@
     "devDependencies": {
         "@types/node": "^20.19.26",
         "ajv": "^8.12.0",
+        "rimraf": "^6.1.2",
         "ts-node": "^10.9.2",
         "tsx": "^4.21.0",
         "typescript": "^5.8.3",
@@ -32,6 +34,7 @@
     },
     "dependencies": {
         "commander": "^14.0.2",
+        "enquirer": "^2.4.1",
         "zod": "^4.2.1"
     }
 }
