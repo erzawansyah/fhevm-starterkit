@@ -48,9 +48,9 @@ export async function runTemplateBuildUI(opts: GlobalOptions) {
   logger.info(`Menyalin .env.local ke ${quotePath(FRONTEND_ENV_TARGET)}...`);
 
   // Jalankan npm install di dalam folder template frontend
-  logger.info(`Menjalankan npm install di dalam template frontend...`);
+  logger.info("Menjalankan npm install di dalam template frontend...");
   logger.loading("Menginstal dependensi... (Bisa memakan waktu beberapa menit)");
-  await run(`npm ci`, {
+  await run("npm ci", {
     cwd: FRONTEND_TARGET_DIR,
     silent: !opts.verbose,
   });
@@ -59,7 +59,7 @@ export async function runTemplateBuildUI(opts: GlobalOptions) {
   // Jalankan npm run build di dalam folder template frontend
   logger.info("Menjalankan npm run build di dalam template frontend...");
   logger.loading("Membangun aplikasi frontend... (Bisa memakan waktu beberapa menit)");
-  await run(`npm run build`, {
+  await run("npm run build", {
     cwd: FRONTEND_TARGET_DIR,
     silent: !opts.verbose,
   });

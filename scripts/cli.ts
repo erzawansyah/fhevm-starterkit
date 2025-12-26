@@ -144,7 +144,7 @@ async function main() {
     .option("--concepts <concepts...>", "Filter by concepts")
     .option(
       "--and",
-      'Use AND operator when filtering by multiple tags/concepts (default: OR)',
+      "Use AND operator when filtering by multiple tags/concepts (default: OR)",
       false
     )
     .option("--skip-ui", "Skip copying frontend files", false)

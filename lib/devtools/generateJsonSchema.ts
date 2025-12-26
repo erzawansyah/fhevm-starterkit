@@ -30,16 +30,12 @@ async function main() {
 
       // prefer default export if present, otherwise find a named export that ends with "Schema"
       let schema = schemaModule.default;
-      let schemaName: string | undefined;
-      if (schema) {
-        schemaName = schema.name || file.replace(/\.schema\.(ts|js)$/, "");
-      } else {
+      if (!schema) {
         const namedKey = Object.keys(schemaModule).find((k) =>
           k.endsWith("Schema")
         );
         if (namedKey) {
           schema = schemaModule[namedKey];
-          schemaName = namedKey;
         }
       }
 

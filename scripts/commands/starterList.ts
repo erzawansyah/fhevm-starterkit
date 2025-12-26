@@ -110,12 +110,6 @@ function outputJson(
 
 function outputTable(
   rows: StarterMetadataType[],
-  meta: {
-    startersDir: string;
-    total: number;
-    showing: number;
-    warningCount: number;
-  }
 ) {
   logger.table(
     rows.map((r) => ({
@@ -174,7 +168,7 @@ export async function runStarterList(opts: StarterListOptions) {
   };
 
   if (mode === "json") return outputJson(rows, meta);
-  if (mode === "table") return outputTable(rows, meta);
+  if (mode === "table") return outputTable(rows);
 
   // default: verbose
   return outputDetailed(rows, meta);

@@ -37,7 +37,7 @@ export async function runStarterClean(starterName: string[], opts: RunStarterCle
 
     // Report missing starters
     if (missingStarters.length > 0) {
-        logger.warning(`The following starters do not exist in workspace:`);
+        logger.warning("The following starters do not exist in workspace:");
         missingStarters.forEach((name) => logger.warning(`  - ${name}`));
     }
 
@@ -48,7 +48,7 @@ export async function runStarterClean(starterName: string[], opts: RunStarterCle
     }
 
     // Show what will be deleted
-    logger.info(`The following starters will be removed from workspace:`);
+    logger.info("The following starters will be removed from workspace:");
     logger.table(
         existingStarters.map((name) => ({ Starter: name })),
     );

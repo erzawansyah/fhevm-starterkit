@@ -107,7 +107,7 @@ async function resolveActionType(starterNames: string[], dir?: string, forceProm
           name: "name",
           message: `Enter the destination directory for starter "${starterNames[0]}":`,
           initial: starterNames[0],
-        })
+        });
         destinationDir = answer.name;
         destinationPath = resolveWorkspaceStarterDir(answer.name);
       } else {
@@ -128,7 +128,7 @@ async function resolveActionType(starterNames: string[], dir?: string, forceProm
         name: "name",
         message: "You are creating multiple starters. Enter the workspace directory:",
         initial: "my-first-starters",
-      })
+      });
       destinationDir = answer.name;
       destinationPath = resolveWorkspaceStarterDir(answer.name);
     }
@@ -169,7 +169,7 @@ function resolveFetchMode(opts: StarterCreateOptions): StarterCreateFetchMode {
  * @returns  Promise<StarterCreatePlan>
  */
 async function handlePositionalMode(opts: StarterCreateOptions): Promise<StarterCreatePlan> {
-  const { starterNames } = opts
+  const { starterNames } = opts;
   const unAvailableStarters = (starterNames || []).filter((name) => {
     return !checkStarterExists(name);
   });
@@ -190,7 +190,7 @@ async function handlePositionalMode(opts: StarterCreateOptions): Promise<Starter
     destinationDir,
     destinationPath,
     action: actionType,
-  }
+  };
 };
 
 /**
@@ -207,7 +207,7 @@ async function handleFilterMode(opts: StarterCreateOptions): Promise<StarterCrea
     chapter: [] as string[],
     tags: [] as string[],
     concepts: [] as string[],
-  }
+  };
   // Test filter berdasarkan 1 kategori
   if (category) {
     const filteredStarters = await getFilteredStarter("category", category);
@@ -266,7 +266,7 @@ async function handleFilterMode(opts: StarterCreateOptions): Promise<StarterCrea
     destinationDir: destinationDir,
     destinationPath: destinationPath,
     action: actionType,
-  }
+  };
 }
 
 

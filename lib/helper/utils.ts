@@ -42,7 +42,7 @@ export function emptyDir(dir: string) {
 
   const entries = fs.readdirSync(dir);
   for (const entry of entries) {
-    const entryPath = require("path").join(dir, entry);
+    const entryPath = path.join(dir, entry);
     try {
       const stat = fs.lstatSync(entryPath);
       if (stat.isDirectory()) {
@@ -50,7 +50,7 @@ export function emptyDir(dir: string) {
       } else {
         fs.unlinkSync(entryPath);
       }
-    } catch (err) {
+    } catch {
       // ignore per-file errors
     }
   }
@@ -84,7 +84,7 @@ export function formatTags(tags?: string[], maxTags = 5): string {
   return `[${shown.join(", ")}${more}]`;
 }
 
-export function parseCount(count: any): number | undefined {
+export function parseCount(count: unknown): number | undefined {
   if (count === undefined || count === null) return undefined;
   const n = typeof count === "number" ? count : Number(String(count).trim());
   if (Number.isNaN(n)) return undefined;

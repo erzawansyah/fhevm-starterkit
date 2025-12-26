@@ -1,4 +1,4 @@
-import fs from "fs"
+import fs from "fs";
 import path from "path";
 import Handlebars from "handlebars";
 
@@ -11,7 +11,7 @@ export function renderHbsFile<T extends object>(
 
     const template = Handlebars.compile(source, {
         noEscape: true,
-        strict: true
+        strict: true,
     });
 
     return template(data);

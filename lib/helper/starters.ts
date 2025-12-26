@@ -3,7 +3,7 @@ import path from "path";
 import config from "../../starterkit.config";
 import { logger } from "./logger";
 import { StarterMetadataType } from "../types/starterMetadata.schema";
-import { resolveFrontendTemplateDir, resolveHardhatTemplateDir, resolveMarkdownTemplateDir, resolveOverridesTemplateDir, resolveStarterDir, resolveStarterMetadataFile, resolveStartersDir, resolveUiStarterDir, resolveWorkspaceDir, resolveWorkspaceStarterDir } from "./path-utils";
+import { resolveFrontendTemplateDir, resolveHardhatTemplateDir, resolveMarkdownTemplateDir, resolveOverridesTemplateDir, resolveStarterDir, resolveStarterMetadataFile, resolveStartersDir, resolveUiStarterDir, resolveWorkspaceStarterDir } from "./path-utils";
 import { quotePath, removeLinesFromFile } from "./utils";
 import { renderHbsFile } from "./renderHbs";
 import { ReadmeTemplateData } from "../types/markdownFile.schema";
@@ -94,7 +94,11 @@ export async function getFilteredStarter(
     field: "category" | "chapter" | "concepts" | "tags",
     values: string
 ): Promise<string[]> {
-    const filter = values.toLowerCase().trim().split(",").map((v) => v.trim())
+    const filter = values
+        .toLowerCase()
+        .trim()
+        .split(",")
+        .map((v) => v.trim());
     // Get all starter metadata
     const data = await getAllStarterMetadata();
     if (field === "category" || field === "chapter") {
@@ -121,14 +125,14 @@ export async function getFilteredStarter(
  * @returns boolean
  */
 export function handleSkipUi(skipUi: boolean | undefined): void {
-    const builtUiDir = path.join(resolveFrontendTemplateDir(), 'dist');
+    const builtUiDir = path.join(resolveFrontendTemplateDir(), "dist");
     // Jika skipUi true, maka tidak perlu cek dist
     // Jika false atau undefined, maka cek dist
     if (!skipUi) {
         // Check apakah dist direktori ada di frontend template
         if (!fs.existsSync(builtUiDir)) {
             logger.error(`Direktori dist tidak ditemukan di template frontend: ${quotePath(builtUiDir)}`);
-            logger.error(`Silakan jalankan ${quotePath('npm start')} atau ${quotePath('npm run template:build-ui')} dari root project terlebih dahulu.`);
+            logger.error(`Silakan jalankan ${quotePath("npm start")} atau ${quotePath("npm run template:build-ui")} dari root project terlebih dahulu.`);
             process.exit(1);
         }
     }
@@ -143,11 +147,11 @@ export function handleSkipUi(skipUi: boolean | undefined): void {
  */
 export async function copyTemplateToWorkspace(targetDir: string, skipUi: boolean = false): Promise<void> {
     const hardhatTemplate = resolveHardhatTemplateDir(); // /base/hardhat-template
-    const frontendTemplate = resolveFrontendTemplateDir() // /base/frontend-template
+    const frontendTemplate = resolveFrontendTemplateDir(); // /base/frontend-template
     const overridesTemplate = resolveOverridesTemplateDir(); // /base/overrides
-    const workspaceStarter = resolveWorkspaceStarterDir(targetDir)
-    const workspaceUiStarterDir = resolveUiStarterDir(targetDir)
-    const builtUiDir = path.join(frontendTemplate, 'dist');
+    const workspaceStarter = resolveWorkspaceStarterDir(targetDir);
+    const workspaceUiStarterDir = resolveUiStarterDir(targetDir);
+    const builtUiDir = path.join(frontendTemplate, "dist");
     const actions = config.template.actions;
     handleSkipUi(skipUi);
 
@@ -164,7 +168,7 @@ export async function copyTemplateToWorkspace(targetDir: string, skipUi: boolean
     // Create filter function for specific source directory
     const createFilterFunc =
         (sourceDir: string) =>
-            (src: string, dest: string): boolean => {
+            (src: string): boolean => {
                 const absSourceDir = path.resolve(sourceDir);
                 const absSrc = path.resolve(src);
 
@@ -231,8 +235,8 @@ export async function copyTemplateToWorkspace(targetDir: string, skipUi: boolean
     // TODO: Remove hardcoded path. Make it configurable from config file.
     // Menghapus baris di file tertentu
     removeLinesFromFile(
-        'base/hardhat-template/hardhat.config.ts',
-        'import \"./tasks/FHECounter\"',
+        "base/hardhat-template/hardhat.config.ts",
+        "import \"./tasks/FHECounter\"",
         { exact: false }
     );
 
@@ -325,7 +329,7 @@ export async function copyStarterToWorkspace(starterNames: string[], destination
     // Copy contractList to workspace/<destinationDir>/contract-list.json
     const contractListFile = path.join(targetDir, "contract-list.json");
     fs.writeFileSync(contractListFile, JSON.stringify(contractList, null, 2), { encoding: "utf-8" });
-    logger.info(`✔ Semua starter telah disalin ke workspace/${destinationDir}`)
+    logger.info(`✔ Semua starter telah disalin ke workspace/${destinationDir}`);
 }
 
 

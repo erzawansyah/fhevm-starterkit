@@ -8,7 +8,7 @@ const METADATA_FILE = config.metadataFile; // metadata file name e.g. 'metadata.
 const HARDHAT_TEMPLATE_DIR = config.template.hardhat.dir; // dir name of hardhat template e.g. 'base/hardhat-template'
 const FRONTEND_TEMPLATE_DIR = config.template.frontend.dir; // dir name of frontend template e.g. 'base/frontend-template'
 const OVERRIDES_TEMPLATE_DIR = config.template.overrides; // dir name of overrides template e.g. 'base/overrides'
-const UI_STARTER_DIR = config.starterFrontendDir || 'ui'; // dir name of frontend inside each starter e.g. 'ui'
+const UI_STARTER_DIR = config.starterFrontendDir || "ui"; // dir name of frontend inside each starter e.g. 'ui'
 const MARKDOWN_TEMPLATE_DIR = config.template.markdown || "markdown-template"; // markdown template file name e.g. 'README_TEMPLATE.md'
 
 /**
