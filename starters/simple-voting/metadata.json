@@ -1,0 +1,21 @@
+{
+    "name": "simple-voting",
+    "label": "Simple Voting",
+    "description": "A basic voting contract where addresses can vote for candidates.",
+    "details": "Illustrates a simple voting flow and vote counting; suitable for governance examples.",
+    "version": "0.1.0",
+    "fhevm_version": "0.1.0",
+    "category": "fundamental",
+    "chapter": "basics",
+    "concepts": [],
+    "tags": [
+        "Governance",
+        "example"
+    ],
+    "authors": [
+        {
+            "name": "starterkit"
+        }
+    ],
+    "has_ui": false
+}

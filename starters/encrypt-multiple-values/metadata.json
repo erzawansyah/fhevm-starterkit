@@ -1,0 +1,30 @@
+{
+    "name": "encrypt-multiple-values",
+    "label": "Encrypt Multiple Values",
+    "description": "Starter demonstrating storing arbitrary encrypted payloads on-chain (placeholder for FHE workflows).",
+    "details": "Provides a simple storage interface for encrypted blobs and a baseline test. Adapt the ABI and storage to your FHE pipeline.",
+    "version": "0.1.0",
+    "fhevm_version": "0.1.0",
+    "category": "fundamental",
+    "chapter": "encryption",
+    "concepts": [
+        "FHE.asEuint256"
+    ],
+    "tags": [
+        "Storage",
+        "fhe",
+        "example"
+    ],
+    "authors": [
+        {
+            "name": "starterkit"
+        }
+    ],
+    "has_ui": false,
+    "additional_packages": [
+        {
+            "name": "@zama/fhe",
+            "version": "^0.1.0"
+        }
+    ]
+}

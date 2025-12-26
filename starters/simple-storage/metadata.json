@@ -1,0 +1,21 @@
+{
+    "name": "simple-storage",
+    "label": "Simple Storage",
+    "description": "Minimal contract storing and retrieving a single uint256 value.",
+    "details": "Demonstrates basic storage and retrieval operations in Solidity. Useful as an introductory starter for newcomers.",
+    "version": "0.1.0",
+    "fhevm_version": "0.1.0",
+    "category": "fundamental",
+    "chapter": "basics",
+    "concepts": [],
+    "tags": [
+        "Storage",
+        "example"
+    ],
+    "authors": [
+        {
+            "name": "starterkit"
+        }
+    ],
+    "has_ui": false
+}
