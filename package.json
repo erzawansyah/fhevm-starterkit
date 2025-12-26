@@ -26,16 +26,18 @@
         "generate:schema": "tsx lib/devtools/generateJsonSchema.ts"
     },
     "devDependencies": {
-        "@types/node": "^20.19.26",
+        "@types/handlebars": "^4.0.40",
+        "@types/node": "^20.19.27",
         "ajv": "^8.12.0",
         "rimraf": "^6.1.2",
         "ts-node": "^10.9.2",
         "tsx": "^4.21.0",
-        "typescript": "^5.8.3"
+        "typescript": "^5.9.3"
     },
     "dependencies": {
         "commander": "^14.0.2",
         "enquirer": "^2.4.1",
+        "handlebars": "^4.7.8",
         "zod": "^4.2.1"
     }
 }
