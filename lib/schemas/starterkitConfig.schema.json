@@ -100,6 +100,24 @@
                 ],
                 "additionalProperties": false
               }
+            },
+            "additionalPackages": {
+              "type": "object",
+              "properties": {
+                "dependencies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "devDependencies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -120,6 +138,12 @@
       ],
       "additionalProperties": false
     },
+  },
+  "additionalScripts": {
+    "type": "object",
+    "additionalProperties": {
+      "type": "string"
+    }
     "taxonomy": {
       "type": "object",
       "properties": {

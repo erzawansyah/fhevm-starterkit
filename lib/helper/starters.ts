@@ -4,9 +4,91 @@ import config from "../../starterkit.config";
 import { logger } from "./logger";
 import { StarterMetadataType } from "../types/starterMetadata.schema";
 import { resolveFrontendTemplateDir, resolveHardhatTemplateDir, resolveMarkdownTemplateDir, resolveOverridesTemplateDir, resolveStarterDir, resolveStarterMetadataFile, resolveStartersDir, resolveUiStarterDir, resolveWorkspaceStarterDir } from "./path-utils";
-import { quotePath, removeLinesFromFile } from "./utils";
+import { quotePath, removeLinesFromFile, safeReadJson } from "./utils";
 import { renderHbsFile } from "./renderHbs";
 import { ReadmeTemplateData } from "../types/markdownFile.schema";
+
+type AdditionalPackages = {
+    dependencies?: string[];
+    devDependencies?: string[];
+    scripts?: Record<string, string>;
+};
+
+function normalizeScripts(input: unknown): Record<string, string> {
+    if (!input || typeof input !== "object") return {};
+    const entries = Object.entries(input as Record<string, unknown>).filter(([, v]) => typeof v === "string");
+    const out: Record<string, string> = {};
+    for (const [k, v] of entries) {
+        out[k] = v as string;
+    }
+    return out;
+}
+
+function readGlobalAdditionalPackages(): AdditionalPackages {
+    const pkg = config.template.actions.additionalPackages;
+    const scripts = normalizeScripts(config.template.actions.additionalScripts);
+    return {
+        dependencies: Array.isArray(pkg?.dependencies)
+            ? pkg?.dependencies.filter(Boolean)
+            : [],
+        devDependencies: Array.isArray(pkg?.devDependencies)
+            ? pkg?.devDependencies.filter(Boolean)
+            : [],
+        scripts,
+    };
+}
+
+function readAdditionalPackages(sourceDir: string): AdditionalPackages {
+    const manifestPath = path.join(sourceDir, "packages.extra.json");
+    if (!fs.existsSync(manifestPath)) return {};
+
+    const parsed = safeReadJson<AdditionalPackages>(manifestPath);
+    if (!parsed.ok) {
+        logger.warning(`Gagal membaca packages.extra.json di ${quotePath(manifestPath)}: ${parsed.error}`);
+        return {};
+    }
+
+    const deps = Array.isArray(parsed.data.dependencies)
+        ? parsed.data.dependencies.filter(Boolean)
+        : [];
+    const devDeps = Array.isArray(parsed.data.devDependencies)
+        ? parsed.data.devDependencies.filter(Boolean)
+        : [];
+    const scripts = normalizeScripts(parsed.data.scripts);
+
+    return {
+        dependencies: deps,
+        devDependencies: devDeps,
+        scripts,
+    };
+}
+
+function parsePackageSpec(spec: string): { name: string; version: string } {
+    const trimmed = spec.trim();
+    if (!trimmed) return { name: "", version: "" };
+
+    // Scoped package: split on last "@"
+    if (trimmed.startsWith("@")) {
+        const at = trimmed.lastIndexOf("@");
+        if (at > 0) {
+            return {
+                name: trimmed.slice(0, at),
+                version: trimmed.slice(at + 1) || "*",
+            };
+        }
+        return { name: trimmed, version: "*" };
+    }
+
+    const at = trimmed.indexOf("@");
+    if (at > 0) {
+        return {
+            name: trimmed.slice(0, at),
+            version: trimmed.slice(at + 1) || "*",
+        };
+    }
+
+    return { name: trimmed, version: "*" };
+}
 
 /**
  * Get all available starter project names from the starters directory.
@@ -265,6 +347,15 @@ export async function copyStarterToWorkspace(starterNames: string[], destination
         name: string;
         file: string;
     }[] = [];
+    const depSet = new Set<string>();
+    const devDepSet = new Set<string>();
+    const scriptsMap = new Map<string, string>();
+    const globalPackages = readGlobalAdditionalPackages();
+    globalPackages.dependencies?.forEach((pkg) => depSet.add(pkg));
+    globalPackages.devDependencies?.forEach((pkg) => devDepSet.add(pkg));
+    if (globalPackages.scripts) {
+        Object.entries(globalPackages.scripts).forEach(([k, v]) => scriptsMap.set(k, v));
+    }
 
     // Create workspace/<destinationDir> directory if not exists
     if (!fs.existsSync(targetDir)) {
@@ -276,6 +367,12 @@ export async function copyStarterToWorkspace(starterNames: string[], destination
         // Get a starter's source directory
         const sourceDir = resolveStarterDir(starterName);
         const sourceReadmeFile = path.join(sourceDir, "README.md"); // ini akan menjadi disimpan ke dalam docs
+        const extraPackages = readAdditionalPackages(sourceDir);
+        extraPackages.dependencies?.forEach((pkg) => depSet.add(pkg));
+        extraPackages.devDependencies?.forEach((pkg) => devDepSet.add(pkg));
+        if (extraPackages.scripts) {
+            Object.entries(extraPackages.scripts).forEach(([k, v]) => scriptsMap.set(k, v));
+        }
 
         // Copy starters/<starter-name>/contracts to workspace/<destinationDir>/contracts
         const sourceContractsDir = path.join(sourceDir, "contracts");
@@ -330,6 +427,51 @@ export async function copyStarterToWorkspace(starterNames: string[], destination
     const contractListFile = path.join(targetDir, "contract-list.json");
     fs.writeFileSync(contractListFile, JSON.stringify(contractList, null, 2), { encoding: "utf-8" });
     logger.info(`✔ Semua starter telah disalin ke workspace/${destinationDir}`);
+
+    const deps = Array.from(depSet);
+    const devDeps = Array.from(devDepSet);
+    const hasDeps = deps.length > 0;
+    const hasDevDeps = devDeps.length > 0;
+    const scripts = scriptsMap.size > 0 ? Object.fromEntries(scriptsMap.entries()) : undefined;
+
+    if (hasDeps || hasDevDeps) {
+        const pkgPath = path.join(targetDir, "package.json");
+        const parsedPkg = safeReadJson<Record<string, unknown>>(pkgPath);
+        if (!parsedPkg.ok) {
+            logger.warning(`package.json tidak ditemukan/invalid di ${quotePath(pkgPath)}; lewati penambahan deps tambahan.`);
+            return;
+        }
+
+        const pkgJson = parsedPkg.data as Record<string, unknown>;
+        const existingDeps = (pkgJson.dependencies as Record<string, string> | undefined) || {};
+        const existingDevDeps = (pkgJson.devDependencies as Record<string, string> | undefined) || {};
+        const existingScripts = (pkgJson.scripts as Record<string, string> | undefined) || {};
+
+        const upsert = (target: Record<string, string>, specs: string[]): void => {
+            for (const spec of specs) {
+                const { name, version } = parsePackageSpec(spec);
+                target[name] = version;
+            }
+        };
+
+        upsert(existingDeps, deps);
+        upsert(existingDevDeps, devDeps);
+        if (scripts) {
+            Object.entries(scripts).forEach(([k, v]) => {
+                existingScripts[k] = v;
+            });
+        }
+
+        const updated = {
+            ...pkgJson,
+            dependencies: existingDeps,
+            devDependencies: existingDevDeps,
+            scripts: existingScripts,
+        };
+
+        fs.writeFileSync(pkgPath, `${JSON.stringify(updated, null, 2)}\n`, "utf-8");
+        logger.success("Paket dan script tambahan telah ditambahkan ke package.json (tanpa install otomatis).");
+    }
 }
 
 

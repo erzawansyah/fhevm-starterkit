@@ -29,6 +29,13 @@ export const TemplateActionsConfigSchema = z.object({
     path: z.string(),
     content: z.string(),
   })).optional(),
+  /** Additional npm packages to install globally for generated workspaces */
+  additionalPackages: z.object({
+    dependencies: z.array(z.string()).optional(),
+    devDependencies: z.array(z.string()).optional(),
+  }).optional(),
+  /** Additional npm scripts to merge into generated workspaces */
+  additionalScripts: z.record(z.string()).optional(),
 });
 export type TemplateActionsConfigType = z.infer<
   typeof TemplateActionsConfigSchema

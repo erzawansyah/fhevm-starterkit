@@ -41,6 +41,17 @@ const config: StarterKitConfigType = {
         "docs",
       ],
       createFiles: [],
+      additionalPackages: {
+        dependencies: [],
+        devDependencies: [
+          "serve@14.2.3",
+        ],
+      },
+      additionalScripts: {
+        "serve:ui": "serve -s ui -l 3000",
+        "starter:build": "echo 'Run template:build-ui command to build the frontend template'",
+        "starter:publish": "echo 'Publish your starter project to your own repository'",
+      },
     },
     overrides: "base/overrides",
     markdown: "base/markdown-template",
