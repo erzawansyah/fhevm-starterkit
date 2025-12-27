@@ -1,0 +1,254 @@
+{
+  "name": "confidential-survey",
+  "contract_name": "ConfidentialSurvey",
+  "contract_filename": "ConfidentialSurvey.sol",
+  "label": "confidential-survey",
+  "description": "Privacy-preserving survey system where all responses remain encrypted until survey closure.",
+  "details": "This contract implements a fully confidential survey system using Fully Homomorphic Encryption (FHE).\nAll survey responses are encrypted on-chain and can only be decrypted after survey closure.\nThe contract computes encrypted statistics in real-time without revealing individual responses.\n@dev Key Features:\n- Encrypted response submission with FHE operations\n- Real-time encrypted statistical aggregation (mean, variance, min, max, frequency)\n- Survey lifecycle management (Created → Active → Closed)\n- Configurable respondent limits and question constraints\n- Granular decryption permissions for owners and respondents\n@dev Usage Flow:\n1. Initialize survey with metadata and questions\n2. Publish survey with max scores per question\n3. Respondents submit encrypted responses\n4. Survey auto-closes when limit reached or manually closed\n5. Grant decrypt permissions to view aggregated statistics\n@custom:category advanced\n@custom:chapter encryption\n@custom:tags Survey, Statistics, Privacy, Governance\n@custom:ui true\n@dev Constraints:\n- Max 1000 respondents per survey (gas optimization)\n- Max 15 questions per survey\n- Max score 10 per question (1-10 range)\n- Single response per address (no revisions)\n@custom:security\n- ReentrancyGuard protects submission flow\n- Owner-only functions for survey management\n- Encrypted statistics prevent data leakage\n- Permission-based decryption model\n@custom:since 0.1.0",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "advanced",
+  "tags": [
+    "Survey",
+    "Statistics",
+    "Privacy",
+    "Governance"
+  ],
+  "concepts": [
+    "FHE.add",
+    "FHE.mul",
+    "FHE.eq",
+    "FHE.gt",
+    "FHE.lt",
+    "FHE.select",
+    "FHE.fromExternal",
+    "FHE.asEuint8",
+    "FHE.asEuint64",
+    "FHE.allow",
+    "FHE.allowThis"
+  ],
+  "chapter": "encryption",
+  "has_ui": true,
+  "authors": [
+    {
+      "name": "M.E.W",
+      "url": "https://github.com/erzawansyah"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "survey",
+      "type": "SurveyDetails",
+      "visibility": "public",
+      "notice": "Complete survey configuration and metadata"
+    },
+    {
+      "name": "totalRespondents",
+      "type": "uint256",
+      "visibility": "public",
+      "notice": "Current number of users who have submitted responses"
+    },
+    {
+      "name": "respondents",
+      "type": "address[]",
+      "visibility": "public",
+      "dev": "Array of all respondent addresses for enumeration (limited to MAX_RESPONDENTS for gas efficiency)"
+    }
+  ],
+  "structs": [
+    {
+      "name": "SurveyDetails",
+      "fields": [
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "name": "metadataCID",
+          "type": "string"
+        },
+        {
+          "name": "questionsCID",
+          "type": "string"
+        },
+        {
+          "name": "totalQuestions",
+          "type": "uint256"
+        },
+        {
+          "name": "respondentLimit",
+          "type": "uint256"
+        },
+        {
+          "name": "createdAt",
+          "type": "uint256"
+        },
+        {
+          "name": "status",
+          "type": "SurveyStatus"
+        }
+      ]
+    },
+    {
+      "name": "QuestionStats",
+      "fields": [
+        {
+          "name": "total",
+          "type": "euint64"
+        },
+        {
+          "name": "sumSquares",
+          "type": "euint64"
+        },
+        {
+          "name": "minScore",
+          "type": "euint8"
+        },
+        {
+          "name": "maxScore",
+          "type": "euint8"
+        }
+      ]
+    },
+    {
+      "name": "RespondentStats",
+      "fields": [
+        {
+          "name": "total",
+          "type": "euint64"
+        },
+        {
+          "name": "sumSquares",
+          "type": "euint64"
+        },
+        {
+          "name": "minScore",
+          "type": "euint8"
+        },
+        {
+          "name": "maxScore",
+          "type": "euint8"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "name": "SurveyStatus",
+      "values": [
+        "Created",
+        "Active",
+        "Closed",
+        "Trashed"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "SurveyCreated",
+      "signature": "SurveyCreated(address indexed owner, string symbol, string metadataCID)",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "indexed": false
+        },
+        {
+          "name": "metadataCID",
+          "type": "string",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "name": "SurveyMetadataUpdated",
+      "signature": "SurveyMetadataUpdated(string cid)",
+      "params": [
+        {
+          "name": "cid",
+          "type": "string",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "name": "SurveyQuestionsUpdated",
+      "signature": "SurveyQuestionsUpdated(uint256 totalQuestions)",
+      "params": [
+        {
+          "name": "totalQuestions",
+          "type": "uint256",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "name": "SurveyPublished",
+      "signature": "SurveyPublished()"
+    },
+    {
+      "name": "SurveyClosed",
+      "signature": "SurveyClosed(uint256 totalRespondents)",
+      "params": [
+        {
+          "name": "totalRespondents",
+          "type": "uint256",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "name": "SurveyDeleted",
+      "signature": "SurveyDeleted()"
+    },
+    {
+      "name": "ResponsesSubmitted",
+      "signature": "ResponsesSubmitted()"
+    },
+    {
+      "name": "SurveyInitialized",
+      "signature": "SurveyInitialized(\r\n        address indexed owner,\r\n        string symbol,\r\n        string metadataCID,\r\n        string questionsCID,\r\n        uint256 totalQuestions,\r\n        uint256 respondentLimit\r\n    )",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "indexed": false
+        },
+        {
+          "name": "metadataCID",
+          "type": "string",
+          "indexed": false
+        },
+        {
+          "name": "questionsCID",
+          "type": "string",
+          "indexed": false
+        },
+        {
+          "name": "totalQuestions",
+          "type": "uint256",
+          "indexed": false
+        },
+        {
+          "name": "respondentLimit",
+          "type": "uint256",
+          "indexed": false
+        }
+      ]
+    }
+  ]
+}
