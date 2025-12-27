@@ -40,7 +40,9 @@ const config: StarterKitConfigType = {
       createDirs: ["docs"],
       createFiles: [],
       additionalPackages: {
-        dependencies: [],
+        dependencies: [
+          "@openzeppelin/contracts@^5.4.0",
+        ],
         devDependencies: ["serve@14.2.3"],
       },
       additionalScripts: {
