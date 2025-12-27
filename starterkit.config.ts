@@ -49,7 +49,7 @@ const config: StarterKitConfigType = {
       },
       additionalScripts: {
         // deploys to localhost and sepolia, then starts hardhat node
-        "starter:dev": "npx hardhat deploy && npx hardhat deploy --network sepolia && npx hardhat node",
+        "starter:runtime": "npx hardhat deploy && npx hardhat deploy --network sepolia && npx hardhat node",
         // serves the frontend on port 3000
         "starter:start-ui": "serve -s ui -l 3000",
         // builds the frontend template

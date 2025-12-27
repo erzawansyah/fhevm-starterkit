@@ -7,6 +7,7 @@ import { type Mode, runStarterList } from "./commands/starterList";
 import { runStarterCreate, StarterCreateOptions } from "./commands/starterCreate";
 import { runStarterClean } from "./commands/starterClean";
 import { runTemplateBuildUI } from "./commands/templateBuildUI";
+import { runStarterAdd, StarterAddOptions } from "./commands/starterAdd";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -153,6 +154,18 @@ async function main() {
       const g = program.opts<GlobalOptions>();
       applyCwd(g.cwd);
       await runStarterCreate({ starterNames, ...opts, ...program.opts() });
+    });
+
+  program
+    .command("starter:add [contractName]")
+    .description("Create a new draft starter for development")
+    .option("-d, --dir <dir>", "Target directory (default: workspace/draft-{timestamp})")
+    .option("--skip-ui", "Skip copying frontend files", false)
+    .option("--force", "Overwrite existing files in target directory", false)
+    .action(async (contractName: string, opts: StarterAddOptions) => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
+      await runStarterAdd({ contractName, ...opts, ...g });
     });
 
   program
