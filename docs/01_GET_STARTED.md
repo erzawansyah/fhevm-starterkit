@@ -33,7 +33,44 @@ npm install
 
 ---
 
-## Langkah 3: Initialize Base Templates
+## Langkah 3: Setup Environment Variables
+
+Jika Anda ingin menggunakan frontend template (UI), salin file `.env.example` menjadi `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+Edit file `.env.local` dan isi WalletConnect Project ID Anda:
+
+```env
+VITE_WALLETCONNECT_PROJECT_ID=YOUR_PROJECT_ID_HERE
+```
+
+Dapatkan Project ID gratis dari [WalletConnect Cloud](https://cloud.walletconnect.com).
+
+> **Note:** Langkah ini hanya dibutuhkan jika Anda akan menggunakan UI relayer. Untuk smart contract development saja, langkah ini opsional.
+
+---
+
+## Cara Mudah: Gunakan `npm start`
+
+Setelah langkah 3, Anda bisa langsung menjalankan:
+
+```bash
+npm start
+```
+
+Perintah ini akan otomatis menjalankan:
+
+- `npm run template:init` — Clone base templates
+- `npm run template:build-ui` — Setup frontend environment
+
+Ini menghemat waktu dan memastikan semua setup yang diperlukan sudah lengkap!
+
+---
+
+## Langkah 4: Initialize Base Templates (Alternative)
 
 Inisialisasi base templates dengan menjalankan:
 
@@ -55,9 +92,9 @@ npm run template:update
 
 ---
 
-## Langkah 4: Build Frontend Template (Optional)
+## Langkah 5: Build Frontend Template (Optional)
 
-Jika Anda ingin menggunakan UI relayer, build frontend template:
+Jika Anda tidak menggunakan `npm start` di atas, build frontend template secara manual:
 
 ```bash
 npm run template:build-ui
@@ -67,7 +104,7 @@ Ini akan setup environment dan dependencies untuk frontend template.
 
 ---
 
-## Langkah 5: Explore Available Starters
+## Langkah 6: Explore Available Starters
 
 List semua starter yang tersedia:
 
@@ -87,7 +124,7 @@ Available Starters:
 
 ---
 
-## Langkah 6: Create Project dari Starter
+## Langkah 7: Create Project dari Starter
 
 Ada dua cara membuat project baru dari starter:
 
@@ -138,7 +175,7 @@ Untuk penjelasan lengkap semua opsi, lihat [02_USING_STARTER_SCRIPT.md](02_USING
 
 ---
 
-## Langkah 7: Setup Project di Workspace
+## Langkah 8: Setup Project di Workspace
 
 Setelah project tercipta, masuk ke directory project:
 
@@ -148,7 +185,7 @@ cd workspace/my-fhe-add
 
 ---
 
-## Langkah 8: Install Project Dependencies
+## Langkah 9: Install Project Dependencies
 
 ```bash
 npm install
@@ -156,7 +193,7 @@ npm install
 
 ---
 
-## Langkah 9: Compile & Test Contract
+## Langkah 10: Compile & Test Contract
 
 Compile kontrak Solidity:
 
@@ -172,7 +209,7 @@ npx hardhat test
 
 ---
 
-## Langkah 10: Deploy Contract (Optional)
+## Langkah 11: Deploy Contract (Optional)
 
 ### Deploy ke Hardhat Network (localhost)
 
@@ -194,11 +231,11 @@ npx hardhat deploy
 npx hardhat deploy --network sepolia
 ```
 
-> **Note:** Pastikan Anda sudah setup environment variables untuk Infura API key dan mnemonic jika ingin deploy ke testnet.
+> **Note:** Pastikan Anda sudah setup `.env.local` dengan `SEPOLIA_RPC_URL` dan `PRIVATE_KEY` jika ingin deploy ke testnet.
 
 ---
 
-## Langkah 11: Interaksi dengan UI (Optional)
+## Langkah 12: Interaksi dengan UI (Optional)
 
 Jika Anda telah build frontend template, Anda bisa menjalankan UI untuk interaksi dengan kontrak:
 
