@@ -1,0 +1,60 @@
+/**
+ * @example-id {{starterId}}
+ * @test-suite {{contractName}}
+ * @test-goal
+ * - {{testGoal}}
+ */
+
+import {
+  FhevmType,
+  HardhatFhevmRuntimeEnvironment,
+} from "@fhevm/hardhat-plugin";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import * as hre from "hardhat";
+
+import type { Signers } from "../../types";
+
+async function deployFixture() {
+  const factory = await ethers.getContractFactory("{{contractName}}");
+  const contract = await factory.deploy();
+  const contractAddress = await contract.getAddress();
+
+  return { contract, contractAddress };
+}
+
+describe("{{contractName}}", function () {
+  let contract: any;
+  let contractAddress: string;
+  let signers: Signers;
+  let alice: HardhatEthersSigner;
+  let bob: HardhatEthersSigner;
+
+  before(async function () {
+    if (!hre.fhevm.isMock) {
+      throw new Error(`This hardhat test suite cannot run on Sepolia Testnet`);
+    }
+
+    const ethSigners: HardhatEthersSigner[] = await ethers.getSigners();
+    signers = { owner: ethSigners[0], alice: ethSigners[1] };
+    alice = ethSigners[1];
+    bob = ethSigners[2];
+  });
+
+  beforeEach(async function () {
+    const deployment = await deployFixture();
+    contractAddress = deployment.contractAddress;
+    contract = deployment.contract;
+  });
+
+  // @scenario {{scenarioName}}
+  describe("{{scenarioDescription}}", function () {
+    // @case {{testCaseName}}
+    it("{{testCaseDescription}}", async function () {
+      const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
+
+      // TODO: Add your test logic here
+    });
+  });
+});

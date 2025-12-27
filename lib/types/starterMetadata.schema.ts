@@ -74,5 +74,9 @@ export const StarterMetadataSchema = z.object({
 });
 
 export type StarterMetadataType = z.infer<typeof StarterMetadataSchema>;
+export type CategoryEnumType = z.infer<typeof CategoryEnum>;
+export type ChapterEnumType = z.infer<typeof ChapterEnum>;
+export type ConceptEnumType = z.infer<typeof ConceptEnum>;
+export type TagsEnumType = z.infer<typeof TagsEnum>;
 
 export default StarterMetadataSchema;

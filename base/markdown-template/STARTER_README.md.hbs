@@ -1,0 +1,75 @@
+# {{label}} ({{name}})
+
+{{#if description}}
+{{description}}
+{{/if}}
+
+{{#if details}}
+## Details
+{{{details}}}
+{{/if}}
+
+## Metadata
+- Contract: `{{contract_name}}` — `contracts/{{contract_filename}}`
+- Category: `{{category}}` / Chapter: `{{chapter}}`
+{{#if version}}- Version: `{{version}}`{{/if}}
+{{#if fhevm_version}}- FHEVM version: `{{fhevm_version}}`{{/if}}
+- UI included: {{#if has_ui}}Yes{{else}}No{{/if}}
+
+{{#if concepts}}
+## Concepts Demonstrated
+{{#each concepts}}
+- `{{this}}`
+{{/each}}
+{{/if}}
+
+{{#if tags}}
+## Tags
+{{#each tags}}
+- {{this}}
+{{/each}}
+{{/if}}
+
+{{#if authors}}
+## Authors
+{{#each authors}}
+- **{{name}}**{{#if email}} — <{{email}}>{{/if}}{{#if url}} — [Website]({{url}}){{/if}}
+{{/each}}
+{{/if}}
+
+{{#if constructor_args}}
+## Constructor Arguments
+{{#if (gt (length constructor_args) 0)}}
+{{#each constructor_args}}
+- `{{this}}`
+{{/each}}
+{{else}}
+No constructor arguments required.
+{{/if}}
+{{/if}}
+
+{{#if additional_packages}}
+## Additional Packages
+These extra packages are referenced by this starter:
+{{#each additional_packages}}
+- `{{name}}@{{version}}`
+{{/each}}
+{{/if}}
+
+{{#if additional_files}}
+## Additional Files
+Included files:
+{{#each additional_files}}
+- `{{this}}`
+{{/each}}
+{{/if}}
+
+## Quick start
+1. Install dependencies: `npm install`
+2. Compile & test (Hardhat): `npx hardhat test`
+3. Deploy the contract in `contracts/{{contract_filename}}` as needed.
+
+{{#if has_ui}}
+## Frontend
+This starter includes a UI. See the frontend folder or README instructions for running the relayer/UI.
+{{/if}}

@@ -162,12 +162,10 @@ async function main() {
   program
     .command("starter:add [contractName]")
     .description("Create a new draft starter for development")
-    .option(
-      "-d, --dir <dir>",
-      "Target directory (default: workspace/draft-{timestamp})",
-    )
-    .option("--skip-ui", "Skip copying frontend files", false)
-    .option("--force", "Overwrite existing files in target directory", false)
+    .option("--category <category>", "Category of the draft starter")
+    .option("--chapter <chapter>", "Chapter of the draft starter")
+    .option("--tags <tags...>", "Tags for the draft starter")
+    .option("--force", "Overwrite existing files", false)
     .action(async (contractName: string, opts: StarterAddOptions) => {
       const g = program.opts<GlobalOptions>();
       applyCwd(g.cwd);

@@ -13,19 +13,61 @@
  * - Tidak mengubah isi folder starters/
  */
 
+import path from "path";
+import fs from "fs";
 import { logger } from "../../lib/helper/logger";
+import { resolveWorkspaceDir } from "../../lib/helper/path-utils";
+import { CategoryEnumType, ChapterEnumType, TagsEnumType } from "../../lib/types/starterMetadata.schema";
 import { GlobalOptions } from "../cli";
-// import path from "path";
-// import fs from "fs";
-// import { resolveWorkspaceStarterDir } from "../../lib/helper/path-utils";
+import { prompt } from "enquirer";
+import { copyTemplateToWorkspace } from "../../lib/helper/starters";
+import { renderHbsFile } from "../../lib/helper/renderHbs";
+import { DraftContractMetadata, DraftTestMetadata } from "../../lib/types/markdownFile.schema";
 
 // Options for adding a new draft starter
 export type StarterAddOptions = GlobalOptions & {
   contractName?: string; // nama contract yang akan dibuat (opsional)
-  dir?: string; // destination directory (default: workspace/draft-{timestamp})
-  skipUI?: boolean; // skip copying frontend files
-  force?: boolean; // overwrite existing files in target directory
+  category?: CategoryEnumType; // category draft starter
+  chapter?: ChapterEnumType; // chapter draft starter
+  tags?: TagsEnumType[]; // tags draft starter
+  force?: boolean; // overwrite existing files
 };
+
+
+/**
+ * Fungsi untuk merender author name dari package.json, user git config, atau default value
+ * 
+ **/
+async function renderAuthorName(): Promise<string> {
+  // Coba ambil dari package.json
+  const workspaceDir = resolveWorkspaceDir();
+  const packageJsonPath = path.join(workspaceDir, "package.json");
+  if (fs.existsSync(packageJsonPath)) {
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+    if (packageJson.author) {
+      if (typeof packageJson.author === "string") {
+        return packageJson.author;
+      } else if (typeof packageJson.author === "object" && packageJson.author.name) {
+        return packageJson.author.name;
+      }
+    }
+  }
+
+  // Coba ambil dari git config
+  try {
+    const { execSync } = await import("child_process");
+    const gitName = execSync("git config user.name", { cwd: workspaceDir }).toString().trim();
+    if (gitName) {
+      return gitName;
+    }
+  } catch (error) {
+    logger.warning("Could not retrieve author name from git config:", error);
+  }
+
+  // Default value
+  return "FHEVM Starterkit Developer";
+
+}
 
 /**
  * Main function untuk command starter:add
@@ -40,40 +82,90 @@ export type StarterAddOptions = GlobalOptions & {
  */
 export async function runStarterAdd(opts: StarterAddOptions) {
   try {
-    logger.section("🚀 Starting starter:add command...");
-
-    // TODO: Implement logic here
-    // Anda dapat mengisi logicnya di sini
-
-    const targetDir = opts.dir || `draft-${Date.now()}`;
-    const contractName = opts.contractName || "DraftContract";
-
-    logger.info(`Contract name: ${contractName}`);
-    logger.info(`Target directory: ${targetDir}`);
-
-    // Placeholder: Di sini Anda akan menambahkan logic untuk:
-    // 1. Membuat struktur folder
-    // 2. Generate contract template
-    // 3. Generate test template
-    // 4. Generate metadata.json
-    // 5. Generate README.md
-
-    logger.success("✅ Draft starter created successfully!");
-    logger.info(`📂 Location: ${targetDir}`);
-    logger.info("📝 Next steps:");
-    logger.info(`   1. Navigate to ${targetDir}`);
-    logger.info("   2. Run npm install");
-    logger.info("   3. Start developing your contract");
-  } catch (error) {
-    logger.error("Failed to create draft starter:");
-    if (error instanceof Error) {
-      logger.error(error.message);
-      if (opts.verbose) {
-        logger.debug(error.stack || "No stack trace available");
+    logger.info("🚀 Starting starter:add command...");
+    const sourceDir = path.resolve(__dirname, "../../base/draft-template");
+    const sourceContractFile = path.join(sourceDir, "DraftContract.sol.hbs");
+    const sourceTestFile = path.join(sourceDir, "DraftContract.test.ts.hbs");
+    const workspaceDir = resolveWorkspaceDir();
+    const draftDir = path.join(
+      workspaceDir,
+      "draft"
+    );
+    const isEmpty = fs.existsSync(workspaceDir) && fs.readdirSync(workspaceDir).length === 0;
+    // Cek apakah draftDir sudah ada
+    if (fs.existsSync(draftDir) && !isEmpty) {
+      // Jika tidak --force, tampilkan error dan keluar
+      if (!opts.force) {
+        throw new Error(`Directory ${draftDir} already exists. Use --force to overwrite.`);
+      } else {
+        logger.warning(`Directory ${draftDir} already exists. Overwriting due to --force option.`);
+        const response = await prompt<{ continue: boolean }>({
+          type: "confirm",
+          name: "continue",
+          message: `Are you sure you want to overwrite the existing directory ${draftDir}?`,
+          initial: false,
+        });
+        if (!response.continue) {
+          throw new Error("Operation cancelled by user.");
+        } else {
+          // Hapus folder draftDir jika user konfirmasi
+          logger.warning(`Overwriting existing directory ${draftDir}...`);
+          fs.rmSync(draftDir, { recursive: true, force: true });
+          logger.info(`Deleted existing directory ${draftDir}.`);
+        }
       }
-    } else {
-      logger.error(String(error));
     }
+
+    // Copy base template draft starter
+    logger.section("Copying draft starter template...");
+    await copyTemplateToWorkspace("draft", false);
+    logger.success("✅ Base template copied.");
+
+
+    const contractContent = await renderHbsFile<DraftContractMetadata>(sourceContractFile, {
+      contractName: opts.contractName || "DraftContract",
+      contractLabel: opts.contractName ? opts.contractName.replace(/([A-Z])/g, " $1").trim() : "Draft Contract",
+      authorName: await renderAuthorName(),
+      category: opts.category || "fundamental",
+      chapter: opts.chapter || "basics",
+      tags: opts.tags || ["fhe", "basic", "draft"],
+    });
+
+    const testContent = await renderHbsFile<DraftTestMetadata>(sourceTestFile, {
+      starterId: opts.contractName ? `${opts.contractName.toLowerCase()}-example` : "draftcontract-example",
+      contractName: opts.contractName || "DraftContract",
+      testGoal: "Memastikan fungsi dasar contract berjalan sesuai harapan.",
+      scenarioName: "Dasar FHEVM",
+      scenarioDescription: "Pengujian fungsi dasar pada contract FHEVM.",
+      testCaseName: "Inisialisasi dan Penyimpanan Nilai",
+      testCaseDescription: "Memastikan contract dapat diinisialisasi dan menyimpan nilai terenkripsi dengan benar.",
+    });
+
+    // Tulis contract yang sudah dirender ke folder draft/contracts/
+    logger.section("Creating draft contract file...");
+    const targetContractDir = path.join(draftDir, "contracts");
+    fs.mkdirSync(targetContractDir, { recursive: true });
+    const contractFileName = opts.contractName ? `${opts.contractName}.sol` : "DraftContract.sol";
+    fs.writeFileSync(path.join(targetContractDir, contractFileName), contractContent, { encoding: "utf-8" });
+    logger.success(`✅ Draft contract ${contractFileName} created.`);
+
+    // Tulis test yang sudah dirender ke folder draft/test/
+    logger.section("Creating draft test file...");
+    const targetTestDir = path.join(draftDir, "test");
+    fs.mkdirSync(targetTestDir, { recursive: true });
+    const testFileName = opts.contractName ? `${opts.contractName}.test.ts` : "DraftContract.test.ts";
+    fs.writeFileSync(path.join(targetTestDir, testFileName), testContent, { encoding: "utf-8" });
+    logger.success(`✅ Draft test ${testFileName} created.`);
+
+    logger.success("🎉 Draft starter created successfully!");
+
+    logger.section("Next Steps:");
+    logger.info(`- Navigate to your draft starter: cd ${path.relative(process.cwd(), draftDir)}`);
+    logger.info("- Start developing your FHEVM contract!");
+    logger.info("- Run tests with: npx hardhat test");
+
+  } catch (error) {
+    logger.error("❌ Error in starter:add command:", error);
     process.exit(1);
   }
 }

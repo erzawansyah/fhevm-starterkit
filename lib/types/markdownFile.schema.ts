@@ -1,3 +1,5 @@
+import { CategoryEnumType, ChapterEnumType, TagsEnumType } from "./starterMetadata.schema";
+
 export type ReadmeContractEntry = {
   name: string;
   file: string;
@@ -18,4 +20,24 @@ export type ReadmeTemplateData = {
   contracts: ReadmeContractEntry[];
   additionalContractsNote?: string;
   sourceRepo?: string;
+};
+
+export type DraftContractMetadata = {
+  contractLabel: string;
+  contractName: string;
+  authorName: string;
+  category: CategoryEnumType;
+  chapter: ChapterEnumType
+  tags: TagsEnumType[];
+};
+
+
+export type DraftTestMetadata = {
+  starterId: string;
+  contractName: string;
+  testGoal: string;
+  scenarioName: string;
+  scenarioDescription: string;
+  testCaseName: string;
+  testCaseDescription: string;
 };
