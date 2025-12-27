@@ -12,7 +12,7 @@ This repository is designed to help developers:
 
 StarterKit supports developers at all stages — from **learning encrypted programming patterns** to **bootstrapping production-ready FHEVM projects**.
 
-### **Taxonomy-Based Organization**
+## **Taxonomy-Based Organization**
 
 Starters are organized into four categories:
 
