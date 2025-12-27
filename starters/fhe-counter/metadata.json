@@ -1,0 +1,32 @@
+{
+  "name": "fhe-counter",
+  "contract_name": "FHECounter",
+  "contract_filename": "FHECounter.sol",
+  "label": "FHECounter Starter",
+  "description": "",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "concepts": [
+    "FHE.add",
+    "FHE.sub",
+    "FHE.fromExternal",
+    "FHE.allow",
+    "FHE.allowThis"
+  ],
+  "chapter": "basics",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Unknown"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "_count",
+      "type": "euint32",
+      "visibility": "private",
+      "dev": "Stored as euint32; mutated via homomorphic add/sub."
+    }
+  ]
+}
