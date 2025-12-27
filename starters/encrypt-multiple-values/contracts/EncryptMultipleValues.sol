@@ -32,7 +32,10 @@ contract EncryptMultipleValues is ZamaEthereumConfig {
     /// @dev Validates proof via `FHE.fromExternal` before storing ciphertext.
     /// @param inputValue External `euint8` ciphertext from caller.
     /// @param inputProof zk proof that validates input ciphertext.
-    function setValue(externalEuint8 inputValue, bytes calldata inputProof) external {
+    function setValue(
+        externalEuint8 inputValue,
+        bytes calldata inputProof
+    ) external {
         // Every comment inside function will be understood as logic flow of the function
         _value = FHE.fromExternal(inputValue, inputProof);
         // Allow contract to use the newly stored ciphertext for further operations
