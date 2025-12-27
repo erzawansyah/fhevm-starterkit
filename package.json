@@ -17,6 +17,7 @@
     "starter:add": "ts-node scripts/cli.ts starter:add",
     "starter:clean": "ts-node scripts/cli.ts starter:clean",
     "starter:reset": "ts-node scripts/cli.ts starter:reset",
+    "build:metadata": "ts-node scripts/cli.ts build:metadata",
     "docs:generate": "ts-node scripts/docs-generate.ts",
     "web": "npm --prefix apps/web run dev",
     "check": "ts-node scripts/check.ts",

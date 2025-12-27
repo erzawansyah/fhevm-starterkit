@@ -52,6 +52,14 @@ Each starter includes flexible **tags** and **concepts** for filtering and disco
   - Function signatures with parameter types and descriptions
   - Support for structs, enums, constants, and constructors
 
+- **Metadata Automation**
+  Automatically generate metadata.json from Solidity contract NatSpec comments:
+  - Extract title, description, and author information
+  - Auto-detect FHE operations used (concepts)
+  - Parse constructor arguments
+  - Support for custom tags (@custom:security, @custom:limitations)
+  - See [BUILD_METADATA.md](docs/BUILD_METADATA.md) for details
+
 - **Template Management Scripts**
   Automation for initializing and updating local copies of official templates.
 
@@ -196,12 +204,13 @@ fhevm-starterkit/
 
 ### **Available Now**
 
-| Command                     | Description                              |
-| --------------------------- | ---------------------------------------- |
-| `npm run template:init`     | Initialize official Hardhat template     |
-| `npm run template:update`   | Sync base template with upstream version |
-| `npm run validate:metadata` | Validate all `starter.meta.json` files   |
-| `npm run docs:generate`     | Generate documentation from contracts    |
+| Command                     | Description                                           |
+| --------------------------- | ----------------------------------------------------- |
+| `npm run template:init`     | Initialize official Hardhat template                  |
+| `npm run template:update`   | Sync base template with upstream version              |
+| `npm run build:metadata`    | Generate metadata.json from contract NatSpec comments |
+| `npm run validate:metadata` | Validate all `starter.meta.json` files                |
+| `npm run docs:generate`     | Generate documentation from contracts                 |
 
 ### **Planned Scripts**
 

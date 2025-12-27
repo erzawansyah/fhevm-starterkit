@@ -11,6 +11,10 @@ import {
 import { runStarterClean } from "./commands/starterClean";
 import { runTemplateBuildUI } from "./commands/templateBuildUI";
 import { runStarterAdd, StarterAddOptions } from "./commands/starterAdd";
+import {
+  runBuildMetadata,
+  BuildMetadataOptions,
+} from "./commands/buildMetadata";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -181,6 +185,27 @@ async function main() {
       const g = program.opts<GlobalOptions>();
       applyCwd(g.cwd);
       await runStarterClean(starterNames, { force: !!opts.force, ...g });
+    });
+
+  program
+    .command("build:metadata <contractPath>")
+    .description("Build metadata.json from contract NatSpec comments")
+    .option("-o, --output <path>", "Output path for metadata.json")
+    .option("-n, --starter-name <name>", "Starter name (default: auto-detect)")
+    .option(
+      "-c, --category <category>",
+      "Category (fundamental, patterns, applied, advanced)",
+      "fundamental",
+    )
+    .option(
+      "--chapter <chapter>",
+      "Chapter (basics, encryption, decryption, etc.)",
+      "basics",
+    )
+    .action(async (contractPath: string, opts: Omit<BuildMetadataOptions, "contractPath">) => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
+      await runBuildMetadata({ ...opts, ...g, contractPath });
     });
 
   await program.parseAsync(process.argv);
