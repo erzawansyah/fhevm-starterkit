@@ -35,13 +35,13 @@ npm install
 
 ## Step 3: Setup Environment Variables
 
-If you want to use the frontend template (UI), copy the `.env.example` file to `.env.local`:
+If you want to use the frontend template (UI), copy the [.env.example](.env.example) file at the repo root to [.env.local](.env.local) **before** running `npm start` or any UI command so it is picked up on first run:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edit the `.env.local` file and fill in your WalletConnect Project ID:
+Edit the [.env.local](.env.local) file and fill in your WalletConnect Project ID:
 
 ```env
 VITE_WALLETCONNECT_PROJECT_ID=YOUR_PROJECT_ID_HERE
@@ -65,6 +65,8 @@ This command will automatically run:
 
 - `npm run template:init` — Clone base templates
 - `npm run template:build-ui` — Setup frontend environment
+
+Tip: if you want your WalletConnect Project ID applied on the first run, create [.env.local](.env.local) in Step 3 before running `npm start`.
 
 This saves time and ensures all necessary setup is complete!
 

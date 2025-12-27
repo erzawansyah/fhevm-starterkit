@@ -34,7 +34,7 @@ cd fhevm-starterkit
 npm install
 
 # 3. Initialize base templates (required)
-npm run template:init
+npm run start
 
 # 4. List available starters
 npm run starter:list
@@ -42,6 +42,8 @@ npm run starter:list
 # 5. Create a project from a starter
 npm run starter:create fhe-counter -- --dir my-project
 ```
+
+Optional (UI): after Step 3, copy [.env.example](.env.example) to [.env.local](.env.local) and set `VITE_WALLETCONNECT_PROJECT_ID` so the relayer UI works on first run.
 
 ---
 
