@@ -1,14 +1,14 @@
 /**
  * @path scripts/commands/setupFrontend.ts
  * @script `npm run setup:frontend`
- * @description Script untuk menyiapkan (setup) template Frontend di dalam folder ./base/frontend-template
+ * @description Script to set up the Frontend template in the ./base/frontend-template folder
  *
  * What actually does this script do?
- * - Memastikan template Frontend sudah di-clone ke dalam folder ./base/frontend-template
- * - Memastikan .env.local sudah dibuat di dalam folder frontend-template (copy dari .env.local di root)
- * - Menjalankan `npm install` untuk menginstal dependensi yang diperlukan
- * - Menjalankan `npm run build` untuk membangun (build) aplikasi frontend
- * - Setelah selesai, frontend siap digunakan di dalam starter kit
+ * - Ensures the Frontend template is already cloned into the ./base/frontend-template folder
+ * - Ensures .env.local has been created inside the frontend-template folder (copied from .env.local at root)
+ * - Runs `npm install` to install the required dependencies
+ * - Runs `npm run build` to build the frontend application
+ * - After completion, the frontend is ready to use in the starter kit
  */
 
 import fs from "fs";
@@ -28,51 +28,51 @@ const FRONTEND_ENV_SOURCE = path.join(__dirname, "..", "..", ".env.local");
 const FRONTEND_ENV_TARGET = path.join(FRONTEND_TARGET_DIR, ".env.local");
 
 export async function runTemplateBuildUI(opts: GlobalOptions) {
-  // Cek apakah template frontend sudah di-clone
+  // Check if the frontend template has been cloned
   if (!fs.existsSync(FRONTEND_TARGET_DIR)) {
     logger.error(
-      `Template frontend tidak ditemukan di ${quotePath(
+      `Frontend template not found at ${quotePath(
         FRONTEND_TARGET_DIR,
-      )}. Jalankan template:init terlebih dahulu.`,
+      )}. Run template:init first.`,
     );
     process.exit(1);
   }
 
-  // Cek apakah .env.local sudah ada di dalam template frontend dan bukan file kosong
+  // Check if .env.local exists in the frontend template and is not empty
   if (!fs.existsSync(FRONTEND_ENV_SOURCE)) {
     logger.error(
-      `File .env.local tidak ditemukan di ${quotePath(
+      `File .env.local not found at ${quotePath(
         FRONTEND_ENV_SOURCE,
-      )}. Silakan buat file .env.local di root project terlebih dahulu.`,
+      )}. Please create .env.local file at the project root first.`,
     );
     process.exit(1);
   }
 
-  // Salin .env.local ke dalam folder template frontend
+  // Copy .env.local to the frontend template folder
   fs.copyFileSync(FRONTEND_ENV_SOURCE, FRONTEND_ENV_TARGET);
-  logger.info(`Menyalin .env.local ke ${quotePath(FRONTEND_ENV_TARGET)}...`);
+  logger.info(`Copying .env.local to ${quotePath(FRONTEND_ENV_TARGET)}...`);
 
-  // Jalankan npm install di dalam folder template frontend
-  logger.info("Menjalankan npm install di dalam template frontend...");
+  // Run npm install in the frontend template folder
+  logger.info("Running npm install in the frontend template...");
   logger.loading(
-    "Menginstal dependensi... (Bisa memakan waktu beberapa menit)",
+    "Installing dependencies... (This may take several minutes)",
   );
   await run("npm ci", {
     cwd: FRONTEND_TARGET_DIR,
     silent: !opts.verbose,
   });
-  logger.success("Dependensi frontend berhasil diinstal.");
+  logger.success("Frontend dependencies successfully installed.");
 
-  // Jalankan npm run build di dalam folder template frontend
-  logger.info("Menjalankan npm run build di dalam template frontend...");
+  // Run npm run build in the frontend template folder
+  logger.info("Running npm run build in the frontend template...");
   logger.loading(
-    "Membangun aplikasi frontend... (Bisa memakan waktu beberapa menit)",
+    "Building frontend application... (This may take several minutes)",
   );
   await run("npm run build", {
     cwd: FRONTEND_TARGET_DIR,
     silent: !opts.verbose,
   });
 
-  // Selesai
-  logger.success("Aplikasi frontend berhasil dibangun dan siap digunakan.");
+  // Done
+  logger.success("Frontend application successfully built and ready to use.");
 }

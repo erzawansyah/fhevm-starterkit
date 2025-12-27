@@ -6,43 +6,43 @@ import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
 /// @title encrypt-multiple-values
 /// @custom:label Encrypt Multiple Values
-/// @notice Template awal yang akan di copy ke workspace/draft saat menjalankan `cli starter:add`.
+/// @notice Initial template that will be copied to workspace/draft when running `cli starter:add`.
 /// @dev Details:
-/// - Contoh paling sederhana dalam menggunakan FHE
-/// - Anda bisa menambahkan komentar lagi disini
+/// - Simplest example of using FHE
+/// - You can add more comments here
 /// @dev Usage summary:
-/// - Enkripsi nilai `uint8` menggunakan SDK FHEVM
-/// - Kirim ciphertext dan proof ke `setValue`
-/// - Ambil ciphertext tersimpan melalui `getResult` untuk proses decrypt
+/// - Encrypt `uint8` value using FHEVM SDK
+/// - Send ciphertext and proof to `setValue`
+/// - Retrieve stored ciphertext via `getResult` for decryption process
 /// @dev Prerequisites:
-/// - Jalankan kontrak pada lingkungan FHEVM mock atau jaringan yang mendukung
-/// - Pemanggil menyiapkan proof valid untuk ciphertext eksternal
+/// - Run contract on FHEVM mock environment or supported network
+/// - Caller prepares valid proof for external ciphertext
 /// @author Muhamad Erza Wansyah
 /// @custom:category fundamental
 /// @custom:chapter basics
 /// @custom:tags fhe, basic, draft
 /// @custom:ui true
 contract EncryptMultipleValues is ZamaEthereumConfig {
-    /// @notice Ciphertext yang sudah disimpan sebagai `euint8` internal.
+    /// @notice Ciphertext already stored as internal `euint8`.
     euint8 private _value;
 
     constructor() {}
 
-    /// @notice Menyimpan input terenkripsi ke state kontrak.
-    /// @dev Memvalidasi proof melalui `FHE.fromExternal` sebelum menyimpan ciphertext.
-    /// @param inputValue Ciphertext `euint8` eksternal dari pemanggil.
-    /// @param inputProof Bukti zk yang memvalidasi ciphertext input.
+    /// @notice Stores encrypted input to contract state.
+    /// @dev Validates proof via `FHE.fromExternal` before storing ciphertext.
+    /// @param inputValue External `euint8` ciphertext from caller.
+    /// @param inputProof zk proof that validates input ciphertext.
     function setValue(externalEuint8 inputValue, bytes calldata inputProof) external {
-        // Setiap komentar di dalam fungsi akan dipahami sebagai logic flow dari fungsi
+        // Every comment inside function will be understood as logic flow of the function
         _value = FHE.fromExternal(inputValue, inputProof);
-        // Izinkan kontrak menggunakan ciphertext yang baru disimpan untuk operasi lanjutan
+        // Allow contract to use the newly stored ciphertext for further operations
         FHE.allowThis(_value);
-        // Beri izin dekripsi kepada pengirim untuk mengambil hasil terenkripsi melalui oracle mock
+        // Grant decryption permission to sender to retrieve encrypted result via mock oracle
         FHE.allow(_value, msg.sender);
     }
 
-    /// @notice Mengembalikan ciphertext yang sudah disimpan.
-    /// @return Ciphertext `euint8` yang tersimpan pada state.
+    /// @notice Returns the stored ciphertext.
+    /// @return Ciphertext `euint8` stored in state.
     function getResult() public view returns (euint8) {
         return _value;
     }

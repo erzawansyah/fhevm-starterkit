@@ -26,19 +26,19 @@
       "name": "_a",
       "type": "euint8",
       "visibility": "private",
-      "dev": "Disimpan sebagai euint8 setelah diverifikasi melalui FHE.fromExternal."
+      "dev": "Stored as euint8 after verification via FHE.fromExternal."
     },
     {
       "name": "_b",
       "type": "euint8",
       "visibility": "private",
-      "dev": "Disimpan sebagai euint8 setelah diverifikasi melalui FHE.fromExternal."
+      "dev": "Stored as euint8 after verification via FHE.fromExternal."
     },
     {
       "name": "_max",
       "type": "euint8",
       "visibility": "private",
-      "dev": "Dihitung melalui computeMax() menggunakan kombinasi FHE.ge dan FHE.select."
+      "dev": "Calculated via computeMax() using combination of FHE.ge and FHE.select."
     }
   ],
   "functions": [
@@ -46,17 +46,17 @@
       "name": "setA",
       "signature": "setA(externalEuint8 inputA, bytes calldata inputProof)",
       "visibility": "external",
-      "notice": "Menyimpan operand A terenkripsi menggunakan proof yang diberikan.",
+      "notice": "Stores encrypted operand A using the provided proof.",
       "params": [
         {
           "name": "inputA",
           "type": "",
-          "description": "Ciphertext eksternal bertipe euint8 yang dihasilkan off-chain."
+          "description": "External ciphertext of type euint8 generated off-chain."
         },
         {
           "name": "inputProof",
           "type": "",
-          "description": "Bukti input terenkripsi yang disertakan bersama ciphertext."
+          "description": "Encrypted input proof included with the ciphertext."
         }
       ]
     },
@@ -64,17 +64,17 @@
       "name": "setB",
       "signature": "setB(externalEuint8 inputB, bytes calldata inputProof)",
       "visibility": "external",
-      "notice": "Menyimpan operand B terenkripsi menggunakan proof yang diberikan.",
+      "notice": "Stores encrypted operand B using the provided proof.",
       "params": [
         {
           "name": "inputB",
           "type": "",
-          "description": "Ciphertext eksternal bertipe euint8 yang dihasilkan off-chain."
+          "description": "External ciphertext of type euint8 generated off-chain."
         },
         {
           "name": "inputProof",
           "type": "",
-          "description": "Bukti input terenkripsi yang disertakan bersama ciphertext."
+          "description": "Encrypted input proof included with the ciphertext."
         }
       ]
     },
@@ -82,20 +82,20 @@
       "name": "computeMax",
       "signature": "computeMax()",
       "visibility": "external",
-      "notice": "Menghitung nilai maksimum terenkripsi antara A dan B dan memberikan izin dekripsi kepada pemanggil.",
-      "dev": "Menggunakan FHE.ge untuk perbandingan dan FHE.select untuk memilih nilai terbesar sebelum izin diberikan."
+      "notice": "Computes the encrypted maximum value between A and B and grants decryption permission to the caller.",
+      "dev": "Uses FHE.ge for comparison and FHE.select to choose the largest value before permissions are granted."
     },
     {
       "name": "result",
       "signature": "result() returns (euint8)",
       "visibility": "public",
       "state_mutability": "view",
-      "notice": "Mengembalikan nilai maksimum terenkripsi yang tersimpan.",
+      "notice": "Returns the stored encrypted maximum value.",
       "returns": [
         {
           "name": "Encrypted",
           "type": "",
-          "description": "nilai maksimum antara operand A dan B."
+          "description": "maximum value between operand A and B."
         }
       ]
     }

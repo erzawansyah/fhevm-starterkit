@@ -1,10 +1,10 @@
 /**
  * @title FHEIfThenElse test suite
- * @notice Memvalidasi alur perbandingan terenkripsi dan pemilihan nilai maksimum.
+ * @notice Validates encrypted comparison flow and maximum value selection.
  * @example-id fhe-if-then-else
  * @test-suite FHEIfThenElse
  * @test-goal
- * - Memastikan fungsi dasar contract berjalan sesuai harapan.
+ * - Ensure basic contract functions work as expected.
  */
 
 import {
@@ -46,10 +46,10 @@ describe("FHEIfThenElse", function () {
     contract = deployment.contract;
   });
 
-  // @scenario Dasar FHEVM
-  describe("Pengujian fungsi dasar pada contract FHEVM.", function () {
-    // @case Inisialisasi dan Penyimpanan Nilai
-    it("Memastikan contract dapat diinisialisasi dan menyimpan nilai terenkripsi dengan benar.", async function () {
+  // @scenario Basic FHEVM
+  describe("Testing basic functions on FHEVM contract.", function () {
+    // @case Initialization and Value Storage
+    it("Ensure contract can be initialized and store encrypted values correctly.", async function () {
       const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
 
       const encryptedFive = await fhevm
@@ -78,8 +78,8 @@ describe("FHEIfThenElse", function () {
       expect(clearResult).to.equal(9);
     });
 
-    // @case Pemilihan nilai maksimum ketika operand A lebih besar atau sama
-    it("Memilih operand A ketika nilainya lebih besar atau sama dengan operand B.", async function () {
+    // @case Maximum value selection when operand A is greater or equal
+    it("Select operand A when its value is greater than or equal to operand B.", async function () {
       const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
 
       const encryptedTwelve = await fhevm

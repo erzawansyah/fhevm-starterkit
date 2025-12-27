@@ -308,7 +308,7 @@ export async function copyTemplateToWorkspace(
 
   // Copy hardhat template
   // from /base/hardhat-template to /workspace/<starter-name>
-  logger.info(`Menyalin template Hardhat ke ${quotePath(workspaceStarter)}...`);
+  logger.info(`Copying Hardhat template to ${quotePath(workspaceStarter)}...`);
   fs.cpSync(hardhatTemplate, workspaceStarter, {
     recursive: true,
     filter: createFilterFunc(hardhatTemplate),
@@ -316,7 +316,7 @@ export async function copyTemplateToWorkspace(
 
   // Copy overrides (merge into starter directory)
   // from /base/overrides to /workspace/<starter-name>
-  logger.info(`Menyalin overrides ke ${quotePath(workspaceStarter)}...`);
+  logger.info(`Copying overrides to ${quotePath(workspaceStarter)}...`);
   fs.cpSync(overridesTemplate, workspaceStarter, {
     recursive: true,
   });
@@ -354,7 +354,7 @@ export async function copyTemplateToWorkspace(
   if (!skipUi) {
     // from /base/frontend-template to /workspace/<starter-name>/ui
     logger.info(
-      `Menyalin template Frontend ke ${quotePath(workspaceUiStarterDir)}...`,
+      `Copying Frontend template to ${quotePath(workspaceUiStarterDir)}...`,
     );
     fs.cpSync(builtUiDir, workspaceUiStarterDir, {
       recursive: true,
@@ -448,7 +448,7 @@ export async function copyStarterToWorkspace(
   for (const starterName of starterNames) {
     // Get a starter's source directory
     const sourceDir = resolveStarterDir(starterName);
-    const sourceReadmeFile = path.join(sourceDir, "README.md"); // ini akan menjadi disimpan ke dalam docs
+    const sourceReadmeFile = path.join(sourceDir, "README.md"); // this will be saved to docs
     const extraPackages = readAdditionalPackages(sourceDir);
     extraPackages.dependencies?.forEach((pkg) => depSet.add(pkg));
     extraPackages.devDependencies?.forEach((pkg) => devDepSet.add(pkg));
@@ -462,7 +462,7 @@ export async function copyStarterToWorkspace(
     const sourceContractsDir = path.join(sourceDir, "contracts");
     const targetContractsDir = path.join(targetDir, "contracts");
     logger.info(
-      `Menyalin contracts dari starter ${quotePath(starterName)} ke ${quotePath(targetContractsDir)}...`,
+      `Copying contracts from starter ${quotePath(starterName)} to ${quotePath(targetContractsDir)}...`,
     );
     fs.cpSync(sourceContractsDir, targetContractsDir, {
       recursive: true,
@@ -472,7 +472,7 @@ export async function copyStarterToWorkspace(
     const sourceTestsDir = path.join(sourceDir, "test");
     const targetTestsDir = path.join(targetDir, "test");
     logger.info(
-      `Menyalin tests dari starter ${quotePath(starterName)} ke ${quotePath(targetTestsDir)}...`,
+      `Copying tests from starter ${quotePath(starterName)} to ${quotePath(targetTestsDir)}...`,
     );
     fs.cpSync(sourceTestsDir, targetTestsDir, {
       recursive: true,
@@ -496,7 +496,7 @@ export async function copyStarterToWorkspace(
         "metadata.json",
       );
       logger.info(
-        `Menyalin metadata ke UI dari starter ${quotePath(starterName)} ke ${quotePath(targetUiMetadataFile)}...`,
+        `Copying metadata to UI from starter ${quotePath(starterName)} to ${quotePath(targetUiMetadataFile)}...`,
       );
       fs.copyFileSync(sourceMetadataFile, targetUiMetadataFile);
     }
@@ -517,7 +517,7 @@ export async function copyStarterToWorkspace(
       }
       const targetReadmeFile = path.join(targetDocsDir, `${starterName}.md`);
       logger.info(
-        `Menyalin README.md dari starter ${quotePath(starterName)} ke ${quotePath(targetReadmeFile)}...`,
+        `Copying README.md from starter ${quotePath(starterName)} to ${quotePath(targetReadmeFile)}...`,
       );
       fs.copyFileSync(sourceReadmeFile, targetReadmeFile);
     }

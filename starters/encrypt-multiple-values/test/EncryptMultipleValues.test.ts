@@ -2,7 +2,7 @@
  * @example-id encrypt-multiple-values
  * @test-suite EncryptMultipleValues
  * @test-goal
- * - Memastikan fungsi dasar contract berjalan sesuai harapan.
+ * - Ensure basic contract functions work as expected.
  */
 
 import {
@@ -54,7 +54,7 @@ describe("EncryptMultipleValues", function () {
   // @scenario Dasar FHEVM
   describe("Pengujian fungsi dasar pada contract FHEVM.", function () {
     // @case Inisialisasi dan Penyimpanan Nilai
-    it("Memastikan contract dapat diinisialisasi dan menyimpan nilai terenkripsi dengan benar.", async function () {
+    it("Ensure contract can be initialized and store encrypted values correctly.", async function () {
       const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
       const plaintext = 42;
 
@@ -110,7 +110,7 @@ describe("EncryptMultipleValues", function () {
     });
 
     // @case Proof tidak valid
-    it("Menolak proof yang tidak valid ketika menyimpan ciphertext.", async function () {
+    it("Reject invalid proof when storing ciphertext.", async function () {
       const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
 
       const encryptedInput = await fhevm

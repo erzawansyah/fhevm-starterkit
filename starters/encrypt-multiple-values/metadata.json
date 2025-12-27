@@ -24,7 +24,7 @@
       "name": "_value",
       "type": "euint8",
       "visibility": "private",
-      "notice": "Ciphertext yang sudah disimpan sebagai `euint8` internal."
+      "notice": "Ciphertext already stored as internal `euint8`."
     }
   ]
 }

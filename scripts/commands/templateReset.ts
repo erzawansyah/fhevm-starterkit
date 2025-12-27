@@ -1,16 +1,16 @@
 /**
  * @path scripts/commands/templateReset.ts
  * @script `npm run template:reset`
- * @description Script untuk mengosongkan template FHEVM Hardhat dan Frontend dari folder ./base
+ * @description Script to empty FHEVM Hardhat and Frontend templates from the ./base folder
  *
  * What actually does this script do?
- * - Mengecek apakah folder ./base/hardhat dan ./base/frontend exist dan tidak kosong
- * - Jika ada isinya, meminta konfirmasi dari user untuk mengosongkan folder tersebut
- * - Jika user mengonfirmasi, mengosongkan isi folder ./base/hardhat dan ./base/frontend
- * - Jika user tidak mengonfirmasi, membatalkan operasi
- * - Jika folder sudah kosong, memberitahu user bahwa tidak ada yang perlu dihapus
- * - Menyediakan satu parameter yang bisa digunakan:
- * - --yes: Melewati konfirmasi dan langsung mengosongkan folder
+ * - Checks if ./base/hardhat and ./base/frontend folders exist and are not empty
+ * - If they have content, asks user for confirmation to empty those folders
+ * - If user confirms, empties the ./base/hardhat and ./base/frontend folders
+ * - If user does not confirm, cancels the operation
+ * - If folders are already empty, informs user that there's nothing to delete
+ * - Provides one parameter that can be used:
+ * - --yes: Skips confirmation and directly empties the folders
  */
 
 import fs from "fs";
@@ -29,14 +29,14 @@ type TemplateResetOptions = {
 } & GlobalOptions;
 
 /**
- * Fungsi untuk mengosongkan isi sebuah direktori tanpa menghapus direktori itu sendiri.
- * @param dir Direktori yang akan dikosongkan
+ * Function to empty the contents of a directory without deleting the directory itself.
+ * @param dir Directory to be emptied
  * @returns null
  */
 // use shared `emptyDir` from lib/helper/utils
 
 /**
- * Fungsi untuk mengecek apakah folder ./base/hardhat dan ./base/frontend exist dan tidak kosong
+ * Function to check if ./base/hardhat and ./base/frontend folders exist and are not empty
  * @returns boolean
  */
 function baseTemplatesExist(): boolean {
@@ -50,8 +50,8 @@ function baseTemplatesExist(): boolean {
 }
 
 /**
- * Fungsi utama untuk menjalankan perintah template:reset
- * @param input Opsi input dari CLI. Harus berisi properti 'yes' untuk konfirmasi penghapusan.
+ * Main function to run the template:reset command
+ * @param input Input options from CLI. Must contain 'yes' property for deletion confirmation.
  */
 export async function runTemplateReset(input: TemplateResetOptions) {
   if (input.verbose) {
@@ -59,7 +59,7 @@ export async function runTemplateReset(input: TemplateResetOptions) {
   }
 
   if (!baseTemplatesExist()) {
-    logger.info("Folder ./base sudah kosong. Tidak ada yang perlu dihapus.");
+    logger.info("Folder ./base is already empty. Nothing to delete.");
     return;
   }
 
@@ -68,19 +68,19 @@ export async function runTemplateReset(input: TemplateResetOptions) {
       type: "confirm",
       name: "confirmReset",
       message:
-        "Apakah Anda yakin ingin mengosongkan semua template di folder ./base? Tindakan ini tidak dapat dibatalkan.",
+        "Are you sure you want to empty all templates in ./base folder? This action cannot be undone.",
       initial: false,
     }).then((answer) => answer.confirmReset);
     if (!ok) {
-      logger.warning("Operasi dibatalkan oleh user.");
+      logger.warning("Operation cancelled by user.");
       return;
     }
   }
 
-  logger.info("Mengosongkan folder ./base...");
+  logger.info("Emptying ./base folder...");
   emptyDir(HARDHAT_TARGET_DIR);
   emptyDir(FRONTEND_TARGET_DIR);
-  logger.info("Semua template di folder ./base telah dihapus.");
+  logger.info("All templates in ./base folder have been deleted.");
 
-  // Tanyakan ke user untuk konfirmasi penghapusan. Jika user memilih 'yes' atau 'Y', lanjutkan.
+  // Ask user for deletion confirmation. If user chooses 'yes' or 'Y', continue.
 }

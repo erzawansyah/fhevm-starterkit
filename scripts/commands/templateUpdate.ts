@@ -1,12 +1,12 @@
 /**
  * @path scripts/commands/templateUpdate.ts
  * @script `npm run template:update`
- * @description Script untuk memperbarui template FHEVM Hardhat dan Frontend di dalam folder ./base
+ * @description Script to update FHEVM Hardhat and Frontend templates in the ./base folder
  *
  * What actually does this script do?
- * - Memperbarui template Hardhat dan Frontend di dalam folder ./base ke versi terbaru dari branch utama repositori masing-masing
- * - Memastikan template sudah diinisialisasi sebelum memperbarui
- * - Menyediakan satu parameter yang bisa ditambahkan di masa mendatang
+ * - Updates Hardhat and Frontend templates in the ./base folder to the latest version from the main branch of their respective repositories
+ * - Ensures templates are already initialized before updating
+ * - Provides one parameter that can be added in the future
  */
 
 import fs from "fs";
@@ -29,41 +29,41 @@ const FRONTEND_TEMPLATE_REPO = config.template.frontend.repo;
 const FRONTEND_TARGET_DIR = config.template.frontend.dir;
 const FRONTEND_TEMPLATE_COMMITHASH = config.template.frontend.commit;
 
-// Type untuk opsi pembaruan template
+// Type for template update options
 type TemplateUpdateOptions = {
-  // Jika di masa mendatang akan ada parameter tambahan, bisa ditambahkan di sini
+  // If additional parameters will be added in the future, they can be added here
 } & GlobalOptions;
 
 /**
- * Fungsi untuk memastikan template sudah diinisialisasi.
- * Jika belum, hentikan proses dengan pesan error.
+ * Function to ensure templates are already initialized.
+ * If not, stop the process with an error message.
  * @returns void
  */
 function ensureTemplateInitialized() {
-  logger.info("Memeriksa apakah template sudah diinisialisasi...");
+  logger.info("Checking if templates are already initialized...");
   if (
     !fs.existsSync(HARDHAT_TARGET_DIR) ||
     !fs.existsSync(FRONTEND_TARGET_DIR)
   ) {
     logger.error(
-      "Template belum diinisialisasi! Jalankan `npm run template:init` terlebih dahulu.",
+      "Templates not yet initialized! Run `npm run template:init` first.",
     );
     process.exit(1);
   }
-  logger.info("Template sudah diinisialisasi.");
+  logger.info("Templates are already initialized.");
 }
 
 /**
- * Fungsi untuk mendapatkan commit hash dari remote HEAD sebuah repositori git.
- * @param repo Repositori git
- * @param branch Branch yang ingin diambil commit HEAD-nya (default: "main")
- * @returns string Commit hash dari remote HEAD
+ * Function to get the commit hash from the remote HEAD of a git repository.
+ * @param repo Git repository
+ * @param branch Branch whose HEAD commit will be retrieved (default: "main")
+ * @returns string Commit hash from remote HEAD
  */
 // git helpers (getRemoteHeadCommitHash, checkoutRepoCommit) moved to lib/helper/utils
 
 /**
- * Fungsi untuk memperbarui template di direktori target ke commit tertentu.
- * @param params Parameter untuk pembaruan template
+ * Function to update template in target directory to a specific commit.
+ * @param params Parameters for template update
  * @returns Promise<void>
  */
 async function updateTemplate(params: {
@@ -76,58 +76,58 @@ async function updateTemplate(params: {
 }) {
   const { label, repo, targetDir, branch = "main", verbose = true } = params;
 
-  logger.info(`Memperbarui template ${label}...`);
+  logger.info(`Updating ${label} template...`);
 
-  // Ambil commit target dari remote
+  // Get target commit from remote
   const targetCommit = getRemoteHeadCommitHash(repo, branch);
 
-  // Ambil commit saat ini di local (kalau repo valid)
+  // Get current commit in local (if repo is valid)
   let currentCommit = "";
   try {
     currentCommit = execSync("git rev-parse HEAD", { cwd: targetDir })
       .toString()
       .trim();
   } catch {
-    // kalau folder bukan repo git yang valid, biarkan kosong
+    // if folder is not a valid git repo, leave it empty
   }
 
-  // Kalau tidak ada target commit, hentikan proses dengan error
+  // If there's no target commit, stop the process with an error
   if (!targetCommit) {
-    // Cek apakah pinnedCommit dengan currentCommit sama
-    // Kalau sama, berarti sudah up-to-date
-    // Kalau tidak, berarti ada masalah
+    // Check if pinnedCommit matches currentCommit
+    // If same, it means already up-to-date
+    // If not, there's a problem
 
     if (params.pinnedCommit && currentCommit === params.pinnedCommit) {
       logger.info(
-        `Template ${label} sudah di commit pinned. Tidak ada yang perlu diperbarui.`,
+        `${label} template is already at pinned commit. Nothing to update.`,
       );
       return;
     }
 
     if (params.pinnedCommit && params.pinnedCommit !== currentCommit) {
       logger.warning(
-        `Template ${label} tidak memiliki commit target, tetapi commit saat ini berbeda dari commit pinned. Cek konfigurasi starterkit.`,
+        `${label} template has no target commit, but current commit differs from pinned commit. Check starterkit configuration.`,
       );
       process.exit(1);
     }
 
     logger.warning(
-      `Tidak ada commit target untuk template ${label}. Cek config starterkit.`,
+      `No target commit for ${label} template. Check starterkit config.`,
     );
     process.exit(1);
   }
 
   if (currentCommit && currentCommit === targetCommit) {
     logger.info(
-      `Template ${label} sudah di commit target. Tidak ada yang perlu diperbarui.`,
+      `${label} template is already at target commit. Nothing to update.`,
     );
     return;
   }
 
-  logger.info(`Checkout template ${label} ke commit ${targetCommit}...`);
+  logger.info(`Checking out ${label} template to commit ${targetCommit}...`);
   await checkoutRepoCommit(targetDir, targetCommit, !!verbose);
 
-  logger.success(`Template ${label} berhasil diperbarui.`);
+  logger.success(`${label} template successfully updated.`);
 }
 
 // Confirm update
@@ -136,7 +136,7 @@ async function confirmUpdate(): Promise<boolean> {
     type: "confirm",
     name: "confirmation",
     message:
-      "Apakah Anda yakin ingin memperbarui template ke versi terbaru dari repositori resmi? (perubahan lokal akan hilang)",
+      "Are you sure you want to update templates to the latest version from the official repository? (local changes will be lost)",
     initial: false,
   })) as { confirmation: boolean };
 
@@ -151,12 +151,12 @@ export async function runTemplateUpdate(input: TemplateUpdateOptions) {
 
   const userConfirmed = await confirmUpdate();
   if (!userConfirmed) {
-    logger.warning("Operasi pembaruan dibatalkan oleh user.");
+    logger.warning("Update operation cancelled by user.");
     return;
   }
 
-  // Pastikan template sudah diinisialisasi
-  // Exit jika belum diinisialisasi
+  // Ensure templates are already initialized
+  // Exit if not yet initialized
   ensureTemplateInitialized();
 
   try {
@@ -178,9 +178,9 @@ export async function runTemplateUpdate(input: TemplateUpdateOptions) {
       verbose: !!input.verbose,
     });
 
-    logger.success("Pembaruan template selesai.");
+    logger.success("Template update completed.");
   } catch (error) {
-    logger.error("Terjadi kesalahan saat memperbarui template:", error);
+    logger.error("An error occurred while updating templates:", error);
     process.exit(1);
   }
 }

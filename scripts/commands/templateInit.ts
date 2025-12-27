@@ -1,14 +1,14 @@
 /**
  * @path scripts/commands/templateInit.ts
  * @script `npm run template:init`
- * @description Script untuk menginisialisasi template FHEVM Hardhat dan Frontend ke dalam folder ./base
+ * @description Script to initialize FHEVM Hardhat and Frontend templates into the ./base folder
  *
  * What actually does this script do?
- * - Mengkloning template Hardhat dan Frontend dari repositori yang ditentukan ke dalam folder ./base
- * - Secara default, checkout ke commit pinned untuk memastikan konsistensi (berdasarkan hash commit di starterkit.config)
- * - Menyediakan dua parameter yang bisa digunakan:
- * - --latest: Melewati checkout ke commit pinned dan menggunakan versi terbaru dari branch utama
- * - --force: Mengosongkan folder ./base jika sudah ada isinya sebelum mengkloning template
+ * - Clones Hardhat and Frontend templates from specified repositories into the ./base folder
+ * - By default, checks out to pinned commit to ensure consistency (based on commit hash in starterkit.config)
+ * - Provides two parameters that can be used:
+ * - --latest: Skips checkout to pinned commit and uses the latest version from the main branch
+ * - --force: Empties the ./base folder if it already has content before cloning templates
  */
 
 import fs from "fs";
@@ -34,21 +34,21 @@ type TemplateInitOptions = {
 } & GlobalOptions;
 
 /**
- * Fungsi untuk menghapus semua isi dalam sebuah direktori tanpa menghapus direktori itu sendiri.
- * @param dir Direktori yang akan dihapus isinya
+ * Function to delete all contents in a directory without deleting the directory itself.
+ * @param dir Directory whose contents will be deleted
  * @returns void
  */
 /**
- * Fungsi untuk memastikan sebuah direktori kosong atau membuatnya baru.
- * @param dir Direktori yang akan dipastikan kosong atau dibuat baru
- * @param force Jika true, akan mengosongkan direktori jika tidak kosong
+ * Function to ensure a directory is empty or create it new.
+ * @param dir Directory to ensure is empty or created new
+ * @param force If true, will empty the directory if it's not empty
  * @returns void
  */
 function ensureEmptyDir(dir: string, force: boolean) {
-  logger.info(`Cek apakah direktori target ${dir} siap digunakan...`);
+  logger.info(`Checking if target directory ${dir} is ready to use...`);
 
   if (!fs.existsSync(dir)) {
-    logger.info(`Membuat direktori target ${dir}...`);
+    logger.info(`Creating target directory ${dir}...`);
     fs.mkdirSync(dir, { recursive: true });
     return;
   }
@@ -56,35 +56,35 @@ function ensureEmptyDir(dir: string, force: boolean) {
   if (isEmptyDir(dir)) return;
 
   if (!force) {
-    logger.error(`Direktori target ${dir} tidak kosong!`);
+    logger.error(`Target directory ${dir} is not empty!`);
     logger.error(
-      "Hapus isi direktori tersebut dan coba lagi, atau jalankan ulang dengan flag --force.",
+      "Delete the directory contents and try again, or re-run with --force flag.",
     );
     process.exit(1);
   }
 
   logger.warning(
-    `Direktori target ${dir} tidak kosong. --force aktif, mengosongkan isi direktori...`,
+    `Target directory ${dir} is not empty. --force active, emptying directory contents...`,
   );
   emptyDir(dir);
 }
 
 /**
- * Fungsi untuk mengonfirmasi dari user apakah ingin melanjutkan dengan mode latest
- * @returns boolean Apakah user mengonfirmasi untuk melanjutkan dengan mode latest
+ * Function to get confirmation from user whether to continue with latest mode
+ * @returns boolean Whether user confirmed to continue with latest mode
  */
 async function confirmLatestMode(): Promise<boolean> {
   const answer = await prompt<{ confirmLatest: boolean }>({
     type: "confirm",
     name: "confirmLatest",
     message:
-      "Anda memilih --latest. Menggunakan template versi latest bisa menyebabkan\nperbedaan hasil dan konflik saat update. Lanjutkan tanpa checkout ke commit pinned?",
+      "You chose --latest. Using the latest template version may cause\nresult differences and conflicts during updates. Continue without checking out to pinned commit?",
     initial: false,
   });
   return answer.confirmLatest;
 }
 
-// Kloning repositori template dengan opsi checkout commit pinned atau tidak
+// Clone template repository with option to checkout pinned commit or not
 async function cloneRepo(params: {
   repo: string;
   targetDir: string;
@@ -97,30 +97,30 @@ async function cloneRepo(params: {
   const { repo, targetDir, pinnedCommit, skipCheckout, force, label, verbose } =
     params;
 
-  // Pastikan direktori target siap
+  // Ensure target directory is ready
   ensureEmptyDir(targetDir, force);
 
-  logger.info(`Mengkloning template ${label}...`);
-  // Kloning repositori
+  logger.info(`Cloning ${label} template...`);
+  // Clone repository
   await run(`git clone ${quotePath(repo)} ${quotePath(targetDir)}`, !!verbose);
 
-  // Checkout ke commit pinned jika diperlukan
+  // Checkout to pinned commit if needed
   if (pinnedCommit && !skipCheckout) {
-    logger.info(`Checkout template ${label} ke commit ${pinnedCommit}...`);
+    logger.info(`Checking out ${label} template to commit ${pinnedCommit}...`);
     await run(
       `cd ${quotePath(targetDir)} && git checkout ${pinnedCommit}`,
       !!verbose,
     );
   } else if (pinnedCommit && skipCheckout) {
     logger.info(
-      `Lewati checkout commit untuk template ${label} karena --latest dikonfirmasi.`,
+      `Skipping commit checkout for ${label} template because --latest was confirmed.`,
     );
   }
 
-  logger.success(`Template ${label} berhasil dikloning.`);
+  logger.success(`${label} template successfully cloned.`);
 }
 
-// Fungsi utama untuk menjalankan inisialisasi template
+// Main function to run template initialization
 export const runTemplateInit = async (options: TemplateInitOptions) => {
   const latest = !!options.latest;
   const force = !!options.force;
@@ -131,13 +131,13 @@ export const runTemplateInit = async (options: TemplateInitOptions) => {
     const ok = await confirmLatestMode();
     if (!ok) {
       logger.info(
-        "Dibatalkan oleh pengguna. Tidak ada perubahan yang dilakukan.",
+        "Cancelled by user. No changes were made.",
       );
       process.exit(0);
     }
     skipCheckout = true;
     logger.info(
-      "Konfirmasi diterima: akan menggunakan versi latest dan melewati checkout commit pinned.",
+      "Confirmation received: will use latest version and skip pinned commit checkout.",
     );
   }
 
@@ -161,6 +161,6 @@ export const runTemplateInit = async (options: TemplateInitOptions) => {
     verbose: !!options.verbose,
   });
 
-  logger.success("Inisialisasi template selesai.");
+  logger.success("Template initialization completed.");
   process.exit(0);
 };
