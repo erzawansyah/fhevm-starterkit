@@ -1,0 +1,179 @@
+{
+  "name": "public-decrypt-single-value",
+  "contract_name": "PublicDecryptSingleValue",
+  "contract_filename": "PublicDecryptSingleValue.sol",
+  "label": "public-decrypt-single-value",
+  "description": "Demonstrates public, permissionless decryption of a single encrypted boolean using FHE.makePubliclyDecryptable.",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "applied",
+  "concepts": [
+    "FHE.randEbool",
+    "FHE.makePubliclyDecryptable"
+  ],
+  "chapter": "decryption",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Zama Team"
+    }
+  ],
+  "functions": [
+    {
+      "name": "headsOrTails",
+      "signature": "headsOrTails(address headsPlayer, address tailsPlayer)",
+      "visibility": "external",
+      "notice": "Initiates a new Heads or Tails game, generates the result using FHE,",
+      "params": [
+        {
+          "name": "headsPlayer",
+          "type": "",
+          "description": "The player address choosing Heads."
+        },
+        {
+          "name": "tailsPlayer",
+          "type": "",
+          "description": "The player address choosing Tails."
+        }
+      ]
+    },
+    {
+      "name": "getGamesCount",
+      "signature": "getGamesCount() returns (uint256)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the number of games created so far.",
+      "returns": [
+        {
+          "name": "The",
+          "type": "",
+          "description": "number of games created."
+        }
+      ]
+    },
+    {
+      "name": "hasHeadsWon",
+      "signature": "hasHeadsWon(uint256 gameId) returns (ebool)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the encrypted ebool handle that stores the game result.",
+      "params": [
+        {
+          "name": "gameId",
+          "type": "",
+          "description": "The ID of the game."
+        }
+      ],
+      "returns": [
+        {
+          "name": "The",
+          "type": "",
+          "description": "encrypted result (ebool handle)."
+        }
+      ]
+    },
+    {
+      "name": "getWinner",
+      "signature": "getWinner(uint256 gameId) returns (address)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the address of the game winner.",
+      "params": [
+        {
+          "name": "gameId",
+          "type": "",
+          "description": "The ID of the game."
+        }
+      ],
+      "returns": [
+        {
+          "name": "The",
+          "type": "",
+          "description": "winner's address (address(0) if not yet revealed)."
+        }
+      ]
+    },
+    {
+      "name": "recordAndVerifyWinner",
+      "signature": "recordAndVerifyWinner(\r\n        uint256 gameId,\r\n        bytes memory abiEncodedClearGameResult,\r\n        bytes memory decryptionProof\r\n    )",
+      "visibility": "public",
+      "notice": "Verifies the provided (decryption proof, ABI-encoded clear value) pair against the stored ciphertext,",
+      "params": [
+        {
+          "name": "gameId",
+          "type": "",
+          "description": "The ID of the game to settle."
+        },
+        {
+          "name": "abiEncodedClearGameResult",
+          "type": "",
+          "description": "The ABI-encoded clear value (bool) associated to the `decryptionProof`."
+        },
+        {
+          "name": "decryptionProof",
+          "type": "",
+          "description": "The proof that validates the decryption."
+        }
+      ]
+    }
+  ],
+  "structs": [
+    {
+      "name": "Game",
+      "notice": "Defines the entire state for a single Heads or Tails game instance.",
+      "fields": [
+        {
+          "name": "headsPlayer",
+          "type": "address",
+          "notice": "The address of the player who chose Heads."
+        },
+        {
+          "name": "tailsPlayer",
+          "type": "address",
+          "notice": "The address of the player who chose Tails."
+        },
+        {
+          "name": "won",
+          "type": "Heads"
+        },
+        {
+          "name": "encryptedHasHeadsWon",
+          "type": "ebool"
+        },
+        {
+          "name": "winner",
+          "type": "address",
+          "notice": "Clear address of the final winner, set after decryption and verification."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "GameCreated",
+      "signature": "GameCreated(\r\n        uint256 indexed gameId,\r\n        address indexed headsPlayer,\r\n        address indexed tailsPlayer,\r\n        ebool encryptedHasHeadsWon\r\n    )",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "uint256",
+          "indexed": false
+        },
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        },
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        },
+        {
+          "name": "encryptedHasHeadsWon",
+          "type": "ebool",
+          "indexed": false
+        }
+      ]
+    }
+  ]
+}
