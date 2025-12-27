@@ -14,6 +14,7 @@
         "template:build-ui": "ts-node scripts/cli.ts template:build-ui",
         "starter:list": "ts-node scripts/cli.ts starter:list",
         "starter:create": "ts-node scripts/cli.ts starter:create",
+        "starter:add": "ts-node scripts/cli.ts starter:add",
         "starter:clean": "ts-node scripts/cli.ts starter:clean",
         "starter:reset": "ts-node scripts/cli.ts starter:reset",
         "docs:generate": "ts-node scripts/docs-generate.ts",
