@@ -1,0 +1,30 @@
+{
+  "name": "encrypt-multiple-values",
+  "contract_name": "EncryptMultipleValues",
+  "contract_filename": "EncryptMultipleValues.sol",
+  "label": "EncryptMultipleValues Starter",
+  "description": "",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "concepts": [
+    "FHE.fromExternal",
+    "FHE.allow",
+    "FHE.allowThis"
+  ],
+  "chapter": "basics",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Unknown"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "_value",
+      "type": "euint8",
+      "visibility": "private",
+      "notice": "Ciphertext yang sudah disimpan sebagai `euint8` internal."
+    }
+  ]
+}
