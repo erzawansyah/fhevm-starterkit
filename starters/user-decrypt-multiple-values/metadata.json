@@ -1,0 +1,110 @@
+{
+  "name": "user-decrypt-multiple-values",
+  "contract_name": "UserDecryptMultipleValues",
+  "contract_filename": "UserDecryptMultipleValues.sol",
+  "label": "user-decrypt-multiple-values",
+  "description": "Demonstrates user decryption of multiple encrypted values (bool, uint32, uint64) using FHE permissions.",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "applied",
+  "concepts": [
+    "FHE.add",
+    "FHE.xor",
+    "FHE.asEbool",
+    "FHE.asEuint32",
+    "FHE.asEuint64",
+    "FHE.allow",
+    "FHE.allowThis"
+  ],
+  "chapter": "decryption",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Zama Team"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "_encryptedBool",
+      "type": "ebool",
+      "visibility": "private"
+    },
+    {
+      "name": "_encryptedUint32",
+      "type": "euint32",
+      "visibility": "private"
+    },
+    {
+      "name": "_encryptedUint64",
+      "type": "euint64",
+      "visibility": "private"
+    }
+  ],
+  "functions": [
+    {
+      "name": "initialize",
+      "signature": "initialize(bool a, uint32 b, uint64 c)",
+      "visibility": "external",
+      "notice": "Initializes the encrypted state using trivial formulas and grants permissions.",
+      "params": [
+        {
+          "name": "a",
+          "type": "",
+          "description": "Clear boolean input; stored as `a ^ false`."
+        },
+        {
+          "name": "b",
+          "type": "",
+          "description": "Clear uint32 input; stored as `b + 1` (mod 2^32)."
+        },
+        {
+          "name": "c",
+          "type": "",
+          "description": "Clear uint64 input; stored as `c + 1` (mod 2^64)."
+        }
+      ]
+    },
+    {
+      "name": "encryptedBool",
+      "signature": "encryptedBool() returns (ebool)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the encrypted boolean handle.",
+      "returns": [
+        {
+          "name": "ebool",
+          "type": "",
+          "description": "The encrypted handle."
+        }
+      ]
+    },
+    {
+      "name": "encryptedUint32",
+      "signature": "encryptedUint32() returns (euint32)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the encrypted uint32 handle.",
+      "returns": [
+        {
+          "name": "euint32",
+          "type": "",
+          "description": "The encrypted handle."
+        }
+      ]
+    },
+    {
+      "name": "encryptedUint64",
+      "signature": "encryptedUint64() returns (euint64)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the encrypted uint64 handle.",
+      "returns": [
+        {
+          "name": "euint64",
+          "type": "",
+          "description": "The encrypted handle."
+        }
+      ]
+    }
+  ]
+}
