@@ -14,6 +14,8 @@
 
 ## Overview
 
+The FHEVM Starter Kit features a non-hierarchical, metadata-driven example structure, where each starter is fully self-contained and independent, and a contract-agnostic UI relayer that enables encryption and decryption directly through the interface without being tied to a specific contract.
+
 FHEVM StarterKit helps developers learn and build encrypted smart contracts through practical, minimal implementations. Whether you're just starting with FHE concepts or building production-ready applications, this toolkit provides:
 
 - 📚 **Curated Starters** — Small, focused projects organized by difficulty and use case
