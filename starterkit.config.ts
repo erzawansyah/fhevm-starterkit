@@ -90,6 +90,7 @@ const config: StarterKitConfigType = {
       "handles",
       "openzeppelin",
       "advanced",
+      "fhe-operations"
     ],
 
     // Common tags untuk filtering
