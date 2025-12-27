@@ -1,0 +1,311 @@
+# {{label}}
+
+{{#if description}}
+{{description}}
+{{/if}}
+
+{{#if details}}
+## Overview
+{{{details}}}
+{{/if}}
+
+---
+
+## Contract Information
+
+| Property | Value |
+|----------|-------|
+| **Contract Name** | `{{contract_name}}` |
+| **File** | `contracts/{{contract_filename}}` |
+| **Category** | {{category}} |
+| **Chapter** | {{chapter}} |
+{{#if version}}| **Version** | {{version}} |{{/if}}
+{{#if fhevm_version}}| **FHEVM Version** | {{fhevm_version}} |{{/if}}
+| **UI Included** | {{#if has_ui}}✅ Yes{{else}}❌ No{{/if}} |
+
+{{#if concepts}}
+## FHE Concepts
+
+This contract demonstrates the following FHE concepts:
+
+{{#each concepts}}
+- **{{this}}** — Homomorphic operation on encrypted data
+{{/each}}
+
+{{/if}}
+
+{{#if tags}}
+## Tags
+
+{{#each tags}}
+- `{{this}}`
+{{/each}}
+
+{{/if}}
+
+{{#if authors}}
+## Authors
+
+{{#each authors}}
+**{{name}}**
+{{#if email}}- Email: {{email}}{{/if}}
+{{#if url}}- Website: [{{url}}]({{url}}){{/if}}
+
+{{/each}}
+{{/if}}
+
+{{#if additional_packages}}
+## Dependencies
+
+Additional packages required:
+
+{{#each additional_packages}}
+- `{{name}}` (v{{version}})
+{{/each}}
+
+{{/if}}
+
+---
+
+{{#if constructor_doc}}
+## Constructor
+
+{{#if constructor_doc.notice}}
+### Description
+{{constructor_doc.notice}}
+{{/if}}
+
+{{#if constructor_doc.dev}}
+### Implementation Details
+{{constructor_doc.dev}}
+{{/if}}
+
+{{#if constructor_doc.params}}
+### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+{{#each constructor_doc.params}}
+| `{{name}}` | `{{type}}` | {{#if description}}{{description}}{{else}}—{{/if}} |
+{{/each}}
+
+{{/if}}
+
+{{/if}}
+
+{{#if state_variables}}
+## State Variables
+
+{{#each state_variables}}
+### `{{name}}`
+
+```solidity
+{{#if visibility}}{{visibility}} {{/if}}{{type}} {{name}};
+```
+
+{{#if notice}}
+**Description:** {{notice}}
+{{/if}}
+
+{{#if dev}}
+**Implementation:** {{dev}}
+{{/if}}
+
+{{/each}}
+
+{{/if}}
+
+{{#if functions}}
+## Functions
+
+{{#each functions}}
+### `{{name}}`
+
+```solidity
+{{visibility}}{{#if state_mutability}} {{state_mutability}}{{/if}} {{signature}}
+```
+
+{{#if notice}}
+**Description:** {{notice}}
+{{/if}}
+
+{{#if dev}}
+**Implementation Details:** {{dev}}
+{{/if}}
+
+{{#if params}}
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+{{#each params}}
+| `{{name}}` | `{{type}}` | {{#if description}}{{description}}{{else}}—{{/if}} |
+{{/each}}
+
+{{/if}}
+
+{{#if returns}}
+**Returns:**
+
+| Name | Type | Description |
+|------|------|-------------|
+{{#each returns}}
+| {{#if name}}`{{name}}`{{else}}—{{/if}} | `{{type}}` | {{#if description}}{{description}}{{else}}—{{/if}} |
+{{/each}}
+
+{{/if}}
+
+{{#if custom_tags}}
+**Custom Tags:**
+
+{{#each custom_tags}}
+- **{{tag}}:** {{value}}
+{{/each}}
+
+{{/if}}
+
+{{/each}}
+
+{{/if}}
+
+{{#if structs}}
+## Data Structures
+
+{{#each structs}}
+### `{{name}}`
+
+{{#if notice}}
+{{notice}}
+{{/if}}
+
+{{#if dev}}
+**Details:** {{dev}}
+{{/if}}
+
+{{#if fields}}
+**Fields:**
+
+| Name | Type | Description |
+|------|------|-------------|
+{{#each fields}}
+| `{{name}}` | `{{type}}` | {{#if notice}}{{notice}}{{else}}—{{/if}} |
+{{/each}}
+
+{{/if}}
+
+```solidity
+struct {{name}} {
+{{#each fields}}
+    {{type}} {{name}};
+{{/each}}
+}
+```
+
+{{/each}}
+
+{{/if}}
+
+{{#if enums}}
+## Enumerations
+
+{{#each enums}}
+### `{{name}}`
+
+{{#if notice}}
+{{notice}}
+{{/if}}
+
+{{#if dev}}
+**Details:** {{dev}}
+{{/if}}
+
+{{#if values}}
+**Values:**
+
+| Value | Description |
+|-------|-------------|
+{{#each values}}
+| `{{this}}` | — |
+{{/each}}
+
+{{/if}}
+
+```solidity
+enum {{name}} {
+{{#each values}}
+    {{this}},
+{{/each}}
+}
+```
+
+{{/each}}
+
+{{/if}}
+
+{{#if events}}
+## Events
+
+{{#each events}}
+### `{{name}}`
+
+{{#if notice}}
+{{notice}}
+{{/if}}
+
+{{#if dev}}
+**Details:** {{dev}}
+{{/if}}
+
+```solidity
+{{signature}}
+```
+
+{{#if params}}
+**Parameters:**
+
+| Name | Type | Indexed | Description |
+|------|------|---------|-------------|
+{{#each params}}
+| `{{name}}` | `{{type}}` | {{#if indexed}}✅{{else}}—{{/if}} | {{#if description}}{{description}}{{else}}—{{/if}} |
+{{/each}}
+
+{{/if}}
+
+{{/each}}
+
+{{/if}}
+
+---
+
+## Getting Started
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Compile the contract:**
+   ```bash
+   npx hardhat compile
+   ```
+
+3. **Run tests:**
+   ```bash
+   npx hardhat test
+   ```
+
+4. **Deploy:**
+   ```bash
+   npx hardhat run scripts/deploy.ts --network <network-name>
+   ```
+
+{{#if has_ui}}
+## Frontend Integration
+
+This starter includes a frontend UI for interacting with the contract. See the `ui/` directory for more information.
+
+{{/if}}
+
+---
+
+*This documentation was auto-generated from contract metadata and NatSpec comments.*

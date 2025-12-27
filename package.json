@@ -18,13 +18,12 @@
     "starter:clean": "ts-node scripts/cli.ts starter:clean",
     "starter:reset": "ts-node scripts/cli.ts starter:reset",
     "build:metadata": "ts-node scripts/cli.ts build:metadata",
+    "generate:docs": "ts-node scripts/cli.ts generate:docs",
+    "starter:build": "ts-node scripts/cli.ts starter:build",
+    "starter:publish": "ts-node scripts/cli.ts starter:publish",
     "docs:generate": "ts-node scripts/docs-generate.ts",
-    "web": "npm --prefix apps/web run dev",
-    "check": "ts-node scripts/check.ts",
-    "build:web": "npm --prefix apps/web run build",
-    "lint": "eslint .",
     "format": "prettier --write .",
-    "debug:logger": "ts-node scripts/debug/logger-test.ts",
+    "lint": "eslint .",
     "generate:schema": "tsx lib/devtools/generateJsonSchema.ts"
   },
   "devDependencies": {

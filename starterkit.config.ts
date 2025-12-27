@@ -51,7 +51,7 @@ const config: StarterKitConfigType = {
         "starter:start-ui": "serve -s ui -l 3000",
         // builds the frontend template
         "starter:build":
-          "echo 'Run template:build-ui command to build the frontend template'",
+          "echo 'Run template:build command to create a starter from current working dir (solidty)'",
         // placeholder for publishing starter
         "starter:publish":
           "echo 'Publish your starter project to your own repository'",

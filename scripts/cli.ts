@@ -15,6 +15,18 @@ import {
   runBuildMetadata,
   BuildMetadataOptions,
 } from "./commands/buildMetadata";
+import {
+  runGenerateDocs,
+  GenerateDocsOptions,
+} from "./commands/generateDocs";
+import {
+  runStarterBuild,
+  StarterBuildOptions,
+} from "./commands/starterBuild";
+import {
+  runStarterPublish,
+  StarterPublishOptions,
+} from "./commands/starterPublish";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -206,6 +218,58 @@ async function main() {
       const g = program.opts<GlobalOptions>();
       applyCwd(g.cwd);
       await runBuildMetadata({ ...opts, ...g, contractPath });
+    });
+
+  program
+    .command("generate:docs <metadataPath>")
+    .description("Generate documentation from metadata.json using Handlebars template")
+    .option(
+      "-o, --output <path>",
+      "Output path for generated documentation (default: DOCUMENTATION.md)",
+    )
+    .option(
+      "-t, --template <path>",
+      "Custom template path (default: base/markdown-template/CONTRACT_DOCUMENTATION.md.hbs)",
+    )
+    .action(async (metadataPath: string, opts: Omit<GenerateDocsOptions, "metadataPath">) => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
+      await runGenerateDocs({ ...opts, ...g, metadataPath });
+    });
+
+  program
+    .command("starter:build")
+    .description(
+      "Build a starter from workspace/draft (generates metadata, docs, and dist/)",
+    )
+    .option(
+      "-d, --draft-dir <path>",
+      "Path to draft directory (default: workspace/draft)",
+    )
+    .action(async (opts: Omit<StarterBuildOptions, never>) => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
+      await runStarterBuild({ ...opts, ...g });
+    });
+
+  program
+    .command("starter:publish")
+    .description(
+      "Publish a built starter from workspace/draft/dist to starters/",
+    )
+    .option(
+      "-d, --draft-dir <path>",
+      "Path to draft directory (default: workspace/draft)",
+    )
+    .option(
+      "-n, --starter-name <name>",
+      "Starter name (default: from metadata.json)",
+    )
+    .option("-f, --force", "Overwrite existing starter", false)
+    .action(async (opts: Omit<StarterPublishOptions, never>) => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
+      await runStarterPublish({ ...opts, ...g });
     });
 
   await program.parseAsync(process.argv);
