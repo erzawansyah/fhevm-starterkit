@@ -1,0 +1,72 @@
+{
+  "name": "user-decrypt-single-value",
+  "contract_name": "UserDecryptSingleValue",
+  "contract_filename": "UserDecryptSingleValue.sol",
+  "label": "user-decrypt-single-value",
+  "description": "Demonstrates user decryption of a single encrypted uint32 using FHE permissions.",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "applied",
+  "concepts": [
+    "FHE.add",
+    "FHE.asEuint32",
+    "FHE.allow",
+    "FHE.allowThis"
+  ],
+  "chapter": "decryption",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Zama Team"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "_trivialEuint32",
+      "type": "euint32",
+      "visibility": "private"
+    }
+  ],
+  "functions": [
+    {
+      "name": "initializeUint32",
+      "signature": "initializeUint32(uint32 value)",
+      "visibility": "external",
+      "notice": "Initializes `_trivialEuint32` with FHE as `(value + 1)` and grants user decryption permissions.",
+      "params": [
+        {
+          "name": "value",
+          "type": "",
+          "description": "The clear uint32 input, transformed to encrypted with FHE.asEuint32."
+        }
+      ]
+    },
+    {
+      "name": "initializeUint32Wrong",
+      "signature": "initializeUint32Wrong(uint32 value)",
+      "visibility": "external",
+      "notice": "Initializes `_trivialEuint32` with FHE as `(value + 1)` but forgets to grant `allowThis`, causing user decryption to fail.",
+      "params": [
+        {
+          "name": "value",
+          "type": "",
+          "description": "The clear uint32 input."
+        }
+      ]
+    },
+    {
+      "name": "encryptedUint32",
+      "signature": "encryptedUint32() returns (euint32)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the encrypted uint32 result handle.",
+      "returns": [
+        {
+          "name": "euint32",
+          "type": "",
+          "description": "The encrypted handle representing the latest `_trivialEuint32` value."
+        }
+      ]
+    }
+  ]
+}
