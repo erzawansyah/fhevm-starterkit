@@ -1,21 +1,21 @@
 {
-    "name": "fhe-add",
-    "contract_name": "FHEAdd",
-    "contract_filename": "FHEAdd.sol",
-    "label": "FHE Addition Starter",
-    "description": "This starter demonstrates basic addition operations using Fully Homomorphic Encryption (FHE).",
-    "details": "",
-    "version": "1.0.0",
-    "fhevm_version": "0.9.1",
-    "category": "fundamental",
-    "chapter": "basics",
-    "tags": [],
-    "concepts": [],
-    "has_ui": true,
-    "authors": [
-        {
-            "name": "M.E.W"
-        }
-    ],
-    "constructor_args": []
+  "name": "fhe-add",
+  "contract_name": "FHEAdd",
+  "contract_filename": "FHEAdd.sol",
+  "label": "FHE Addition Starter",
+  "description": "This starter demonstrates basic addition operations using Fully Homomorphic Encryption (FHE).",
+  "details": "",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "chapter": "basics",
+  "tags": [],
+  "concepts": [],
+  "has_ui": true,
+  "authors": [
+    {
+      "name": "M.E.W"
+    }
+  ],
+  "constructor_args": []
 }

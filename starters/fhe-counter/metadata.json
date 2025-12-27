@@ -1,22 +1,22 @@
 {
-    "name": "fhe-counter",
-    "contract_name": "FHECounter",
-    "contract_filename": "FHECounter.sol",
-    "label": "FHE Counter Starter",
-    "description": "This starter demonstrates a simple counter application using Fully Homomorphic Encryption (FHE).",
-    "version": "1.0.0",
-    "fhevm_version": "0.9.1",
-    "category": "applied",
-    "tags": [],
-    "concepts": [],
-    "chapter": "basics",
-    "has_ui": true,
-    "authors": [
-        {
-            "name": "M.E.W",
-            "email": "erzawansyah@gmail.com",
-            "url": "https://github.com/erzawansyah"
-        }
-    ],
-    "constructor_args": []
+  "name": "fhe-counter",
+  "contract_name": "FHECounter",
+  "contract_filename": "FHECounter.sol",
+  "label": "FHE Counter Starter",
+  "description": "This starter demonstrates a simple counter application using Fully Homomorphic Encryption (FHE).",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "applied",
+  "tags": [],
+  "concepts": [],
+  "chapter": "basics",
+  "has_ui": true,
+  "authors": [
+    {
+      "name": "M.E.W",
+      "email": "erzawansyah@gmail.com",
+      "url": "https://github.com/erzawansyah"
+    }
+  ],
+  "constructor_args": []
 }

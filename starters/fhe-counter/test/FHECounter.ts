@@ -12,7 +12,7 @@ type Signers = {
 
 async function deployFixture() {
   const factory = (await ethers.getContractFactory(
-    "FHECounter"
+    "FHECounter",
   )) as FHECounter__factory;
   const fheCounterContract = (await factory.deploy()) as FHECounter;
   const fheCounterContractAddress = await fheCounterContract.getAddress();
@@ -73,7 +73,7 @@ describe("FHECounter", function () {
       FhevmType.euint32,
       encryptedCountAfterInc,
       fheCounterContractAddress,
-      signers.alice
+      signers.alice,
     );
 
     expect(clearCountAfterInc).to.eq(clearCountBeforeInc + clearOne);
@@ -104,7 +104,7 @@ describe("FHECounter", function () {
       FhevmType.euint32,
       encryptedCountAfterDec,
       fheCounterContractAddress,
-      signers.alice
+      signers.alice,
     );
 
     expect(clearCountAfterInc).to.eq(0);

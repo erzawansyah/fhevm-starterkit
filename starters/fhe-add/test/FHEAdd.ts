@@ -21,7 +21,7 @@ import type { Signers } from "../../types";
 
 async function deployFixture() {
   const factory = (await ethers.getContractFactory(
-    "FHEAdd"
+    "FHEAdd",
   )) as FHEAdd__factory;
   const fheAdd = (await factory.deploy()) as FHEAdd;
   const fheAdd_address = await fheAdd.getAddress();
@@ -96,7 +96,7 @@ describe("FHEAdd", function () {
         FhevmType.euint8,
         encryptedAplusB,
         contractAddress,
-        bob
+        bob,
       );
 
       expect(clearAplusB).to.equal(a + b);
