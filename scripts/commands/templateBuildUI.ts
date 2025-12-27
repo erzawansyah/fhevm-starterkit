@@ -18,7 +18,12 @@ import { quotePath, run } from "../../lib/helper/utils";
 import config from "../../starterkit.config";
 import { GlobalOptions } from "../cli";
 
-const FRONTEND_TARGET_DIR = path.join(__dirname, "..", "..", config.template.frontend.dir);
+const FRONTEND_TARGET_DIR = path.join(
+  __dirname,
+  "..",
+  "..",
+  config.template.frontend.dir,
+);
 const FRONTEND_ENV_SOURCE = path.join(__dirname, "..", "..", ".env.local");
 const FRONTEND_ENV_TARGET = path.join(FRONTEND_TARGET_DIR, ".env.local");
 
@@ -27,8 +32,8 @@ export async function runTemplateBuildUI(opts: GlobalOptions) {
   if (!fs.existsSync(FRONTEND_TARGET_DIR)) {
     logger.error(
       `Template frontend tidak ditemukan di ${quotePath(
-        FRONTEND_TARGET_DIR
-      )}. Jalankan template:init terlebih dahulu.`
+        FRONTEND_TARGET_DIR,
+      )}. Jalankan template:init terlebih dahulu.`,
     );
     process.exit(1);
   }
@@ -37,8 +42,8 @@ export async function runTemplateBuildUI(opts: GlobalOptions) {
   if (!fs.existsSync(FRONTEND_ENV_SOURCE)) {
     logger.error(
       `File .env.local tidak ditemukan di ${quotePath(
-        FRONTEND_ENV_SOURCE
-      )}. Silakan buat file .env.local di root project terlebih dahulu.`
+        FRONTEND_ENV_SOURCE,
+      )}. Silakan buat file .env.local di root project terlebih dahulu.`,
     );
     process.exit(1);
   }
@@ -49,7 +54,9 @@ export async function runTemplateBuildUI(opts: GlobalOptions) {
 
   // Jalankan npm install di dalam folder template frontend
   logger.info("Menjalankan npm install di dalam template frontend...");
-  logger.loading("Menginstal dependensi... (Bisa memakan waktu beberapa menit)");
+  logger.loading(
+    "Menginstal dependensi... (Bisa memakan waktu beberapa menit)",
+  );
   await run("npm ci", {
     cwd: FRONTEND_TARGET_DIR,
     silent: !opts.verbose,
@@ -58,7 +65,9 @@ export async function runTemplateBuildUI(opts: GlobalOptions) {
 
   // Jalankan npm run build di dalam folder template frontend
   logger.info("Menjalankan npm run build di dalam template frontend...");
-  logger.loading("Membangun aplikasi frontend... (Bisa memakan waktu beberapa menit)");
+  logger.loading(
+    "Membangun aplikasi frontend... (Bisa memakan waktu beberapa menit)",
+  );
   await run("npm run build", {
     cwd: FRONTEND_TARGET_DIR,
     silent: !opts.verbose,

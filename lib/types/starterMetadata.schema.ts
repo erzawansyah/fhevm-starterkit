@@ -47,7 +47,7 @@ export const StarterMetadataSchema = z.object({
       name: string().min(1).max(100),
       email: z.email().optional(),
       url: string().url().optional(),
-    })
+    }),
   ),
 
   // Does the starter include a frontend project
@@ -68,7 +68,7 @@ export const StarterMetadataSchema = z.object({
       z.object({
         name: string().min(1),
         version: string().min(1),
-      })
+      }),
     )
     .optional(),
 });

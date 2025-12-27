@@ -19,7 +19,7 @@ async function main() {
   const typeFiles = fs
     .readdirSync(typesDir)
     .filter(
-      (file) => file.endsWith(".schema.ts") || file.endsWith(".schema.js")
+      (file) => file.endsWith(".schema.ts") || file.endsWith(".schema.js"),
     );
 
   for (const file of typeFiles) {
@@ -32,7 +32,7 @@ async function main() {
       let schema = schemaModule.default;
       if (!schema) {
         const namedKey = Object.keys(schemaModule).find((k) =>
-          k.endsWith("Schema")
+          k.endsWith("Schema"),
         );
         if (namedKey) {
           schema = schemaModule[namedKey];
@@ -48,7 +48,7 @@ async function main() {
       const outputFileName = file.replace(/\.schema\.(ts|js)$/, ".schema.json");
       fs.writeFileSync(
         path.join(schemasDir, outputFileName),
-        JSON.stringify(jsonSchema, null, 2)
+        JSON.stringify(jsonSchema, null, 2),
       );
       console.log(`✔ ${outputFileName} generated`);
     } catch (err) {

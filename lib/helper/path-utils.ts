@@ -1,7 +1,6 @@
 import path from "path";
 import config from "../../starterkit.config";
 
-
 const STARTERS_CATALOGUE_DIR = config.startersDir; // dir name of catalogue e.g. 'starters'
 const WORKSPACE_DIR = config.workingDir; // dir name of workspace e.g. 'workspace'
 const METADATA_FILE = config.metadataFile; // metadata file name e.g. 'metadata.json'
@@ -18,19 +17,18 @@ const MARKDOWN_TEMPLATE_DIR = config.template.markdown || "markdown-template"; /
  * @returns Absolute path to the `starters` folder.
  */
 export function resolveStartersDir(): string {
-    return path.resolve(__dirname, "..", "..", STARTERS_CATALOGUE_DIR);
+  return path.resolve(__dirname, "..", "..", STARTERS_CATALOGUE_DIR);
 }
 
 /**
  * Resolve the absolute path to a all necessary file inside each starter.
- * 
+ *
  * @param starterName Name of the starter project
- * @returns Absolute path to the all necessary file 
+ * @returns Absolute path to the all necessary file
  */
 export function resolveStarterDir(starterName: string): string {
-    return path.join(resolveStartersDir(), starterName);
+  return path.join(resolveStartersDir(), starterName);
 }
-
 
 /**
  * Resolve the absolute path to the working directory where starters will be
@@ -38,35 +36,36 @@ export function resolveStarterDir(starterName: string): string {
  * @returns Absolute path to the working directory.
  */
 export function resolveWorkspaceDir(): string {
-    return path.resolve(__dirname, "..", "..", WORKSPACE_DIR);
+  return path.resolve(__dirname, "..", "..", WORKSPACE_DIR);
 }
 
 /**
  * Resolve the absolute path to selected starter in workspace directory.
- * 
+ *
  * @param starterName Name of the starter project
  */
 export function resolveWorkspaceStarterDir(starterName: string): string {
-    return path.join(resolveWorkspaceDir(), starterName);
+  return path.join(resolveWorkspaceDir(), starterName);
 }
-
 
 /**
  * Resolve the absolute path to a metadata file inside the starters directory.
- * 
+ *
  * @param starterName Name of the starter project
  */
 export function resolveStarterMetadataFile(starterName: string): string {
-    return path.join(resolveStartersDir(), starterName, METADATA_FILE);
+  return path.join(resolveStartersDir(), starterName, METADATA_FILE);
 }
 
 /**
  * Resolve the absolute path to a metadata file inside the workspace directory.
- * 
+ *
  * @param starterName Name of the starter project
  */
-export function resolveWorkspaceStarterMetadataFile(starterName: string): string {
-    return path.join(resolveWorkspaceDir(), starterName, METADATA_FILE);
+export function resolveWorkspaceStarterMetadataFile(
+  starterName: string,
+): string {
+  return path.join(resolveWorkspaceDir(), starterName, METADATA_FILE);
 }
 
 /**
@@ -74,7 +73,7 @@ export function resolveWorkspaceStarterMetadataFile(starterName: string): string
  * @returns {string} Absolute path to hardhat template directory
  */
 export function resolveHardhatTemplateDir(): string {
-    return path.join(__dirname, "..", "..", HARDHAT_TEMPLATE_DIR);
+  return path.join(__dirname, "..", "..", HARDHAT_TEMPLATE_DIR);
 }
 
 /**
@@ -82,7 +81,7 @@ export function resolveHardhatTemplateDir(): string {
  * @returns {string} Absolute path to frontend template directory
  */
 export function resolveFrontendTemplateDir(): string {
-    return path.join(__dirname, "..", "..", FRONTEND_TEMPLATE_DIR);
+  return path.join(__dirname, "..", "..", FRONTEND_TEMPLATE_DIR);
 }
 
 /**
@@ -90,25 +89,24 @@ export function resolveFrontendTemplateDir(): string {
  * @returns {string} Absolute path to overrides template directory
  */
 export function resolveOverridesTemplateDir(): string {
-    return path.join(__dirname, "..", "..", OVERRIDES_TEMPLATE_DIR);
+  return path.join(__dirname, "..", "..", OVERRIDES_TEMPLATE_DIR);
 }
 
 /**
  * Resolve the absolute path to the UI starter directory inside a starter workspace.
- * 
+ *
  * @param starterName Name of the starter project
  */
 export function resolveUiStarterDir(starterName: string): string {
-    const workspace = resolveWorkspaceDir();
-    return path.join(workspace, starterName, UI_STARTER_DIR);
+  const workspace = resolveWorkspaceDir();
+  return path.join(workspace, starterName, UI_STARTER_DIR);
 }
-
 
 /**
  * Resolve the absolute path to the markdown template file
- * 
+ *
  * @returns {string} Absolute path to markdown template file
  */
 export function resolveMarkdownTemplateDir(): string {
-    return path.join(__dirname, "..", "..", MARKDOWN_TEMPLATE_DIR);
+  return path.join(__dirname, "..", "..", MARKDOWN_TEMPLATE_DIR);
 }

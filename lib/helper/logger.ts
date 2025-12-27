@@ -205,7 +205,7 @@ class Logger {
     const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
     const frame = frames[this.spinnerFrame % frames.length];
     const msg = `${this.c(
-      `${colors.cyan}${frame} ${this.spinnerMessage}...${colors.reset}`
+      `${colors.cyan}${frame} ${this.spinnerMessage}...${colors.reset}`,
     )}`;
     this.out.write(msg + "\r");
   }
@@ -218,9 +218,9 @@ class Logger {
     this.stopSpinner();
     this.writeOut(
       `${this.prefix()}${this.c(
-        `${colors.cyan}ℹ INFO:${colors.reset}`
+        `${colors.cyan}ℹ INFO:${colors.reset}`,
       )} ${message}`,
-      ...args
+      ...args,
     );
   }
 
@@ -232,9 +232,9 @@ class Logger {
     this.stopSpinner();
     this.writeOut(
       `${this.prefix()}${this.c(
-        `${colors.green}✓ SUCCESS:${colors.reset}`
+        `${colors.green}✓ SUCCESS:${colors.reset}`,
       )} ${message}`,
-      ...args
+      ...args,
     );
   }
 
@@ -246,9 +246,9 @@ class Logger {
     this.stopSpinner();
     this.writeOut(
       `${this.prefix()}${this.c(
-        `${colors.yellow}⚠ WARNING:${colors.reset}`
+        `${colors.yellow}⚠ WARNING:${colors.reset}`,
       )} ${message}`,
-      ...args
+      ...args,
     );
   }
 
@@ -260,9 +260,9 @@ class Logger {
     this.stopSpinner();
     this.writeErr(
       `${this.prefix()}${this.c(
-        `${colors.red}✖ ERROR:${colors.reset}`
+        `${colors.red}✖ ERROR:${colors.reset}`,
       )} ${message}`,
-      ...args
+      ...args,
     );
   }
 
@@ -274,9 +274,9 @@ class Logger {
     this.stopSpinner();
     this.writeOut(
       `${this.prefix()}${this.c(
-        `${colors.magenta}🐛 DEBUG:${colors.reset}`
+        `${colors.magenta}🐛 DEBUG:${colors.reset}`,
       )} ${message}`,
-      ...args
+      ...args,
     );
   }
 
@@ -297,13 +297,13 @@ class Logger {
     this.stopSpinner();
     const line = "=".repeat(50);
     this.writeOut(
-      `\n${this.c(`${colors.bright}${colors.blue}${line}${colors.reset}`)}`
+      `\n${this.c(`${colors.bright}${colors.blue}${line}${colors.reset}`)}`,
     );
     this.writeOut(
-      `${this.c(`${colors.bright}${colors.blue}${title}${colors.reset}`)}`
+      `${this.c(`${colors.bright}${colors.blue}${title}${colors.reset}`)}`,
     );
     this.writeOut(
-      `${this.c(`${colors.bright}${colors.blue}${line}${colors.reset}`)}\n`
+      `${this.c(`${colors.bright}${colors.blue}${line}${colors.reset}`)}\n`,
     );
   }
 
@@ -314,11 +314,11 @@ class Logger {
     if (!this.shouldLog("info")) return;
     this.stopSpinner();
     this.writeOut(
-      `${this.c(`\n${colors.dim}${"-".repeat(title.length)}${colors.reset}`)}`
+      `${this.c(`\n${colors.dim}${"-".repeat(title.length)}${colors.reset}`)}`,
     );
     this.writeOut(`${this.c(`${colors.bright}${title}${colors.reset}`)}`);
     this.writeOut(
-      `${this.c(`${colors.dim}${"-".repeat(title.length)}${colors.reset}`)}`
+      `${this.c(`${colors.dim}${"-".repeat(title.length)}${colors.reset}`)}`,
     );
   }
 
@@ -359,8 +359,8 @@ class Logger {
     this.stopSpinner();
     this.writeOut(
       `${this.prefix()}${this.c(
-        `${colors.bright}${key}:${colors.reset}`
-      )} ${value}`
+        `${colors.bright}${key}:${colors.reset}`,
+      )} ${value}`,
     );
   }
 
@@ -369,7 +369,7 @@ class Logger {
    */
   table(
     data: Record<string, any>,
-    orientation: "horizontal" | "vertical" = "horizontal"
+    orientation: "horizontal" | "vertical" = "horizontal",
   ): void {
     if (!this.shouldLog("info")) return;
     this.stopSpinner();
@@ -378,9 +378,7 @@ class Logger {
       const rows = Object.entries(data).map(([key, value]) => ({
         field: key,
         value:
-          typeof value === "object"
-            ? JSON.stringify(value)
-            : String(value),
+          typeof value === "object" ? JSON.stringify(value) : String(value),
       }));
 
       console.table(rows);
@@ -389,8 +387,6 @@ class Logger {
 
     console.table(data);
   }
-
-
 
   /**
    * Add blank line
@@ -409,8 +405,8 @@ class Logger {
     this.stopSpinner();
     this.writeOut(
       `${this.prefix()}${this.c(
-        `${colors.dim}${"─".repeat(50)}${colors.reset}`
-      )}`
+        `${colors.dim}${"─".repeat(50)}${colors.reset}`,
+      )}`,
     );
   }
 
@@ -419,8 +415,8 @@ class Logger {
     this.stopSpinner();
     this.writeOut(
       `${this.prefix()}${this.c(
-        `${colors.bright}${colors.green}> ${message}${colors.reset}`
-      )}`
+        `${colors.bright}${colors.green}> ${message}${colors.reset}`,
+      )}`,
     );
   }
 
@@ -433,7 +429,11 @@ class Logger {
     tag?: string; // e.g. 'astro' or 'VITE'
     tagColor?: keyof typeof colors; // color for the tag label
     message?: string; // main title / subtitle
-    rows?: Array<{ label: string; value: any; valueColor?: keyof typeof colors }>;
+    rows?: Array<{
+      label: string;
+      value: any;
+      valueColor?: keyof typeof colors;
+    }>;
     note?: string; // optional yellow note line
   }): void {
     if (!this.shouldLog("info")) return;
@@ -443,11 +443,13 @@ class Logger {
 
     const tagColored = options.tag
       ? this.c(
-        `${options.tagColor ? (colors as any)[options.tagColor] : ""}${colors.bright} ${options.tag} ${colors.reset}`
-      )
+          `${options.tagColor ? (colors as any)[options.tagColor] : ""}${colors.bright} ${options.tag} ${colors.reset}`,
+        )
       : "";
 
-    const msg = options.message ? this.c(`${colors.green}${options.message}${colors.reset}`) : "";
+    const msg = options.message
+      ? this.c(`${colors.green}${options.message}${colors.reset}`)
+      : "";
 
     // Header line: emoji + tag + message
     const headerParts = [e, tagColored, msg].filter(Boolean).join(" ");
@@ -465,10 +467,12 @@ class Logger {
     }
 
     if (options.note) {
-      this.writeOut(this.prefix() + this.c(`${colors.yellow}${options.note}${colors.reset}`));
+      this.writeOut(
+        this.prefix() +
+          this.c(`${colors.yellow}${options.note}${colors.reset}`),
+      );
     }
   }
-
 }
 
 // Export singleton instance

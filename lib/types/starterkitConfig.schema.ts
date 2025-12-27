@@ -25,15 +25,21 @@ export const TemplateActionsConfigSchema = z.object({
   /** Directories to create during copy (e.g., docs) */
   createDirs: z.array(z.string()).optional(),
   /** Files to create during copy (e.g., new configuration files) */
-  createFiles: z.array(z.object({
-    path: z.string(),
-    content: z.string(),
-  })).optional(),
+  createFiles: z
+    .array(
+      z.object({
+        path: z.string(),
+        content: z.string(),
+      }),
+    )
+    .optional(),
   /** Additional npm packages to install globally for generated workspaces */
-  additionalPackages: z.object({
-    dependencies: z.array(z.string()).optional(),
-    devDependencies: z.array(z.string()).optional(),
-  }).optional(),
+  additionalPackages: z
+    .object({
+      dependencies: z.array(z.string()).optional(),
+      devDependencies: z.array(z.string()).optional(),
+    })
+    .optional(),
   /** Additional npm scripts to merge into generated workspaces */
   additionalScripts: z.record(z.string()).optional(),
 });
@@ -59,7 +65,7 @@ export const StarterKitConfigSchema = z.object({
     frontend: TemplateConfigSchema, // frontend template config
     actions: TemplateActionsConfigSchema, // actions to perform when copying templates
     overrides: z.string(), // overrides template directory
-    markdown: z.string()
+    markdown: z.string(),
   }),
   taxonomy: TaxonomyConfigSchema,
   validation: z.object({

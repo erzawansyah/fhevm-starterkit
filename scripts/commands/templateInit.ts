@@ -58,13 +58,13 @@ function ensureEmptyDir(dir: string, force: boolean) {
   if (!force) {
     logger.error(`Direktori target ${dir} tidak kosong!`);
     logger.error(
-      "Hapus isi direktori tersebut dan coba lagi, atau jalankan ulang dengan flag --force."
+      "Hapus isi direktori tersebut dan coba lagi, atau jalankan ulang dengan flag --force.",
     );
     process.exit(1);
   }
 
   logger.warning(
-    `Direktori target ${dir} tidak kosong. --force aktif, mengosongkan isi direktori...`
+    `Direktori target ${dir} tidak kosong. --force aktif, mengosongkan isi direktori...`,
   );
   emptyDir(dir);
 }
@@ -109,11 +109,11 @@ async function cloneRepo(params: {
     logger.info(`Checkout template ${label} ke commit ${pinnedCommit}...`);
     await run(
       `cd ${quotePath(targetDir)} && git checkout ${pinnedCommit}`,
-      !!verbose
+      !!verbose,
     );
   } else if (pinnedCommit && skipCheckout) {
     logger.info(
-      `Lewati checkout commit untuk template ${label} karena --latest dikonfirmasi.`
+      `Lewati checkout commit untuk template ${label} karena --latest dikonfirmasi.`,
     );
   }
 
@@ -131,13 +131,13 @@ export const runTemplateInit = async (options: TemplateInitOptions) => {
     const ok = await confirmLatestMode();
     if (!ok) {
       logger.info(
-        "Dibatalkan oleh pengguna. Tidak ada perubahan yang dilakukan."
+        "Dibatalkan oleh pengguna. Tidak ada perubahan yang dilakukan.",
       );
       process.exit(0);
     }
     skipCheckout = true;
     logger.info(
-      "Konfirmasi diterima: akan menggunakan versi latest dan melewati checkout commit pinned."
+      "Konfirmasi diterima: akan menggunakan versi latest dan melewati checkout commit pinned.",
     );
   }
 

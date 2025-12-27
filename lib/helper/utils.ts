@@ -19,7 +19,7 @@ export function run(cmd: string, opts?: RunOptions | boolean): Promise<void> {
 
     child.on("error", reject);
     child.on("close", (code) =>
-      code === 0 ? resolve() : reject(new Error(`${cmd} exited with ${code}`))
+      code === 0 ? resolve() : reject(new Error(`${cmd} exited with ${code}`)),
     );
   });
 }
@@ -57,7 +57,7 @@ export function emptyDir(dir: string) {
 }
 
 export function safeReadJson<T = unknown>(
-  filePath: string
+  filePath: string,
 ): { ok: true; data: T } | { ok: false; error: string } {
   try {
     const raw = fs.readFileSync(filePath, "utf-8");
@@ -100,7 +100,7 @@ export function getRemoteHeadCommitHash(repo: string, branch = "main"): string {
   const sha = out.split(/\s+/)[0];
   if (!sha || sha.length < 7) {
     throw new Error(
-      `Gagal mengambil remote HEAD commit untuk ${repo} (branch: ${branch}).`
+      `Gagal mengambil remote HEAD commit untuk ${repo} (branch: ${branch}).`,
     );
   }
   return sha;
@@ -109,13 +109,13 @@ export function getRemoteHeadCommitHash(repo: string, branch = "main"): string {
 export async function checkoutRepoCommit(
   targetDir: string,
   commitHash: string,
-  verbose = true
+  verbose = true,
 ) {
   await run(
     `cd ${quotePath(
-      targetDir
+      targetDir,
     )} && git fetch --all --prune && git checkout ${commitHash}`,
-    verbose
+    verbose,
   );
 }
 
@@ -127,7 +127,7 @@ export type RemoveLinesOptions = {
 export function removeLinesFromFile(
   filePath: string,
   match: string,
-  opts: RemoveLinesOptions = {}
+  opts: RemoveLinesOptions = {},
 ): { changed: boolean; before: string; after: string } {
   const abs = path.resolve(filePath);
   if (!fs.existsSync(abs)) throw new Error(`File not found: ${abs}`);
@@ -162,4 +162,3 @@ export function removeLinesFromFile(
   if (changed) fs.writeFileSync(abs, after, "utf8");
   return { changed, before, after };
 }
-

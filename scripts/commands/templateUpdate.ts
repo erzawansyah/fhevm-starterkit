@@ -46,7 +46,7 @@ function ensureTemplateInitialized() {
     !fs.existsSync(FRONTEND_TARGET_DIR)
   ) {
     logger.error(
-      "Template belum diinisialisasi! Jalankan `npm run template:init` terlebih dahulu."
+      "Template belum diinisialisasi! Jalankan `npm run template:init` terlebih dahulu.",
     );
     process.exit(1);
   }
@@ -99,27 +99,27 @@ async function updateTemplate(params: {
 
     if (params.pinnedCommit && currentCommit === params.pinnedCommit) {
       logger.info(
-        `Template ${label} sudah di commit pinned. Tidak ada yang perlu diperbarui.`
+        `Template ${label} sudah di commit pinned. Tidak ada yang perlu diperbarui.`,
       );
       return;
     }
 
     if (params.pinnedCommit && params.pinnedCommit !== currentCommit) {
       logger.warning(
-        `Template ${label} tidak memiliki commit target, tetapi commit saat ini berbeda dari commit pinned. Cek konfigurasi starterkit.`
+        `Template ${label} tidak memiliki commit target, tetapi commit saat ini berbeda dari commit pinned. Cek konfigurasi starterkit.`,
       );
       process.exit(1);
     }
 
     logger.warning(
-      `Tidak ada commit target untuk template ${label}. Cek config starterkit.`
+      `Tidak ada commit target untuk template ${label}. Cek config starterkit.`,
     );
     process.exit(1);
   }
 
   if (currentCommit && currentCommit === targetCommit) {
     logger.info(
-      `Template ${label} sudah di commit target. Tidak ada yang perlu diperbarui.`
+      `Template ${label} sudah di commit target. Tidak ada yang perlu diperbarui.`,
     );
     return;
   }
@@ -132,13 +132,13 @@ async function updateTemplate(params: {
 
 // Confirm update
 async function confirmUpdate(): Promise<boolean> {
-  const answer = await prompt({
+  const answer = (await prompt({
     type: "confirm",
     name: "confirmation",
     message:
       "Apakah Anda yakin ingin memperbarui template ke versi terbaru dari repositori resmi? (perubahan lokal akan hilang)",
     initial: false,
-  }) as { confirmation: boolean };
+  })) as { confirmation: boolean };
 
   return answer.confirmation;
 }

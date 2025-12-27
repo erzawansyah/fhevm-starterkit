@@ -16,12 +16,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // generate index.json in ../frontend/public/contracts/
   // always (re)create/update it; create contracts dir if missing
-  const CONTRACT_DIRECTORY = path.join(
-    __dirname,
-    "..",
-    "ui",
-    "contracts"
-  );
+  const CONTRACT_DIRECTORY = path.join(__dirname, "..", "ui", "contracts");
   const INDEX_FILE_PATH = path.join(CONTRACT_DIRECTORY, "index.json");
   if (!fs.existsSync(CONTRACT_DIRECTORY)) {
     fs.mkdirSync(CONTRACT_DIRECTORY, { recursive: true });
@@ -32,9 +27,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     JSON.stringify(
       files.map((file) => file.slug),
       null,
-      2
+      2,
     ),
-    "utf8"
+    "utf8",
   );
   console.log(`Wrote index.json at ${INDEX_FILE_PATH}`);
 
@@ -64,7 +59,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const metadataPath = path.join(
       CONTRACT_DIRECTORY,
       file.slug,
-      "metadata.json"
+      "metadata.json",
     );
     // jika gak ada, buat file metadata.json dulu
     if (!fs.existsSync(metadataPath)) {
@@ -87,9 +82,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             authors: [],
           },
           null,
-          2
+          2,
         ),
-        "utf8"
+        "utf8",
       );
       console.log(`Created new metadata file at ${metadataPath}`);
     }
@@ -101,7 +96,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     };
     fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), "utf8");
     console.log(
-      `Updated metadata for ${file.name} at ${metadataPath} with address ${deployedContract.address}`
+      `Updated metadata for ${file.name} at ${metadataPath} with address ${deployedContract.address}`,
     );
   }
 
@@ -113,7 +108,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     fs.writeFileSync(
       abiPath,
       JSON.stringify({ abi: artifact.abi }, null, 2),
-      "utf8"
+      "utf8",
     );
     console.log(`Updated ABI for ${file.name} at ${abiPath}`);
   }

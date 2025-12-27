@@ -1,191 +1,212 @@
 # FHEVM StarterKit
 
-Dokumen ini akan menjelaskan overview dari proyek FHEVM StarterKit, termasuk fitur-fitur utama, teknologi yang digunakan, dan cara memulai (kunjungi bagian "Getting Started" untuk instruksi lebih lanjut).
+Dokumen ini menjelaskan **overview** dari proyek FHEVM StarterKit, termasuk fitur-fitur utama, teknologi yang digunakan, dan cara memulai.
 
-## Penjelasan struktur project
+Untuk panduan quick start, lihat [01_GET_STARTED.md](01_GET_STARTED.md).
+
+## Penjelasan Struktur Project
 
 Proyek FHEVM StarterKit memiliki struktur direktori sebagai berikut:
 
 ```plaintext
 fhevm-starterkit/
-├── base/
-│   ├── fhevm-hardhat-template/
-│   ├── fhevm-relayer-template/
-│   └── config.json
-├── dev/
-├── docs/
-│   └── starters/
-├── lib/
-├── scripts/
-├── projects/
-├── starters/
-├── .gitignore
+├── base/                    # Local template clones (generated)
+│   ├── hardhat-template/    # Official Zama Hardhat template
+│   ├── frontend-template/   # Relayer UI template
+│   ├── markdown-template/   # README generation template
+│   ├── draft-template/      # Draft/experimental template
+│   └── overrides/           # Custom override files
+├── docs/                    # Project documentation
+│   ├── 00_README.md
+│   ├── 01_GET_STARTED.md
+│   ├── 02_USING_STARTER_SCRIPT.md
+│   ├── 03_AUTOMATION_SCRIPT.md
+│   ├── 04_COMMENTING_GUIDELINES.md
+│   └── starters/            # Generated starter docs
+├── lib/                     # Core library & helpers
+│   ├── helper/              # Utility functions
+│   ├── types/               # TypeScript schemas
+│   ├── schemas/             # JSON schema files
+│   └── devtools/            # Development utilities
+├── scripts/                 # CLI commands
+│   ├── cli.ts              # Main entry point
+│   └── commands/            # Individual commands
+├── starters/                # Official FHEVM starters
+│   ├── fhe-add/            # Encrypted addition example
+│   ├── fhe-counter/        # Encrypted counter example
+│   └── encrypt-multiple-values/
+├── workspace/               # Generated projects (temp)
+├── starterkit.config.ts     # Configuration file
 ├── package.json
+├── AGENTS.md                # Development guidelines
 └── README.md
 ```
 
-### `base/`
+### `base/` — Template Clones (Generated Locally)
 
-Direktori ini berisi template dasar untuk dicopy ke dalam proyek baru. Isinya kosong, sampai user melakukan insialisasi template dengan menjalankan `npm run template:init`.
+Direktori ini berisi **local clones** dari template eksternal dan internal. Folder ini **tidak ada di git** dan di-generate dengan menjalankan `npm run template:init`.
 
-### `base/fhevm-hardhat-template/`
+**Struktur:**
 
-Template dasar untuk proyek FHEVM Hardhat. Hasil clone dari template resmi dari zama.
+- `hardhat-template/` — Template Hardhat resmi dari Zama (clone dari git)
+- `frontend-template/` — Template UI relayer untuk interaksi kontrak FHEVM (clone dari git)
+- `markdown-template/` — Template Handlebars untuk generate README
+- `draft-template/` — Template draft/eksperimental
+- `overrides/` — File-file custom untuk override pada saat copy
 
-### `base/fhevm-relayer-template/`
+**Catatan penting:**
 
-Template ui relayer (erzawansyah) untuk berinteraksi dengan kontrak FHEVM. Semacam explorer custom yang mendukung fitur FHEVM (enkripsi/dekripsi).
-
-### `base/config.json`
-
-File konfigurasi yang dibutuhkan untuk menggunakan base template ke proyek baru.
-
-### `dev/`
-
-Direktori ini digunakan sebagai **workspace pengembangan internal**.
-
-Isinya bersifat sementara dan **tidak termasuk starter resmi**, misalnya:
-
-- eksperimen kontrak sebelum dijadikan starter
-- proof of concept
-- uji coba script automation
-- sandbox untuk testing CLI dan generator
-
-Folder ini **tidak ikut diproses** oleh generator dokumentasi maupun checker konsistensi.
-
-Tujuannya jelas:
-memisahkan **eksperimen** dari **artefak final** yang dipublikasikan.
+- Folder ini **di-generate lokal saja**, bukan commit ke git
+- Gunakan `npm run template:update` untuk mengupdate ke versi terbaru
+- Gunakan `npm run template:reset` untuk menghapus dan reinisialisasi
 
 ---
 
-### `docs/`
+### `docs/` — Project Documentation
 
-Direktori dokumentasi utama proyek.
+Dokumentasi utama proyek yang dirancang untuk **mudah digenerate** dan **siap diintegrasikan ke GitBook**.
 
-Struktur di dalamnya dirancang agar **mudah digenerate otomatis** dan **siap diintegrasikan ke GitBook atau sistem docs lain**.
+**Struktur:**
 
-#### `docs/starters/`
-
-Berisi dokumentasi hasil generate untuk setiap starter.
-
-Setiap starter akan memiliki satu folder dokumentasi yang:
-
-- dihasilkan dari:
-
-  - komentar NatSpec di kontrak
-  - metadata `starter-meta.json`
-  - README starter
-
-- disusun secara naratif:
-
-  - tujuan
-  - konsep FHEVM
-  - alur penggunaan
-  - potensi kesalahan umum
-
-Folder ini **tidak ditulis manual**, melainkan dibangun oleh script `npm run docs`.
+- `00_README.md` — Overview proyek (file ini)
+- `01_GET_STARTED.md` — Quick start guide
+- `02_USING_STARTER_SCRIPT.md` — Penjelasan command `starter:create`
+- `03_AUTOMATION_SCRIPT.md` — Penjelasan semua CLI commands
+- `04_COMMENTING_GUIDELINES.md` — Standar anotasi kontrak untuk auto-doc
+- `starters/` — Folder untuk dokumentasi hasil generate
 
 ---
 
-### `lib/`
+### `lib/` — Core Library
 
 Berisi **library internal** yang dipakai lintas script dan tooling.
 
-Contoh isi yang direncanakan:
+**Struktur:**
 
-- parser metadata (`starter-meta.json`)
-- helper validasi schema
-- util untuk scanning folder starter
-- formatter output dokumentasi
-- helper konsistensi (checker)
+- `helper/` — Utility functions (logger, path resolution, starters ops, validation, dll)
+- `types/` — TypeScript schemas dengan Zod validation
+- `schemas/` — JSON schema files (generated dari TypeScript schemas)
+- `devtools/` — Development utilities (schema generator, dll)
 
-Prinsipnya:
+**Prinsip:**
 
-> script boleh tipis, logika berat masuk ke `lib/`
-
-Ini penting untuk menjaga maintainability saat project membesar.
+> Script boleh tipis; logika berat masuk ke `lib/` untuk maintainability.
 
 ---
 
-### `scripts/`
+### `scripts/` — CLI Commands
 
-Berisi seluruh **tooling automation** yang menjadi inti nilai proyek ini.
+Berisi **seluruh tooling automation** yang menjadi inti nilai proyek.
 
-Script yang direncanakan dan fungsinya:
+**Struktur:**
 
-- `template:init`
-  Meng-clone dan menyiapkan base template (Hardhat + relayer UI)
+- `cli.ts` — Main CLI entry point (Commander.js)
+- `commands/` — Individual command implementations:
+  - `templateInit.ts` — Clone base templates
+  - `templateUpdate.ts` — Update templates to latest
+  - `templateReset.ts` — Delete templates
+  - `templateBuildUI.ts` — Build frontend template
+  - `starterList.ts` — List available starters
+  - `starterCreate.ts` — Create new projects dari starters
+  - `starterAdd.ts` — Add new starter ke collection
+  - `starterClean.ts` — Clean up generated projects
 
-- `template:update`
-  Menarik update terbaru dari template eksternal (Zama & relayer)
+**Tersedia commands:**
 
-- `starter:init`
-  Membuat starter baru dengan struktur konsisten
+- `npm run template:init` — Clone base templates
+- `npm run template:update` — Update templates
+- `npm run template:reset` — Delete templates
+- `npm run template:build-ui` — Build frontend
+- `npm run starter:list` — List starters
+- `npm run starter:create` — Create project from starter
+- `npm run starter:add` — Add new starter
+- `npm run starter:clean` — Clean up projects
 
-- `starter:use`
-  Menggunakan starter sebagai basis project baru (mode migrate / boilerplate)
-
-- `docs`
-  Generate dokumentasi otomatis dari starter dan kontrak
-
-- `check`
-  Mengecek konsistensi:
-
-  - metadata ada atau tidak
-  - struktur starter valid
-  - kontrak punya test dan docs
-
-- `validate:metadata`
-  Validasi `starter-meta.json` terhadap schema
-
-Folder ini adalah **jantung inovasi Example Hub**.
+Lihat [03_AUTOMATION_SCRIPT.md](03_AUTOMATION_SCRIPT.md) untuk penjelasan lengkap.
 
 ---
 
-### `projects/`
+### `starters/` — Official Starter Collection
 
-Berisi **project hasil generate** atau **project yang sedang digunakan user**.
+Berisi **starter resmi FHEVM StarterKit** yang siap pakai.
 
-Fungsinya:
-
-- hasil dari `starter:use`
-- project nyata yang:
-
-  - sudah di-migrate dari starter
-  - bisa langsung dikembangkan lebih lanjut
-
-Folder ini **bukan template** dan **bukan starter**, tapi **output pemakaian starter**.
-
-Dengan pemisahan ini:
-
-- starter tetap bersih
-- user bebas mengotak-atik project tanpa merusak basis starter
-
----
-
-### `starters/`
-
-Berisi seluruh **starter resmi FHEVM StarterKit**.
-
-Setiap folder di dalamnya adalah **satu unit pembelajaran**, dengan struktur konsisten:
+Setiap folder adalah **satu unit pembelajaran** dengan struktur konsisten:
 
 ```plaintext
 starter-name/
-├── contracts/
-├── tests/
-├── ui/        (opsional)
-├── README.md
-└── starter-meta.json
+├── contracts/               # Solidity contracts
+│   └── ContractName.sol
+├── test/                    # Hardhat tests
+│   └── ContractName.ts
+├── README.md               # Starter documentation
+└── metadata.json           # Metadata & taxonomy
 ```
 
-Starter diklasifikasikan menggunakan:
+**Klasifikasi starter:**
 
-- **Category**: fundamental, patterns, applied, advanced
-- **Tags**: fleksibel
-- **Concepts**: konsep FHEVM yang diajarkan
+- **Category:** fundamental, patterns, applied, advanced
+- **Chapter:** basics, encryption, decryption, access-control, dll
+- **Tags:** DeFi, InfoFi, DeSci, dll (custom tags)
+- **Concepts:** FHE operations & concepts yang diajarkan
 
-Folder inilah yang:
+**Contoh starters:**
 
-- dipindai oleh automation
-- dijadikan sumber dokumentasi
-- dinilai langsung oleh juri bounty
+- `fhe-add/` — Encrypted addition (fundamental)
+- `fhe-counter/` — Encrypted counter (fundamental)
+- `encrypt-multiple-values/` — Multiple value encryption (fundamental)
+
+---
+
+### `workspace/` — Generated Projects (Temporary)
+
+Berisi **project hasil generate** dari command `starter:create`. Folder ini **bersifat temporary** dan **tidak ada di git**.
+
+**Fungsi:**
+
+- Output dari `npm run starter:create`
+- User bebas mengembangkan lebih lanjut
+- Pemisahan ini menjaga starter tetap clean
+
+**Catatan:**
+
+- Folder ini boleh dihapus kapan saja (tidak ada data penting)
+- Git ignore file ini (.gitignore: `workspace/`)
+
+---
+
+## Tech Stack
+
+- **Language:** TypeScript, Solidity
+- **Runtime:** Node.js 20+
+- **Package manager:** npm
+- **Frameworks:** Hardhat (smart contracts), Vite (frontend)
+- **Testing:** Hardhat test framework
+- **Template Management:** Commander (CLI), Handlebars (templates), Zod (validation)
+- **Linting/Formatting:** ESLint, Prettier
+
+---
+
+## Quick Start Commands
+
+```bash
+# Install dependencies
+npm install
+
+# Initialize base templates (required once)
+npm run template:init
+
+# List available starters
+npm run starter:list
+
+# Create a new project from a starter
+npm run starter:create fhe-add -- --dir my-fhe-project
+
+# Build frontend template
+npm run template:build-ui
+
+# Lint and format code
+npm run lint
+npm run format
+```
+
+Untuk panduan lengkap, lihat [01_GET_STARTED.md](01_GET_STARTED.md) dan [02_USING_STARTER_SCRIPT.md](02_USING_STARTER_SCRIPT.md).

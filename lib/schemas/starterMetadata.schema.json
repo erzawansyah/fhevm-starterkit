@@ -38,12 +38,7 @@
     },
     "category": {
       "type": "string",
-      "enum": [
-        "fundamental",
-        "patterns",
-        "applied",
-        "advanced"
-      ]
+      "enum": ["fundamental", "patterns", "applied", "advanced"]
     },
     "chapter": {
       "type": "string",
@@ -155,9 +150,7 @@
             "format": "uri"
           }
         },
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "additionalProperties": false
       }
     },
@@ -189,10 +182,7 @@
             "minLength": 1
           }
         },
-        "required": [
-          "name",
-          "version"
-        ],
+        "required": ["name", "version"],
         "additionalProperties": false
       }
     }

@@ -30,19 +30,16 @@ Each starter includes flexible **tags** and **concepts** for filtering and disco
 - **Curated Starters**
   Small, focused FHEVM starter projects containing contracts, tests, documentation, and metadata.
   Currently available:
-
   - **FHE Counter** (Applied) — encrypted counter using `euint8`
   - **FHE Addition** (Fundamental) — encrypted arithmetic with `euint8`
 
 - **Official Base Templates**
   Located in `base/`, used for initializing new FHEVM projects.
-
   - `fhevm-hardhat-template` — Zama official Hardhat setup
   - `relayer-ui-template` — UI template for relayer integration
 
 - **Metadata-Driven Structure**
   Each starter includes a `starter.meta.json` file with:
-
   - Category (fundamental/patterns/applied/advanced)
   - Tags for flexible classification
   - Concepts (FHEVM operations used)
@@ -50,7 +47,6 @@ Each starter includes flexible **tags** and **concepts** for filtering and disco
 
 - **Auto-Generated Documentation**
   Comprehensive docs generated from contract annotations using NatSpec-style comments:
-
   - Contract-level specs (`@title`, `@author`, `@notice`, `@dev`)
   - State variable documentation
   - Function signatures with parameter types and descriptions

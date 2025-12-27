@@ -22,9 +22,7 @@
 import fs from "fs";
 import { logger } from "../../lib/helper/logger";
 import { GlobalOptions } from "../cli";
-import {
-  parseCount,
-} from "../../lib/helper/utils";
+import { parseCount } from "../../lib/helper/utils";
 import { StarterMetadataType } from "../../lib/types/starterMetadata.schema";
 import { getAllStarterMetadata } from "../../lib/helper/starters";
 import { resolveStartersDir } from "../../lib/helper/path-utils";
@@ -38,7 +36,6 @@ type StarterListOptions = GlobalOptions & {
   count?: number | string; // biar aman kalau parser ngasih string
 };
 
-
 function outputDetailed(
   rows: StarterMetadataType[],
   meta: {
@@ -46,7 +43,7 @@ function outputDetailed(
     total: number;
     showing: number;
     warningCount: number;
-  }
+  },
 ) {
   logger.section("Starter Projects");
   logger.keyValue("Path", meta.startersDir);
@@ -84,7 +81,7 @@ function outputJson(
     total: number;
     showing: number;
     warningCount: number;
-  }
+  },
 ) {
   // JSON output should be clean: no section/separator.
   // Use logger.log (plain) to avoid colored prefixes affecting parsing.
@@ -108,20 +105,18 @@ function outputJson(
   logger.log(JSON.stringify(payload, null, 2));
 }
 
-function outputTable(
-  rows: StarterMetadataType[],
-) {
+function outputTable(rows: StarterMetadataType[]) {
   logger.table(
     rows.map((r) => ({
       Name: `${r.label} (${r.name})`,
       Category: r.category || "-",
       Chapter: r.chapter || "-",
-      Concepts: r.concepts && r.concepts.length > 0 ? r.concepts.join(", ") : "-",
+      Concepts:
+        r.concepts && r.concepts.length > 0 ? r.concepts.join(", ") : "-",
       Tags: r.tags && r.tags.length > 0 ? r.tags.join(", ") : "-",
-    }))
+    })),
   );
 }
-
 
 export async function runStarterList(opts: StarterListOptions) {
   const startersDir = resolveStartersDir();
@@ -141,8 +136,8 @@ export async function runStarterList(opts: StarterListOptions) {
             starters: [],
           },
           null,
-          2
-        )
+          2,
+        ),
       );
       return;
     }
@@ -150,7 +145,7 @@ export async function runStarterList(opts: StarterListOptions) {
     logger.section("Starter Projects");
     logger.error(`Directory not found: ${startersDir}`);
     logger.info(
-      "Hint: jalankan command dari root project (yang punya folder 'starters')."
+      "Hint: jalankan command dari root project (yang punya folder 'starters').",
     );
     return;
   }

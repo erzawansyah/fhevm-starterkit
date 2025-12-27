@@ -4,7 +4,10 @@ import { runTemplateInit } from "./commands/templateInit";
 import { runTemplateReset } from "./commands/templateReset";
 import { runTemplateUpdate } from "./commands/templateUpdate";
 import { type Mode, runStarterList } from "./commands/starterList";
-import { runStarterCreate, StarterCreateOptions } from "./commands/starterCreate";
+import {
+  runStarterCreate,
+  StarterCreateOptions,
+} from "./commands/starterCreate";
 import { runStarterClean } from "./commands/starterClean";
 import { runTemplateBuildUI } from "./commands/templateBuildUI";
 import { runStarterAdd, StarterAddOptions } from "./commands/starterAdd";
@@ -52,12 +55,12 @@ async function main() {
     .option(
       "--latest",
       "Use latest branch HEAD instead of pinned commit",
-      false
+      false,
     )
     .option(
       "--force",
       "Overwrite existing ./base templates if already present",
-      false
+      false,
     )
     .action(async (opts: { latest?: boolean; force?: boolean }) => {
       const g = program.opts<GlobalOptions>();
@@ -108,11 +111,11 @@ async function main() {
     .option("--chapter <chapter>", "Chapter (e.g. basic, intermediate)")
     .option(
       "--tags <tags>",
-      "Comma-separated tags to filter by (e.g. defi, nft)"
+      "Comma-separated tags to filter by (e.g. defi, nft)",
     )
     .option(
       "--concepts <concepts>",
-      "Filter by concepts (e.g. fhe-operations, fhe-encryption)"
+      "Filter by concepts (e.g. fhe-operations, fhe-encryption)",
     )
     .option("--mode <mode>", "Output mode: table, json, detailed", "table")
     .option("--count <number>", "Limit number of starters listed", undefined)
@@ -132,7 +135,7 @@ async function main() {
           count: opts.count,
           ...g,
         });
-      }
+      },
     );
 
   program
@@ -146,7 +149,7 @@ async function main() {
     .option(
       "--and",
       "Use AND operator when filtering by multiple tags/concepts (default: OR)",
-      false
+      false,
     )
     .option("--skip-ui", "Skip copying frontend files", false)
     .option("--force", "Overwrite existing files in target directory", false)
@@ -159,7 +162,10 @@ async function main() {
   program
     .command("starter:add [contractName]")
     .description("Create a new draft starter for development")
-    .option("-d, --dir <dir>", "Target directory (default: workspace/draft-{timestamp})")
+    .option(
+      "-d, --dir <dir>",
+      "Target directory (default: workspace/draft-{timestamp})",
+    )
     .option("--skip-ui", "Skip copying frontend files", false)
     .option("--force", "Overwrite existing files in target directory", false)
     .action(async (contractName: string, opts: StarterAddOptions) => {
