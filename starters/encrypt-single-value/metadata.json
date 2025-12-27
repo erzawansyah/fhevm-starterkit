@@ -1,0 +1,63 @@
+{
+  "name": "encrypt-single-value",
+  "contract_name": "EncryptSingleValue",
+  "contract_filename": "EncryptSingleValue.sol",
+  "label": "encrypt-single-value",
+  "description": "Demonstrates receiving a single encrypted uint32 via FHE.fromExternal with proof-bound inputs.",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "applied",
+  "concepts": [
+    "FHE.fromExternal",
+    "FHE.allow",
+    "FHE.allowThis"
+  ],
+  "chapter": "encryption",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Zama Team"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "_encryptedEuint32",
+      "type": "euint32",
+      "visibility": "private"
+    }
+  ],
+  "functions": [
+    {
+      "name": "initialize",
+      "signature": "initialize(externalEuint32 inputEuint32, bytes calldata inputProof)",
+      "visibility": "external",
+      "notice": "Stores the encrypted uint32 after verifying the external proof binding.",
+      "params": [
+        {
+          "name": "inputEuint32",
+          "type": "",
+          "description": "The external encrypted uint32 handle produced off-chain."
+        },
+        {
+          "name": "inputProof",
+          "type": "",
+          "description": "The proof binding the handle to (contractAddress, sender)."
+        }
+      ]
+    },
+    {
+      "name": "encryptedUint32",
+      "signature": "encryptedUint32() returns (euint32)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the encrypted uint32 handle.",
+      "returns": [
+        {
+          "name": "euint32",
+          "type": "",
+          "description": "The encrypted handle."
+        }
+      ]
+    }
+  ]
+}
