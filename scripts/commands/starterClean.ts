@@ -9,13 +9,68 @@ type RunStarterCleanOpts = {
   force: boolean;
 } & GlobalOptions;
 
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+function isRetryableDeleteError(err: any) {
+  const code = err?.code;
+  return (
+    code === "EBUSY" ||
+    code === "EPERM" ||
+    code === "ENOTEMPTY" ||
+    code === "EACCES"
+  );
+}
+
+function rmSyncWithRetry(targetPath: string, retries = 10, baseDelayMs = 80) {
+  const absTarget = path.resolve(targetPath);
+
+  const cwd = process.cwd();
+  if (cwd === absTarget || cwd.startsWith(absTarget + path.sep)) {
+    throw new Error(
+      `Refusing to delete because current working directory is inside target: ${absTarget}`,
+    );
+  }
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      fs.rmSync(absTarget, { recursive: true, force: true });
+      return;
+    } catch (err: any) {
+      if (!isRetryableDeleteError(err) || attempt === retries) {
+        throw err;
+      }
+      const delay = baseDelayMs * Math.pow(2, attempt);
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delay);
+    }
+  }
+}
+
+function renameThenRmSync(targetPath: string, retries = 10, baseDelayMs = 80) {
+  const absTarget = path.resolve(targetPath);
+
+  if (!fs.existsSync(absTarget)) return;
+
+  const parent = path.dirname(absTarget);
+  const base = path.basename(absTarget);
+  const tmpName = `.deleting-${base}-${Date.now()}`;
+  const tmpPath = path.join(parent, tmpName);
+
+  try {
+    fs.renameSync(absTarget, tmpPath);
+    rmSyncWithRetry(tmpPath, retries, baseDelayMs);
+  } catch {
+    rmSyncWithRetry(absTarget, retries, baseDelayMs);
+  }
+}
+
 export async function runStarterClean(
   starterName: string[],
   opts: RunStarterCleanOpts,
 ) {
   const workspaceDir = resolveWorkspaceDir();
 
-  // If no starter names provided, show error
   if (!starterName || starterName.length === 0) {
     logger.error("No starter names provided.");
     logger.info("Usage: npm run starter:clean <starterName...>");
@@ -25,7 +80,6 @@ export async function runStarterClean(
   logger.info(`Workspace directory: ${workspaceDir}`);
   logger.info(`Starters to clean: ${starterName.join(", ")}`);
 
-  // Check which starters exist in workspace
   const existingStarters: string[] = [];
   const missingStarters: string[] = [];
 
@@ -38,23 +92,19 @@ export async function runStarterClean(
     }
   }
 
-  // Report missing starters
   if (missingStarters.length > 0) {
     logger.warning("The following starters do not exist in workspace:");
     missingStarters.forEach((name) => logger.warning(`  - ${name}`));
   }
 
-  // If no starters to clean, exit
   if (existingStarters.length === 0) {
     logger.error("No starters found in workspace to clean.");
     process.exit(1);
   }
 
-  // Show what will be deleted
   logger.info("The following starters will be removed from workspace:");
   logger.table(existingStarters.map((name) => ({ Starter: name })));
 
-  // Ask for confirmation unless --force flag is set
   if (!opts.force) {
     const confirmed = await prompt<{ confirm: boolean }>({
       type: "confirm",
@@ -63,32 +113,42 @@ export async function runStarterClean(
         "Are you sure you want to delete the above starter(s)? This action cannot be undone.",
       initial: false,
     }).then((answer) => answer.confirm);
+
     if (!confirmed) {
       logger.info("Operation cancelled.");
       process.exit(0);
     }
   }
 
-  // Delete each starter
   let successCount = 0;
   let errorCount = 0;
 
   for (const name of existingStarters) {
     const starterPath = path.join(workspaceDir, name);
+
     try {
       logger.info(`Deleting ${name}...`);
-      fs.rmSync(starterPath, { recursive: true, force: true });
+
+      // Extra small delay can reduce transient Windows locks after build/install steps.
+      // Not mandatory, but helps in practice.
+      await sleep(25);
+
+      // Most robust approach on Windows:
+      // 1) rename quickly
+      // 2) delete the renamed path with retries
+      renameThenRmSync(starterPath, 10, 80);
+
       logger.success(`✓ Successfully deleted ${name}`);
       successCount++;
     } catch (error) {
       logger.error(
-        `✗ Failed to delete ${name}: ${error instanceof Error ? error.message : String(error)}`,
+        `✗ Failed to delete ${name}: ${error instanceof Error ? error.message : String(error)
+        }`,
       );
       errorCount++;
     }
   }
 
-  // Summary
   logger.success(`Successfully cleaned: ${successCount} starter(s)`);
   if (errorCount > 0) {
     logger.error(`Failed to clean: ${errorCount} starter(s)`);
