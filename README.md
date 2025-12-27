@@ -1,284 +1,305 @@
-# **FHEVM StarterKit**
+# FHEVM StarterKit
 
-**FHEVM StarterKit** is a curated collection of starter templates and foundational tooling for building privacy-preserving smart contracts using Fully Homomorphic Encryption (FHE) on the FHEVM.
+<div align="center">
 
-This repository is designed to help developers:
+**A curated collection of starter templates for building privacy-preserving smart contracts using Fully Homomorphic Encryption (FHE) on FHEVM.**
 
-- understand FHEVM through small, focused starter projects organized by category and difficulty
-- explore encrypted operations via practical, minimal implementations
-- reuse curated patterns when building real FHEVM smart contracts
-- maintain a clean and consistent development environment using official templates
-- generate production-ready projects with optional UI scaffolding
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-green.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 
-StarterKit supports developers at all stages — from **learning encrypted programming patterns** to **bootstrapping production-ready FHEVM projects**.
+</div>
 
-## **Taxonomy-Based Organization**
+---
+
+## Overview
+
+FHEVM StarterKit helps developers learn and build encrypted smart contracts through practical, minimal implementations. Whether you're just starting with FHE concepts or building production-ready applications, this toolkit provides:
+
+- 📚 **Curated Starters** — Small, focused projects organized by difficulty and use case
+- 🛠️ **CLI Tooling** — Automated workflows for creating, building, and managing starters
+- 📝 **Auto-Generated Docs** — Documentation generated from NatSpec comments
+- 🏗️ **Official Templates** — Integration with Zama's official Hardhat and frontend templates
+
+---
+
+## Quick Start
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/erzawansyah/fhevm-starterkit.git
+cd fhevm-starterkit
+
+# 2. Install dependencies
+npm install
+
+# 3. Initialize base templates (required)
+npm run template:init
+
+# 4. List available starters
+npm run starter:list
+
+# 5. Create a project from a starter
+npm run starter:create fhe-counter -- --dir my-project
+```
+
+---
+
+## Available Starters
+
+| Starter                          | Category    | Description                                |
+| -------------------------------- | ----------- | ------------------------------------------ |
+| `encrypt-single-value`           | Fundamental | Encrypt a single value using FHE           |
+| `encrypt-multiple-values`        | Fundamental | Encrypt multiple values in one transaction |
+| `public-decrypt-single-value`    | Fundamental | Public decryption of encrypted values      |
+| `public-decrypt-multiple-values` | Fundamental | Public decryption of multiple values       |
+| `user-decrypt-single-value`      | Fundamental | User-specific decryption patterns          |
+| `user-decrypt-multiple-values`   | Fundamental | User-specific multi-value decryption       |
+| `fhe-add`                        | Fundamental | Encrypted arithmetic operations            |
+| `fhe-if-then-else`               | Fundamental | Conditional logic with encrypted data      |
+| `fhe-counter`                    | Applied     | Encrypted counter with increment/decrement |
+| `confidential-survey`            | Applied     | Anonymous survey with encrypted responses  |
+
+---
+
+## Taxonomy
 
 Starters are organized into four categories:
 
-- **Fundamental** — Core FHEVM concepts (1-2 key operations)
-- **Patterns** — Best practices and common development patterns
-- **Applied** — Real-world use cases (voting, counters, etc.)
-- **Advanced** — Complex applications (auctions, multi-contract interactions)
+| Category        | Description                                      |
+| --------------- | ------------------------------------------------ |
+| **Fundamental** | Core FHEVM concepts (1-2 key operations)         |
+| **Patterns**    | Best practices and common development patterns   |
+| **Applied**     | Real-world use cases (voting, counters, surveys) |
+| **Advanced**    | Complex applications (auctions, multi-contract)  |
 
-Each starter includes flexible **tags** and **concepts** for filtering and discovering relevant examples.
-
----
-
-## ⭐ **What This Repository Provides**
-
-- **Curated Starters**
-  Small, focused FHEVM starter projects containing contracts, tests, documentation, and metadata.
-  Currently available:
-  - **FHE Counter** (Applied) — encrypted counter using `euint8`
-  - **FHE Addition** (Fundamental) — encrypted arithmetic with `euint8`
-
-- **Official Base Templates**
-  Located in `base/`, used for initializing new FHEVM projects.
-  - `fhevm-hardhat-template` — Zama official Hardhat setup
-  - `relayer-ui-template` — UI template for relayer integration
-
-- **Metadata-Driven Structure**
-  Each starter includes a `starter.meta.json` file with:
-  - Category (fundamental/patterns/applied/advanced)
-  - Tags for flexible classification
-  - Concepts (FHEVM operations used)
-  - Author information and versioning
-
-- **Auto-Generated Documentation**
-  Comprehensive docs generated from contract annotations using NatSpec-style comments:
-  - Contract-level specs (`@title`, `@author`, `@notice`, `@dev`)
-  - State variable documentation
-  - Function signatures with parameter types and descriptions
-  - Support for structs, enums, constants, and constructors
-
-- **Metadata Automation**
-  Automatically generate metadata.json from Solidity contract NatSpec comments:
-  - Extract title, description, and author information
-  - Auto-detect FHE operations used (concepts)
-  - Parse constructor arguments
-  - Support for custom tags (@custom:security, @custom:limitations)
-  - See [BUILD_METADATA.md](docs/BUILD_METADATA.md) for details
-
-- **Template Management Scripts**
-  Automation for initializing and updating local copies of official templates.
-
-- **Planned Features** (In Development)
-  - **UI Generator** — Optional web interface for contract interaction
-  - **Project Migration** — Transform starters into production boilerplates
-  - **Web Interface** — Browse and search starters by category/tags
-  - **AI Integration** — Smart suggestions and code assistance
-
-More starters and tooling will be introduced as the StarterKit evolves.
+Each starter is also tagged with **chapters** (encryption, decryption, access-control, etc.) and **concepts** (FHE operations used) for easy discovery.
 
 ---
 
-## 🚀 **Getting Started**
+## CLI Commands
 
-### Install Dependencies
+### Template Management
+
+| Command                     | Description                                |
+| --------------------------- | ------------------------------------------ |
+| `npm run template:init`     | Clone official Zama templates into `base/` |
+| `npm run template:update`   | Update templates to latest version         |
+| `npm run template:reset`    | Delete `base/` templates (⚠️ dangerous)    |
+| `npm run template:build-ui` | Setup frontend template environment        |
+
+### Starter Operations
+
+| Command                         | Description                          |
+| ------------------------------- | ------------------------------------ |
+| `npm run starter:list`          | List all available starters          |
+| `npm run starter:create <name>` | Create a project from a starter      |
+| `npm run starter:add`           | Create a new draft starter           |
+| `npm run starter:build`         | Build starter from draft             |
+| `npm run starter:publish`       | Publish built starter to `starters/` |
+| `npm run starter:clean`         | Clean workspace starters             |
+
+### Documentation & Metadata
+
+| Command                         | Description                             |
+| ------------------------------- | --------------------------------------- |
+| `npm run build:metadata <path>` | Generate metadata from contract NatSpec |
+| `npm run generate:docs <path>`  | Generate docs from metadata.json        |
+
+---
+
+## Creating a Starter Project
+
+### Option 1: Direct Selection
 
 ```bash
-npm install
+# Create a specific starter
+npm run starter:create fhe-counter -- --dir my-counter-app
+```
+
+### Option 2: Filter by Category
+
+```bash
+# Create all fundamental starters
+npm run starter:create -- --category fundamental --dir learning-fhe
+```
+
+### Option 3: Filter by Concepts
+
+```bash
+# Find starters using specific FHE operations
+npm run starter:create -- --concepts "FHE.add,FHE.sub" --dir arithmetic-examples
+```
+
+### Option 4: With Frontend
+
+By default, frontend files are included. Skip them with:
+
+```bash
+npm run starter:create fhe-counter -- --dir my-project --skip-ui
 ```
 
 ---
 
-### Initialize Base Template
+## Building New Starters
 
-Clone the official FHEVM Hardhat template into the `base/` directory:
-
-```bash
-npm run template:init
-```
-
-### Update the Base Template
-
-Fetch the latest version of the Hardhat template:
+Follow the draft-to-starter workflow:
 
 ```bash
-npm run template:update
+# 1. Add a new draft contract
+npm run starter:add ./contracts MyContract
+
+# 2. Generate metadata from NatSpec comments
+npm run build:metadata contracts/MyContract.sol -- --starter-name my-starter
+
+# 3. Generate documentation
+npm run generate:docs ./workspace/draft/metadata.json
+
+# 4. Build the starter package
+npm run starter:build
+
+# 5. Publish to starters/ directory
+npm run starter:publish
 ```
+
+See [docs/06_STARTER_BUILD_WORKFLOW.md](docs/06_STARTER_BUILD_WORKFLOW.md) for detailed instructions.
 
 ---
 
-### Explore Available Starters
+## Project Structure
 
-Browse the `starters/` directory:
-
-- `fhe-counter/` — encrypted counter logic
-- `fhe-add/` — encrypted addition operations
-
-Each starter contains:
-
-- `contracts/` — smart contract implementation
-- `test/` — TypeScript test files
-- `README.md` — explanation and usage
-- `starter.meta.json` — metadata for indexing and validation
-
----
-
-### Validate Metadata
-
-Ensure all starter metadata conforms to the schema:
-
-```bash
-npm run validate:metadata
 ```
-
----
-
-## 📁 **Project Structure**
-
-```text
 fhevm-starterkit/
-  starters/                     # curated FHEVM starters
-    fhe-counter/                # applied: encrypted counter
-    fhe-add/                    # fundamental: encrypted addition
-
-  base/                         # official Zama templates
-    fhevm-hardhat-template/
-    relayer-ui-template/
-
-  scripts/                      # automation scripts
-    template-init.ts
-    template-update.ts
-    validate-metadata.ts
-    docs-generate.ts
-    helper/
-      logger.ts
-      normalizeDocblock.ts
-      parseLineDoc.ts
-      utils.ts
-    tools/
-      generateDocs.ts
-      parser/
-        contractSpecs.ts        # parse contract-level docs
-        stateVarSpecs.ts        # parse state variable docs
-        functionSpecs.ts        # parse function docs
-        specialSpecs.ts         # parse struct/enum/constant/constructor
-
-  docs/                         # auto-generated documentation
-    OVERVIEW.md
-    fundamental/                # fundamental category docs
-    applied/                    # applied category docs
-
-  lib/                          # types and schemas
-    schemas/
-      starter-meta.schema.json
-    types/
-      starter-meta.ts
-
-  starterkit.config.js          # configuration
-  package.json
-  README.md
-  NOTE.md                       # development notes
+├── starters/              # Curated FHEVM starter projects
+│   ├── fhe-counter/
+│   ├── encrypt-single-value/
+│   └── ...
+├── base/                  # Official templates (generated locally)
+│   ├── hardhat-template/  # Zama FHEVM Hardhat template
+│   ├── frontend-template/ # Relayer UI template
+│   └── markdown-template/ # Documentation templates
+├── workspace/             # Generated projects (gitignored)
+├── scripts/               # CLI commands
+│   ├── cli.ts             # Main CLI entry point
+│   └── commands/          # Individual command handlers
+├── lib/                   # Core utilities
+│   ├── helper/            # Logger, path-utils, etc.
+│   ├── types/             # Zod schemas
+│   └── schemas/           # JSON schemas
+├── docs/                  # Documentation
+└── starterkit.config.ts   # Main configuration
 ```
 
 ---
 
-## 📚 **Current Starters**
+## Starter Structure
 
-### **FHE Addition** (Fundamental)
+Each starter follows this structure:
 
-- **Category:** Fundamental
-- **Description:** Demonstrates basic addition on encrypted `euint8` values
-- **FHE Types:** `euint8`, `externalEuint8`
-- **Core Operations:** `FHE.add`, `FHE.fromExternal`, `FHE.allowThis`
-- **Concepts:** Encrypted inputs, homomorphic addition, result storage
-- **Version:** 1.0.0 (FHEVM 0.9.1)
+```
+starters/<starter-name>/
+├── contracts/         # Solidity contracts
+│   └── Contract.sol
+├── test/              # TypeScript tests
+│   └── Contract.ts
+├── metadata.json      # Starter metadata
+└── README.md          # Usage documentation
+```
 
----
+### Metadata Schema
 
-### **FHE Counter** (Applied)
-
-- **Category:** Applied
-- **Description:** Simple encrypted counter application with increment/decrement
-- **FHE Types:** `euint8`
-- **Core Operations:** `FHE.add`, `FHE.sub`
-- **Concepts:** Encrypted state management, counter pattern
-- **Version:** 1.0.0 (FHEVM 0.9.1)
-
----
-
-## 🛠️ **Scripts Reference**
-
-### **Available Now**
-
-| Command                     | Description                                           |
-| --------------------------- | ----------------------------------------------------- |
-| `npm run template:init`     | Initialize official Hardhat template                  |
-| `npm run template:update`   | Sync base template with upstream version              |
-| `npm run build:metadata`    | Generate metadata.json from contract NatSpec comments |
-| `npm run validate:metadata` | Validate all `starter.meta.json` files                |
-| `npm run docs:generate`     | Generate documentation from contracts                 |
-
-### **Planned Scripts**
-
-| Command                | Description                               |
-| ---------------------- | ----------------------------------------- |
-| `npm run starter:use`  | Bootstrap a new project from a starter    |
-| `npm run starter:init` | Create a new starter template             |
-| `npm run docs`         | Build all documentation                   |
-| `npm run check`        | Validate contracts, tests, and metadata   |
-| `npm run web`          | Start web interface for browsing starters |
-| `npm run build:web`    | Build production web interface            |
-| `npm run lint`         | Lint all source files                     |
-| `npm run format`       | Format code with Prettier                 |
+```json
+{
+  "name": "fhe-counter",
+  "contract_name": "FHECounter",
+  "contract_filename": "FHECounter.sol",
+  "label": "FHECounter Starter",
+  "description": "Encrypted counter with increment/decrement",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "chapter": "basics",
+  "concepts": ["FHE.add", "FHE.sub", "FHE.fromExternal"],
+  "has_ui": false,
+  "authors": [{ "name": "Author Name" }]
+}
+```
 
 ---
 
-## ⚠️ **Project Status**
+## FHE Concepts Covered
 
-**Current Stage:** Core Infrastructure Complete
+The starters demonstrate these FHEVM operations:
 
-Completed:
-
-- ✅ Base template integration
-- ✅ Two curated starter projects (Fundamental & Applied)
-- ✅ Metadata schema + validation tool
-- ✅ Template initialization & update scripts
-- ✅ Auto-documentation generator with NatSpec parsing
-- ✅ Taxonomy system (categories, tags, concepts)
-- ✅ Contract parser (supports state vars, functions, structs, enums, constants, constructors)
-- ✅ Documentation foundation
-
-In Progress:
-
-- 🚧 Additional starters across all four categories
-- 🚧 Starter generator tooling (`starter:init`)
-- 🚧 Project migration tool (`starter:use`)
-- 🚧 Web interface for browsing starters
-- 🚧 UI generator for contract interaction
+| Concept Group      | Operations                                                         |
+| ------------------ | ------------------------------------------------------------------ |
+| **Arithmetic**     | `FHE.add`, `FHE.sub`, `FHE.mul`, `FHE.div`, `FHE.min`, `FHE.max`   |
+| **Bitwise**        | `FHE.and`, `FHE.or`, `FHE.xor`, `FHE.not`, `FHE.shr`, `FHE.shl`    |
+| **Comparison**     | `FHE.eq`, `FHE.ne`, `FHE.ge`, `FHE.gt`, `FHE.le`, `FHE.lt`         |
+| **Ternary**        | `FHE.select`                                                       |
+| **Encryption**     | `FHE.asEuint8`, `FHE.asEuint32`, `FHE.asEbool`, `FHE.fromExternal` |
+| **Access Control** | `FHE.allow`, `FHE.allowThis`, `FHE.isSenderAllowed`                |
+| **Random**         | `FHE.randEuint8`, `FHE.randEuint32`, `FHE.randEuint256`            |
 
 ---
 
-## 🤝 **Contributions**
+## Running Tests
 
-Contributions and starter proposals are welcome.
-A valid starter should include:
+After creating a starter project:
 
-- minimal, focused encrypted contract logic
-- clean test coverage
-- `starter.meta.json` following the schema with proper categorization
-- properly annotated contracts using NatSpec-style comments:
-  - Contract-level: `@title`, `@author`, `@notice`, `@dev`, `@custom`
-  - State variables: `@notice`, optional `@dev`
-  - Functions: `@notice`, `@dev`, `@param`, `@return`, optional `@custom`
-  - Special elements: structs, enums, constants, constructor
-- clear `README.md` explaining the starter's purpose and usage
+```bash
+cd workspace/my-project
 
-Detailed annotation guidelines can be found in `NOTE.md`.
-Starter guidelines will be expanded as the repository grows.
+# Install dependencies
+npm install
 
----
+# Run tests
+npx hardhat test
 
-## 📄 **License**
-
-MIT
+# Run specific test
+npx hardhat test --grep "should increment"
+```
 
 ---
 
-## 🔗 **Resources**
+## Requirements
+
+- **Node.js** 20+
+- **npm** (included with Node.js)
+- **Git** (for template cloning)
+
+---
+
+## Contributing
+
+Contributions are welcome! To add a new starter:
+
+1. Follow the [starter build workflow](docs/06_STARTER_BUILD_WORKFLOW.md)
+2. Include properly annotated contracts with NatSpec comments
+3. Add comprehensive tests
+4. Validate with `npm run lint`
+5. Submit a pull request
+
+See [AGENTS.md](AGENTS.md) for detailed contribution guidelines.
+
+---
+
+## Resources
 
 - [Zama FHEVM Documentation](https://docs.zama.ai/fhevm)
 - [FHEVM Hardhat Template](https://github.com/zama-ai/fhevm-hardhat-template)
+- [Zama Developer Program](https://forms.zama.org/developer-program-bounty-november)
+
+---
+
+## License
+
+MIT © [M.E.W](https://github.com/erzawansyah)
+
+---
+
+<div align="center">
+
+**Built with ❤️ for the Zama Developer Program Bounty**
+
+</div>
