@@ -1,0 +1,232 @@
+{
+  "name": "public-decrypt-multiple-values",
+  "contract_name": "PublicDecryptMultipleValues",
+  "contract_filename": "PublicDecryptMultipleValues.sol",
+  "label": "public-decrypt-multiple-values",
+  "description": "Demonstrates a public, permissionless 8-sided die roll using FHE.makePubliclyDecryptable.",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "patterns",
+  "concepts": [
+    "FHE.randEuint8",
+    "FHE.makePubliclyDecryptable"
+  ],
+  "chapter": "decryption",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Zama Team"
+    }
+  ],
+  "functions": [
+    {
+      "name": "highestDieRoll",
+      "signature": "highestDieRoll(address playerA, address playerB)",
+      "visibility": "external",
+      "notice": "Initiates a new highest die roll game, generates the result using FHE,",
+      "params": [
+        {
+          "name": "playerA",
+          "type": "",
+          "description": "The address of the first player."
+        },
+        {
+          "name": "playerB",
+          "type": "",
+          "description": "The address of the second player."
+        }
+      ]
+    },
+    {
+      "name": "getGamesCount",
+      "signature": "getGamesCount() returns (uint256)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the number of games created so far.",
+      "returns": [
+        {
+          "name": "The",
+          "type": "",
+          "description": "number of games created."
+        }
+      ]
+    },
+    {
+      "name": "getPlayerADieRoll",
+      "signature": "getPlayerADieRoll(uint256 gameId) returns (euint8)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the encrypted euint8 handle that stores the playerA die roll.",
+      "params": [
+        {
+          "name": "gameId",
+          "type": "",
+          "description": "The ID of the game."
+        }
+      ],
+      "returns": [
+        {
+          "name": "The",
+          "type": "",
+          "description": "encrypted result (euint8 handle)."
+        }
+      ]
+    },
+    {
+      "name": "getPlayerBDieRoll",
+      "signature": "getPlayerBDieRoll(uint256 gameId) returns (euint8)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the encrypted euint8 handle that stores the playerB die roll.",
+      "params": [
+        {
+          "name": "gameId",
+          "type": "",
+          "description": "The ID of the game."
+        }
+      ],
+      "returns": [
+        {
+          "name": "The",
+          "type": "",
+          "description": "encrypted result (euint8 handle)."
+        }
+      ]
+    },
+    {
+      "name": "getWinner",
+      "signature": "getWinner(uint256 gameId) returns (address)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns the address of the game winner. If the game is finalized, the function returns `address(0)`",
+      "params": [
+        {
+          "name": "gameId",
+          "type": "",
+          "description": "The ID of the game."
+        }
+      ],
+      "returns": [
+        {
+          "name": "The",
+          "type": "",
+          "description": "winner's address (address(0) if not yet revealed or draw)."
+        }
+      ]
+    },
+    {
+      "name": "isGameRevealed",
+      "signature": "isGameRevealed(uint256 gameId) returns (bool)",
+      "visibility": "public",
+      "state_mutability": "view",
+      "notice": "Returns `true` if the game result is publicly revealed, `false` otherwise.",
+      "params": [
+        {
+          "name": "gameId",
+          "type": "",
+          "description": "The ID of the game."
+        }
+      ],
+      "returns": [
+        {
+          "name": "true",
+          "type": "",
+          "description": "if the game is publicly revealed."
+        }
+      ]
+    },
+    {
+      "name": "recordAndVerifyWinner",
+      "signature": "recordAndVerifyWinner(\r\n        uint256 gameId,\r\n        bytes memory abiEncodedClearGameResult,\r\n        bytes memory decryptionProof\r\n    )",
+      "visibility": "public",
+      "notice": "Verifies the provided (decryption proof, ABI-encoded clear values) pair against the stored ciphertext,",
+      "params": [
+        {
+          "name": "gameId",
+          "type": "",
+          "description": "The ID of the game to settle."
+        },
+        {
+          "name": "abiEncodedClearGameResult",
+          "type": "",
+          "description": "The ABI-encoded clear values (uint8, uint8) associated to the `decryptionProof`."
+        },
+        {
+          "name": "decryptionProof",
+          "type": "",
+          "description": "The proof that validates the decryption."
+        }
+      ]
+    }
+  ],
+  "structs": [
+    {
+      "name": "Game",
+      "notice": "Defines the entire state for a single die roll game instance.",
+      "fields": [
+        {
+          "name": "playerA",
+          "type": "address",
+          "notice": "The address of player A for this game instance."
+        },
+        {
+          "name": "playerB",
+          "type": "address",
+          "notice": "The address of player B for this game instance."
+        },
+        {
+          "name": "playerAEncryptedDieRoll",
+          "type": "euint8",
+          "notice": "Publicly decryptable encrypted die rolls for each player."
+        },
+        {
+          "name": "playerBEncryptedDieRoll",
+          "type": "euint8"
+        },
+        {
+          "name": "winner",
+          "type": "address",
+          "notice": "Clear address of the final winner, address(0) if draw, set after decryption and verification."
+        },
+        {
+          "name": "revealed",
+          "type": "bool",
+          "notice": "Flag tracking whether the game result has been revealed."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "GameCreated",
+      "signature": "GameCreated(\r\n        uint256 indexed gameId,\r\n        address indexed playerA,\r\n        address indexed playerB,\r\n        euint8 playerAEncryptedDieRoll,\r\n        euint8 playerBEncryptedDieRoll\r\n    )",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "uint256",
+          "indexed": false
+        },
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        },
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        },
+        {
+          "name": "playerAEncryptedDieRoll",
+          "type": "euint8",
+          "indexed": false
+        },
+        {
+          "name": "playerBEncryptedDieRoll",
+          "type": "euint8",
+          "indexed": false
+        }
+      ]
+    }
+  ]
+}
