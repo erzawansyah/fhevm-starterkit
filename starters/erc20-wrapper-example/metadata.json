@@ -1,0 +1,20 @@
+{
+  "name": "erc20-wrapper-example",
+  "contract_name": "ERC20WrapperExample",
+  "contract_filename": "ERC20WrapperExample.sol",
+  "label": "ERC20WrapperExample Starter",
+  "description": "",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "chapter": "basics",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Unknown"
+    }
+  ],
+  "constructor_args": [
+    "underlyingToken"
+  ]
+}

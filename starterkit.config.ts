@@ -42,6 +42,7 @@ const config: StarterKitConfigType = {
       additionalPackages: {
         dependencies: [
           "@openzeppelin/contracts@^5.4.0",
+          "@openzeppelin/confidential-contracts@^0.3.0"
         ],
         devDependencies: ["serve@14.2.3"],
       },

@@ -1,0 +1,21 @@
+{
+  "name": "erc7984-example",
+  "contract_name": "ERC7984Example",
+  "contract_filename": "ERC7984Example.sol",
+  "label": "ERC7984Example Starter",
+  "description": "",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "concepts": [
+    "FHE.fromExternal",
+    "FHE.asEuint64"
+  ],
+  "chapter": "basics",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Unknown"
+    }
+  ]
+}
