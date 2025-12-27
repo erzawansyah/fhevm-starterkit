@@ -603,21 +603,18 @@ function parseConstructorDoc(contractContent: string): {
  * Detect FHE operations used in the contract
  */
 function detectFHEOperations(contractContent: string): string[] {
-    const concepts: string[] = [];
+    const detectedOperations: string[] = [];
     const conceptMap = config.taxonomy.concepts;
 
-    for (const [conceptName, operations] of Object.entries(conceptMap)) {
+    for (const operations of Object.values(conceptMap)) {
         for (const operation of operations) {
-            // Check if the operation is used in the contract
-            if (contractContent.includes(operation)) {
-                if (!concepts.includes(conceptName)) {
-                    concepts.push(conceptName);
-                }
+            if (contractContent.includes(operation) && !detectedOperations.includes(operation)) {
+                detectedOperations.push(operation);
             }
         }
     }
 
-    return concepts;
+    return detectedOperations;
 }
 
 /**
@@ -628,6 +625,25 @@ function extractContractName(contractContent: string): string {
     // Must match actual contract declaration (with optional inheritance or opening brace)
     const contractMatch = contractContent.match(/(?:^|\n)\s*contract\s+(\w+)(?:\s+is\s+|\s*\{)/m);
     return contractMatch ? contractMatch[1] : "";
+}
+
+/**
+ * Convert a title or contract name to a starter slug (kebab-case),
+ * preserving consecutive uppercase acronyms (e.g., FHE -> fhe, NFT -> nft).
+ */
+function toStarterSlug(input: string): string {
+    const cleaned = input.replace(/[^a-zA-Z0-9\s-]/g, "").trim();
+    if (!cleaned) return "";
+
+    // Insert hyphen boundaries without splitting consecutive uppercase acronyms
+    // 1) Split sequences like ABCDef -> ABC-Def
+    // 2) Split camelCase boundaries like abcDef -> abc-Def
+    const withBoundaries = cleaned
+        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
+        .replace(/([a-z0-9])([A-Z])/g, "$1-$2");
+
+    const hyphenated = withBoundaries.replace(/\s+/g, "-");
+    return hyphenated.toLowerCase().replace(/-+/g, "-").replace(/^-|-$ /g, "");
 }
 
 /**
@@ -668,7 +684,7 @@ export async function runBuildMetadata(opts: BuildMetadataOptions) {
         const natspec = parseContractLevelNatSpec(contractContent);
 
         // Detect FHE operations
-        const concepts = detectFHEOperations(contractContent);
+        const fheOperations = detectFHEOperations(contractContent);
 
         // Extract contract name
         const contractName = extractContractName(contractContent);
@@ -682,16 +698,7 @@ export async function runBuildMetadata(opts: BuildMetadataOptions) {
         // Determine starter name from @title (converted to kebab-case)
         const starterName =
             opts.starterName ||
-            (natspec.title
-                ? natspec.title
-                    .replace(/[^a-zA-Z0-9\s-]/g, "") // Remove special chars except space and dash
-                    .trim()
-                    .replace(/\s+/g, "-") // Replace spaces with dashes
-                    .toLowerCase()
-                : contractName
-                    .replace(/([A-Z])/g, "-$1")
-                    .toLowerCase()
-                    .replace(/^-/, ""));
+            (natspec.title ? toStarterSlug(natspec.title) : toStarterSlug(contractName));
 
         // Parse all code elements
         const stateVariables = parseStateVariables(contractContent);
@@ -713,7 +720,7 @@ export async function runBuildMetadata(opts: BuildMetadataOptions) {
             fhevm_version: natspec.fhevmVersion || "0.9.1",
             category: (opts.category || natspec.category || "fundamental") as any,
             tags: natspec.tags.length > 0 ? natspec.tags : undefined,
-            concepts: concepts.length > 0 ? (concepts as any[]) : undefined,
+            concepts: fheOperations.length > 0 ? fheOperations : undefined,
             chapter: (opts.chapter || natspec.chapter || "basics") as any,
             has_ui: natspec.hasUi,
             authors:
@@ -756,7 +763,7 @@ export async function runBuildMetadata(opts: BuildMetadataOptions) {
             logger.debug(`  Chapter: ${metadata.chapter}`);
             logger.debug(`  UI: ${metadata.has_ui}`);
             logger.debug(`  Tags: ${metadata.tags?.join(", ") || "(none)"}`);
-            logger.debug(`  Concepts detected: ${concepts.join(", ") || "(none)"}`);
+            logger.debug(`  FHE operations detected: ${fheOperations.join(", ") || "(none)"}`);
             logger.debug(
                 `  Constructor args: ${constructorArgs.join(", ") || "(none)"}`
             );
@@ -779,7 +786,7 @@ export async function runBuildMetadata(opts: BuildMetadataOptions) {
             logger.info(`  Label: ${metadata.label}`);
             logger.info(`  Category: ${metadata.category}`);
             logger.info(`  Chapter: ${metadata.chapter}`);
-            logger.info(`  Concepts: ${metadata.concepts?.join(", ") || "(none)"}`);
+            logger.info(`  FHE operations: ${metadata.concepts?.join(", ") || "(none)"}`);
             logger.info(`  State Variables: ${stateVariables.length}`);
             logger.info(`  Functions: ${functions.length}`);
             logger.info(`  Structs: ${structs.length}`);

@@ -110,10 +110,11 @@ export async function runStarterAdd(opts: StarterAddOptions) {
         if (!response.continue) {
           throw new Error("Operation cancelled by user.");
         } else {
-          // Hapus folder draftDir jika user konfirmasi
-          logger.warning(`Overwriting existing directory ${draftDir}...`);
-          fs.rmSync(draftDir, { recursive: true, force: true });
-          logger.info(`Deleted existing directory ${draftDir}.`);
+          // Jangan hapus folder; cukup timpa file-file yang relevan
+          logger.warning(
+            `Overwriting files in ${draftDir} due to --force option (no deletion).`,
+          );
+          // Lanjutkan proses: penyalinan template dan penulisan file akan menimpa yang ada
         }
       }
     }

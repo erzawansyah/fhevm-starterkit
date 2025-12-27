@@ -114,6 +114,34 @@ export async function runStarterPublish(opts: StarterPublishOptions) {
 
         logger.success("✓ Files copied");
 
+        // Also publish documentation to docs/starters/<starterName>.md
+        try {
+            const docsRoot = path.join("docs", "starters");
+            if (!fs.existsSync(docsRoot)) {
+                fs.mkdirSync(docsRoot, { recursive: true });
+                logger.debug(`  ✓ Created docs directory: ${docsRoot}`);
+            }
+
+            // Prefer README.md from dist (generated from template)
+            const distReadme = path.join(distDir, "README.md");
+            const starterReadme = path.join(starterDir, "README.md");
+            const docSource = fs.existsSync(distReadme)
+                ? distReadme
+                : fs.existsSync(starterReadme)
+                    ? starterReadme
+                    : "";
+
+            if (docSource) {
+                const docsTarget = path.join(docsRoot, `${starterName}.md`);
+                fs.copyFileSync(docSource, docsTarget);
+                logger.info(`✓ Documentation published: ${docsTarget}`);
+            } else {
+                logger.warning("No documentation source found to publish (README.md missing).");
+            }
+        } catch (err) {
+            logger.warning(`Failed to publish documentation: ${err}`);
+        }
+
         logger.info("");
         logger.success("✅ Starter published successfully!");
         logger.info(`   Name: ${starterName}`);
