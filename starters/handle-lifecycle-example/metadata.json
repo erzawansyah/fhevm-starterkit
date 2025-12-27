@@ -1,0 +1,37 @@
+{
+  "name": "handle-lifecycle-example",
+  "contract_name": "HandleExample",
+  "contract_filename": "HandlerExample.sol",
+  "label": "handle-lifecycle-example",
+  "description": "Demonstrates how FHE handles work under the hood.",
+  "details": "Handles are lightweight pointers to ciphertext inside the coprocessor, and `FHE.allowThis` keeps them usable.\n@custom:category fundamental\n@custom:chapter handles\n@custom:tags Handles,Education\n@custom:ui false",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "tags": [
+    "Handles",
+    "Education"
+  ],
+  "concepts": [
+    "FHE.add",
+    "FHE.fromExternal",
+    "FHE.asEuint32",
+    "FHE.allow",
+    "FHE.allowThis"
+  ],
+  "chapter": "handles",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Zama Team"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "_storedValue",
+      "type": "euint32",
+      "visibility": "private",
+      "notice": "Encrypted placeholder for the tracked handle; zero handle is granted at deployment."
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "name": "input-proof-example",
+  "contract_name": "InputProofExample",
+  "contract_filename": "InputProofExplanation.sol",
+  "label": "InputProofExample Starter",
+  "description": "",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "concepts": [
+    "FHE.add",
+    "FHE.sub",
+    "FHE.mul",
+    "FHE.eq",
+    "FHE.lt",
+    "FHE.select",
+    "FHE.fromExternal",
+    "FHE.asEuint32",
+    "FHE.allow",
+    "FHE.allowThis"
+  ],
+  "chapter": "basics",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Unknown"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "_validationCount",
+      "type": "uint256",
+      "visibility": "private",
+      "notice": "Counter for tracking proof validations (for audit/demo purposes)"
+    }
+  ],
+  "events": [
+    {
+      "name": "ValueSet",
+      "signature": "ValueSet(address indexed user, uint256 timestamp)",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        },
+        {
+          "name": "timestamp",
+          "type": "uint256",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "name": "ValueRetrieved",
+      "signature": "ValueRetrieved(address indexed user, uint256 timestamp)",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        },
+        {
+          "name": "timestamp",
+          "type": "uint256",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "name": "ProofValidated",
+      "signature": "ProofValidated(address indexed user, uint256 validationCount)",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        },
+        {
+          "name": "validationCount",
+          "type": "uint256",
+          "indexed": false
+        }
+      ]
+    }
+  ]
+}
