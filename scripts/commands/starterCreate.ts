@@ -552,7 +552,7 @@ async function createStarters(plan: StarterCreatePlan, skipUI: boolean = false):
 
   // Step 4: Modify README.md
   logger.section("Step 4: Modifying README.md...");
-  generateWorkspaceReadmeFromStarters("README.md.hbs", destinationDir);
+  generateWorkspaceReadmeFromStarters("WORKSPACE_README.md.hbs", destinationDir, starterNames);
   logger.success("README.md generated.");
 
   // Kasih tau user untuk next steps

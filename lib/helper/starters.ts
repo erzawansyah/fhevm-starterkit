@@ -6,7 +6,7 @@ import { StarterMetadataType } from "../types/starterMetadata.schema";
 import { resolveFrontendTemplateDir, resolveHardhatTemplateDir, resolveMarkdownTemplateDir, resolveOverridesTemplateDir, resolveStarterDir, resolveStarterMetadataFile, resolveStartersDir, resolveUiStarterDir, resolveWorkspaceStarterDir } from "./path-utils";
 import { quotePath, removeLinesFromFile, safeReadJson } from "./utils";
 import { renderHbsFile } from "./renderHbs";
-import { ReadmeTemplateData } from "../types/markdownFile.schema";
+import { ReadmeContractEntry, ReadmeTemplateData } from "../types/markdownFile.schema";
 
 type AdditionalPackages = {
     dependencies?: string[];
@@ -482,27 +482,57 @@ export async function copyStarterToWorkspace(starterNames: string[], destination
  * @param fileName string Name of the output readme file (e.g., README.md)
  * @param starterNames string[] List of starter project names to include in the readme
  */
-export function generateWorkspaceReadmeFromStarters(fileName: string, starterName: string): void {
-    const targetFile = resolveWorkspaceStarterDir(starterName);
+export function generateWorkspaceReadmeFromStarters(fileName: string, destinationDir: string, starterNames: string[]): void {
+    const targetDir = resolveWorkspaceStarterDir(destinationDir);
     const markdownTemplateDir = resolveMarkdownTemplateDir();
     const sourceFile = path.join(markdownTemplateDir, fileName);
     if (!fs.existsSync(sourceFile)) {
         logger.error(`Template file ${quotePath(sourceFile)} tidak ditemukan.`);
         return;
     }
-    const targetReadmeFile = path.join(targetFile, "README.md");
+    const targetReadmeFile = path.join(targetDir, "README.md");
+    let contracts: ReadmeContractEntry[] = [];
 
-    // Baca template
+    for (const starterName of starterNames) {
+        const metadataFile = resolveStarterMetadataFile(starterName);
+
+        if (fs.existsSync(metadataFile)) {
+            const raw = fs.readFileSync(metadataFile, "utf-8");
+            const metadata = JSON.parse(raw) as StarterMetadataType;
+            const docsPath = path.join(targetDir, "docs", `${starterName}.md`);
+            const docsLink = fs.existsSync(docsPath)
+                ? `[${metadata.label || metadata.contract_name || starterName} Guide](./docs/${starterName}.md)`
+                : undefined;
+
+            contracts.push({
+                name: metadata.contract_name,
+                file: metadata.contract_filename,
+                description: metadata.description,
+                category: metadata.category,
+                chapter: metadata.chapter,
+                tags: metadata.tags,
+                concepts: metadata.concepts,
+                details: metadata.details,
+                docs: docsLink,
+            });
+        } else {
+            logger.warning(`Metadata file not found for starter: ${starterName}. README will contain default placeholders.`);
+            contracts.push({
+                name: starterName,
+                file: "contracts/Contract.sol",
+                description: "Starter smart contract.",
+                details: "This is a placeholder. Update metadata.json to populate contract details.",
+            });
+        }
+    }
+
     const templateContent = renderHbsFile<ReadmeTemplateData>(sourceFile, {
-        title: `Starter Project: ${starterName}`,
-        description: `This is the README for the starter project "${starterName}". It provides an overview of the project structure, features, and instructions to get started.`,
-        features: [
-            "Smart contract templates",
-            "Automated testing setup",
-            "Frontend integration (optional)",
-        ],
-        hasFrontend: fs.existsSync(resolveUiStarterDir(starterName)),
+        workspaceName: destinationDir,
+        title: `FHEVM StarterKit Project (${destinationDir.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")})`,
+        description: "This project is a self-contained learning unit generated from FHEVM StarterKit.",
+        hasFrontend: fs.existsSync(resolveUiStarterDir(destinationDir)),
+        contracts,
     });
-    fs.writeFileSync(targetReadmeFile, templateContent, { encoding: "utf-8" });
 
+    fs.writeFileSync(targetReadmeFile, templateContent, { encoding: "utf-8" });
 }

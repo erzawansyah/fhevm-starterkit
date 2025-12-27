@@ -1,0 +1,235 @@
+# 🧩 FHEVM StarterKit Project ({{workspaceName}})
+
+This project is an **FHEVM example project** generated using **FHEVM StarterKit**.
+
+It is designed as a **self-contained learning unit** that demonstrates how to build privacy-preserving smart contracts on FHEVM using Fully Homomorphic Encryption (FHE).
+
+Depending on the selected starter, this project may include:
+
+- One or more FHEVM smart contracts
+- Encrypted state and computation using FHE types
+- Permission-based decryption workflows
+- Optional UI for encrypted interaction via the FHEVM relayer
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 20 or later
+- npm or yarn
+
+### Installation
+
+```bash
+npm install
+```
+
+### Environment Setup (Optional)
+
+For deployment to testnet (currently, only supported on Sepolia), configure your environment variables (usually done only once):
+
+```bash
+# Set your wallet mnemonic (for account generation)
+npx hardhat vars set MNEMONIC
+
+# Set your Infura API key (for network access)
+npx hardhat vars set INFURA_API_KEY
+```
+
+See the [FHEVM Setup Guide](https://docs.zama.org/protocol/solidity-guides/getting-started/setup) for more details.
+
+## ✅ Testing
+
+This is a **starter repository** with pre-built smart contracts and a complete test suite. Verify everything works by running:
+
+```bash
+npm run compile
+npm run test
+```
+
+To run a specific test:
+
+```bash
+npx hardhat test --grep "YourTestName"
+```
+
+## 🎯 Running the Full Stack
+
+This project includes a **built-in UI**{{#if hasFrontend}} (already bundled){{/if}} that acts as a contract explorer with encryption/decryption functionality. To use it, deploy the contract first.
+
+### Quick Start (Recommended)
+
+```bash
+# 1. Compile and deploy (hardhat and sepolia) contracts and it will start a local blockchain
+npm run starter:runtime
+
+# 2. In another terminal, start the UI
+npm run starter:ui
+
+# Then open http://localhost:3000 in your browser.
+```
+
+### Manual Setup
+
+If you prefer to run each step manually, follow these instructions:
+
+```bash
+# 1. Compile contracts
+npm run compile
+
+# 2. Deploy contracts
+npx hardhat deploy
+
+# For Sepolia testnet:
+# npx hardhat deploy --network sepolia
+
+# 3. Start local blockchain (in terminal 1)
+npx hardhat node
+
+# 4. Start the UI (in terminal 2)
+npm run starter:ui
+
+# 5. Open http://localhost:3000 in your browser
+```
+
+## 🔐 Smart Contracts
+
+{{#each contracts}}
+### {{name}}
+
+- **Summary:** {{description}}
+- **Location:** [contracts/{{file}}](./contracts/{{file}})
+{{#if concepts}}
+- **Concepts:** {{#each concepts}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
+{{#if category}}
+- **Category / Chapter:** {{category}}{{#if chapter}} · {{chapter}}{{/if}}
+{{/if}}
+{{#if tags}}
+- **Tags:** {{#each tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
+{{#if details}}
+- **Details:** {{details}}
+{{/if}}
+{{#if docs}}
+- **Documentation:** See {{docs}}
+{{/if}}
+
+{{/each}}
+
+## 📁 Project Structure
+
+```text
+.
+├── contracts/          # Solidity smart contracts
+├── test/              # Contract tests (verify contract behavior)
+├── deploy/            # Deployment scripts (automate deployment & ABI generation)
+├── tasks/             # Custom Hardhat tasks
+├── docs/              # Documentation and guides
+├── ui/                # Frontend application (bundled & ready to use)
+├── hardhat.config.ts  # Hardhat configuration
+└── package.json       # Project dependencies
+```
+
+## 📚 Learn More
+
+- [FHEVM Documentation](https://docs.zama.ai/fhevm) — Official FHE protocol docs
+- [Hardhat Documentation](https://hardhat.org/docs) — Smart contract development framework
+- [Zama Developer Hub](https://github.com/zama-ai) — More FHE resources
+- [FHEVM StarterKit](https://github.com/erzawansyah/fhevm-starterkit) — Source of this project
+
+### Creating Your Own Repository
+
+This project is now **your own repository** and can be developed independently. To make it your own git repository, follow these steps:
+
+1. **Initialize a new git repository:**
+   ```bash
+   git init
+   ```
+
+2. **(Optional) Connect to a remote repository on GitHub/GitLab:**
+   ```bash
+   git remote add origin https://github.com/your-username/your-repo-name.git
+   ```
+
+3. **Create your first commit:**
+   ```bash
+   git add .
+   git commit -m "Initial commit: FHEVM starter project"
+   ```
+
+4. **(Optional) Push to remote:**
+   ```bash
+   git branch -M main
+   git push -u origin main
+   ```
+
+Once set up, you can:
+- Modify existing contracts
+- Add new features and tests
+- Deploy to any network
+- Use it as a foundation for your own projects
+
+### Adding New Starters to Your Own Catalog
+
+To create and add a new FHEVM starter to your personal catalog, follow these steps:
+
+1. **Create a new starter:**
+   ```bash
+   npm run starter:add <ContractName>
+   ```
+
+2. **Implement your contract:**
+   - Write your Solidity contract in the generated `contracts/` directory
+   - Create corresponding tests in the `test/` directory
+   - **Important:** Follow the [Commenting Guidelines](https://github.com/erzawansyah/fhevm-starterkit/blob/main/docs/04_COMMENTING_GUIDELINES.md) for proper documentation and annotations
+
+3. **Build the starter:**
+   ```bash
+   npm run build
+   ```
+
+4. **Test your implementation:**
+   ```bash
+   npm run test
+   ```
+
+5. **Commit your new starter:**
+   ```bash
+   git add .
+   git commit -m "Add new starter: <ContractName>"
+   git push
+   ```
+
+### Contributing to FHEVM StarterKit Catalog
+
+> **⚠️ Notice:** This contribution process has not yet been tested in practice. The steps below are based on the project structure, but actual compatibility and integration with the official repository may vary. If you encounter issues, please reach out to the maintainers for guidance.
+
+If you'd like to **contribute your new starter to the official FHEVM StarterKit catalog**, follow these steps:
+
+1. Ensure your starter has been built and tested locally (see steps above)
+2. Fork the [FHEVM StarterKit repository](https://github.com/erzawansyah/fhevm-starterkit)
+3. Copy your starter to the `starters/` directory in your fork
+4. Verify it includes: `contracts/`, `test/`, `README.md`, and `metadata.json`
+5. Submit a pull request with a clear description of your starter
+6. Work with maintainers to refine and merge your contribution
+
+For more details, visit the [FHEVM StarterKit documentation](https://github.com/erzawansyah/fhevm-starterkit).
+
+## 🔒 Security
+
+This project uses Fully Homomorphic Encryption (FHE) to ensure data privacy. All sensitive operations are performed on encrypted data, protecting information at every step.
+
+## 📄 License
+
+MIT License — see [LICENSE](./LICENSE) file for details
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to submit a Pull Request or open an issue.
+
+---
+Built with 💛 by M.E.W using [FHEVM StarterKit](https://github.com/erzawansyah/fhevm-starterkit)
+
