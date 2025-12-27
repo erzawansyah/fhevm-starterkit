@@ -1,0 +1,52 @@
+{
+  "name": "fhevm-anti-patterns-playground",
+  "contract_name": "FHEVMAntiPatterns",
+  "contract_filename": "AntiPatterns.sol",
+  "label": "fhevm-anti-patterns-playground",
+  "description": "Single-contract collection of common FHEVM mistakes and their correct alternatives.",
+  "details": "This educational contract aggregates frequent pitfalls when working with FHEVM handles, permissions,\nand encrypted computations, alongside the correct patterns. Some functions are intentionally unsafe\nand may revert to illustrate the failure modes.\n@dev Usage summary:\n- Call `initialize()` once to set zero handles and grant caller permissions.\n- Use `setCorrectly()` then `useCorrectValue()` to see the correct lifecycle.\n- Call `setIncorrectly()` then `useIncorrectValue()` to observe a typical revert when `allowThis()` is missing.\n- Compare `setValueCorrect()` vs `setValueWrongUser()` to understand decrypt permissions.\n- Compare `computeValueCorrect()` vs `computeValueWrong()` to understand result permissions.\n@custom:category patterns\n@custom:chapter anti-patterns\n@custom:tags Handles,Permissions,Education\n@custom:ui false",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "patterns",
+  "tags": [
+    "Handles",
+    "Permissions",
+    "Education"
+  ],
+  "concepts": [
+    "FHE.add",
+    "FHE.fromExternal",
+    "FHE.asEuint32",
+    "FHE.allow",
+    "FHE.allowThis"
+  ],
+  "chapter": "anti-patterns",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Zama Team"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "_value",
+      "type": "euint32",
+      "visibility": "private"
+    },
+    {
+      "name": "_result",
+      "type": "euint32",
+      "visibility": "private"
+    },
+    {
+      "name": "_unusableVal",
+      "type": "euint32",
+      "visibility": "private"
+    },
+    {
+      "name": "_initialized",
+      "type": "bool",
+      "visibility": "private"
+    }
+  ]
+}
