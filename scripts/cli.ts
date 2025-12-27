@@ -27,6 +27,7 @@ import {
   runStarterPublish,
   StarterPublishOptions,
 } from "./commands/starterPublish";
+import { runDocsRebuild, DocsRebuildOptions } from "./commands/docsRebuild";
 
 export type GlobalOptions = {
   cwd?: string;
@@ -271,6 +272,21 @@ async function main() {
       const g = program.opts<GlobalOptions>();
       applyCwd(g.cwd);
       await runStarterPublish({ ...opts, ...g });
+    });
+
+  program
+    .command("docs:rebuild")
+    .description("Rebuild metadata and README.md for all starters")
+    .option("--root <path>", "Starters root directory", "starters")
+    .option(
+      "-t, --template <path>",
+      "Template path (default: base/markdown-template/CONTRACT_DOCUMENTATION.md.hbs)",
+    )
+    .option("--dry-run", "Calculate without writing files", false)
+    .action(async (opts: DocsRebuildOptions) => {
+      const g = program.opts<GlobalOptions>();
+      applyCwd(g.cwd);
+      await runDocsRebuild({ ...opts, ...g });
     });
 
   await program.parseAsync(process.argv);

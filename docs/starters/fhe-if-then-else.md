@@ -49,7 +49,7 @@ private euint8 _a;
 ```
 
 
-**Implementation:** Disimpan sebagai euint8 setelah diverifikasi melalui FHE.fromExternal.
+**Implementation:** Stored as euint8 after verification via FHE.fromExternal.
 
 ### `_b`
 
@@ -58,7 +58,7 @@ private euint8 _b;
 ```
 
 
-**Implementation:** Disimpan sebagai euint8 setelah diverifikasi melalui FHE.fromExternal.
+**Implementation:** Stored as euint8 after verification via FHE.fromExternal.
 
 ### `_max`
 
@@ -67,7 +67,7 @@ private euint8 _max;
 ```
 
 
-**Implementation:** Dihitung melalui computeMax() menggunakan kombinasi FHE.ge dan FHE.select.
+**Implementation:** Calculated via computeMax() using combination of FHE.ge and FHE.select.
 
 
 
@@ -79,15 +79,15 @@ private euint8 _max;
 external setA(externalEuint8 inputA, bytes calldata inputProof)
 ```
 
-**Description:** Menyimpan operand A terenkripsi menggunakan proof yang diberikan.
+**Description:** Stores encrypted operand A using the provided proof.
 
 
 **Parameters:**
 
 | Name | Type | Description |
 |------|------|-------------|
-| `inputA` | `` | Ciphertext eksternal bertipe euint8 yang dihasilkan off-chain. |
-| `inputProof` | `` | Bukti input terenkripsi yang disertakan bersama ciphertext. |
+| `inputA` | `` | External ciphertext of type euint8 generated off-chain. |
+| `inputProof` | `` | Encrypted input proof included with the ciphertext. |
 
 
 
@@ -98,15 +98,15 @@ external setA(externalEuint8 inputA, bytes calldata inputProof)
 external setB(externalEuint8 inputB, bytes calldata inputProof)
 ```
 
-**Description:** Menyimpan operand B terenkripsi menggunakan proof yang diberikan.
+**Description:** Stores encrypted operand B using the provided proof.
 
 
 **Parameters:**
 
 | Name | Type | Description |
 |------|------|-------------|
-| `inputB` | `` | Ciphertext eksternal bertipe euint8 yang dihasilkan off-chain. |
-| `inputProof` | `` | Bukti input terenkripsi yang disertakan bersama ciphertext. |
+| `inputB` | `` | External ciphertext of type euint8 generated off-chain. |
+| `inputProof` | `` | Encrypted input proof included with the ciphertext. |
 
 
 
@@ -117,9 +117,9 @@ external setB(externalEuint8 inputB, bytes calldata inputProof)
 external computeMax()
 ```
 
-**Description:** Menghitung nilai maksimum terenkripsi antara A dan B dan memberikan izin dekripsi kepada pemanggil.
+**Description:** Computes the encrypted maximum value between A and B and grants decryption permission to the caller.
 
-**Implementation Details:** Menggunakan FHE.ge untuk perbandingan dan FHE.select untuk memilih nilai terbesar sebelum izin diberikan.
+**Implementation Details:** Uses FHE.ge for comparison and FHE.select to choose the largest value before permissions are granted.
 
 
 
@@ -130,7 +130,7 @@ external computeMax()
 public view result() returns (euint8)
 ```
 
-**Description:** Mengembalikan nilai maksimum terenkripsi yang tersimpan.
+**Description:** Returns the stored encrypted maximum value.
 
 
 
@@ -138,7 +138,7 @@ public view result() returns (euint8)
 
 | Name | Type | Description |
 |------|------|-------------|
-| `Encrypted` | `` | nilai maksimum antara operand A dan B. |
+| `Encrypted` | `` | maximum value between operand A and B. |
 
 
 

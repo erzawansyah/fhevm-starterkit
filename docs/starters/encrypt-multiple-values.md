@@ -45,7 +45,7 @@ This contract demonstrates the following FHE concepts:
 private euint8 _value;
 ```
 
-**Description:** Ciphertext yang sudah disimpan sebagai `euint8` internal.
+**Description:** Ciphertext already stored as internal `euint8`.
 
 
 

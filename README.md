@@ -101,10 +101,11 @@ Each starter is also tagged with **chapters** (encryption, decryption, access-co
 
 ### Documentation & Metadata
 
-| Command                         | Description                             |
-| ------------------------------- | --------------------------------------- |
-| `npm run build:metadata <path>` | Generate metadata from contract NatSpec |
-| `npm run generate:docs <path>`  | Generate docs from metadata.json        |
+| Command                         | Description                                |
+| ------------------------------- | ------------------------------------------ |
+| `npm run build:metadata <path>` | Generate metadata from contract NatSpec    |
+| `npm run generate:docs <path>`  | Generate docs from metadata.json           |
+| `npm run docs:rebuild`          | Rebuild metadata and docs for all starters |
 
 ---
 

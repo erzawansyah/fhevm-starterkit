@@ -12,9 +12,10 @@
     "tutorial"
   ],
   "concepts": [
-    "arithmetic-operations",
-    "handles",
-    "access-control"
+    "FHE.add",
+    "FHE.fromExternal",
+    "FHE.allow",
+    "FHE.allowThis"
   ],
   "chapter": "fhe-operations",
   "has_ui": true,
