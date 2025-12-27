@@ -1,6 +1,6 @@
 # Automation Scripts & CLI Commands
 
-Dokumen ini menjelaskan **semua CLI commands** yang tersedia dalam FHEVM StarterKit untuk mengotomasi tugas-tugas umum.
+This document explains **all CLI commands** available in FHEVM StarterKit for automating common tasks.
 
 ---
 
@@ -8,62 +8,62 @@ Dokumen ini menjelaskan **semua CLI commands** yang tersedia dalam FHEVM Starter
 
 ### `template:init` — Initialize Base Templates
 
-Menginisialisasi base templates dengan meng-clone dari repository eksternal.
+Initialize base templates by cloning from external repositories.
 
 ```bash
 npm run template:init
 ```
 
-**Apa yang terjadi:**
+**What happens:**
 
-- Clone Hardhat template dari Zama ke `base/hardhat-template/`
-- Clone relayer UI template ke `base/frontend-template/`
-- Copy markdown templates ke `base/markdown-template/`
-- Setup overrides di `base/overrides/`
+- Clone Hardhat template from Zama to `base/hardhat-template/`
+- Clone relayer UI template to `base/frontend-template/`
+- Copy markdown templates to `base/markdown-template/`
+- Setup overrides in `base/overrides/`
 
 **Options:**
 
 - `--latest` — Clone latest branch HEAD instead of pinned commit
-- `--force` — Overwrite existing templates jika sudah ada
+- `--force` — Overwrite existing templates if they already exist
 
-**Catatan:**
+**Notes:**
 
-- Hanya perlu dijalankan **sekali** saat setup
-- Folder `base/` tidak di-commit ke git
-- Commit hash untuk templates di-set di `starterkit.config.ts`
+- Only needs to be run **once** during setup
+- `base/` folder is not committed to git
+- Commit hash for templates is set in `starterkit.config.ts`
 
 ---
 
 ### `template:update` — Update Base Templates
 
-Update templates ke versi terbaru dari branch HEAD.
+Update templates to latest version from branch HEAD.
 
 ```bash
 npm run template:update
 ```
 
-**Apa yang terjadi:**
+**What happens:**
 
-- Pull latest changes dari hardhat-template repo
-- Pull latest changes dari frontend-template repo
-- Preserve local modifications (jika ada di overrides/)
+- Pull latest changes from hardhat-template repo
+- Pull latest changes from frontend-template repo
+- Preserve local modifications (if any in overrides/)
 
-**Kapan gunakan:**
+**When to use:**
 
-- Ketika ada bug fix atau feature baru di template resmi
-- Regular maintenance untuk tetap up-to-date
+- When there are bug fixes or new features in official template
+- Regular maintenance to stay up-to-date
 
 ---
 
 ### `template:reset` (or `template:clean`) — Delete Base Templates
 
-Menghapus seluruh folder `base/templates`. **DANGEROUS** — requires confirmation.
+Deletes the entire `base/templates` folder. **DANGEROUS** — requires confirmation.
 
 ```bash
 npm run template:reset
 ```
 
-atau
+or
 
 ```bash
 npm run template:clean
@@ -71,43 +71,43 @@ npm run template:clean
 
 **Options:**
 
-- `--yes` — Skip confirmation dan langsung delete
+- `--yes` — Skip confirmation and delete immediately
 
-**Kapan gunakan:**
+**When to use:**
 
-- Troubleshooting jika template corrupt
-- Cleanup sebelum `template:init` ulang
+- Troubleshooting if templates are corrupt
+- Cleanup before `template:init` again
 
-**Catatan:**
+**Notes:**
 
-- Folder `workspace/` tidak terhapus (hanya `base/`)
-- Run `template:init` lagi setelah delete
+- `workspace/` folder is not deleted (only `base/`)
+- Run `template:init` again after deletion
 
 ---
 
 ### `template:build-ui` — Build Frontend Template
 
-Setup dan build frontend template untuk digunakan dalam projects.
+Setup and build frontend template for use in projects.
 
 ```bash
 npm run template:build-ui
 ```
 
-**Apa yang terjadi:**
+**What happens:**
 
-- Install dependencies di `base/frontend-template/`
+- Install dependencies in `base/frontend-template/`
 - Compile/build frontend assets
-- Generate distribution files di `base/frontend-template/dist/`
+- Generate distribution files in `base/frontend-template/dist/`
 
-**Kapan gunakan:**
+**When to use:**
 
-- Setup awal setelah `template:init`
-- Ketika ingin gunakan UI relayer di generated projects
+- Initial setup after `template:init`
+- When you want to use relayer UI in generated projects
 
-**Catatan:**
+**Notes:**
 
-- Hanya perlu dijalankan jika ingin gunakan UI
-- Build ini akan di-copy otomatis ke projects saat create
+- Only needs to be run if you want to use UI
+- This build will be copied automatically to projects on create
 
 ---
 
@@ -115,7 +115,7 @@ npm run template:build-ui
 
 ### `starter:list` — List Available Starters
 
-Menampilkan semua starter yang tersedia dengan informasi metadata.
+Display all available starters with metadata information.
 
 ```bash
 npm run starter:list
@@ -147,43 +147,43 @@ Available Starters:
 
 **Options:**
 
-- `--json` — Output dalam JSON format (untuk parsing)
+- `--json` — Output in JSON format (for parsing)
 - `--category <category>` — Filter by category
-- `--verbose` — Show additional metadata (full paths, timestamps, dll)
+- `--verbose` — Show additional metadata (full paths, timestamps, etc.)
 
-**Kapan gunakan:**
+**When to use:**
 
 - Explore available starters
-- Check metadata sebelum `starter:create`
-- CI/automation untuk list starters programmatically
+- Check metadata before `starter:create`
+- CI/automation to list starters programmatically
 
 ---
 
-### `starter:create` — Create Project dari Starter
+### `starter:create` — Create Project from Starter
 
-Membuat project baru dengan menyalin starter dan base template.
+Create a new project by copying starter and base template.
 
 ```bash
 npm run starter:create <starterName> -- --dir <destination>
 ```
 
-**Mode:**
+**Modes:**
 
 1. **Positional** — `npm run starter:create fhe-add -- --dir my-project`
 2. **Filter** — `npm run starter:create -- --category fundamental --dir basics`
-3. **Interactive** — `npm run starter:create` (tanpa arguments)
+3. **Interactive** — `npm run starter:create` (without arguments)
 
 **Options:**
 
-- `--dir <dir>` — Destination directory (wajib untuk multiple/filter)
+- `--dir <dir>` — Destination directory (required for multiple/filter)
 - `--category <category>` — Filter by category
 - `--chapter <chapter>` — Filter by chapter
 - `--tags <tags>` — Filter by tags
 - `--concepts <concepts>` — Filter by concepts
 - `--skip-ui` — Skip copying UI/frontend files
 - `--force` — Overwrite existing without prompt
-- `--merge` — Merge dengan existing files
-- `--yes` — Auto-confirm semua prompts
+- `--merge` — Merge with existing files
+- `--yes` — Auto-confirm all prompts
 
 **Output:**
 
@@ -197,32 +197,32 @@ workspace/
     └── package.json
 ```
 
-**Catatan:**
+**Notes:**
 
-- Require `template:init` sudah selesai
-- Project ditempatkan di `workspace/` folder
-- Support multiple starters dalam satu command
+- Requires `template:init` to be completed
+- Projects are placed in `workspace/` folder
+- Supports multiple starters in a single command
 
-**Lihat:** [02_USING_STARTER_SCRIPT.md](02_USING_STARTER_SCRIPT.md) untuk penjelasan lengkap.
+**See:** [02_USING_STARTER_SCRIPT.md](02_USING_STARTER_SCRIPT.md) for complete explanation.
 
 ---
 
 ### `starter:add` — Add New Starter
 
-Menambahkan starter baru ke collection di folder `starters/`.
+Add a new starter to the collection in the `starters/` folder.
 
 ```bash
 npm run starter:add <starterName>
 ```
 
-**Apa yang terjadi:**
+**What happens:**
 
-- Prompt untuk metadata (category, chapter, tags, concepts)
+- Prompt for metadata (category, chapter, tags, concepts)
 - Create folder structure: `starters/<starterName>/`
 - Generate `metadata.json`
-- Prompt untuk copy contracts, tests
+- Prompt to copy contracts, tests
 
-**Struktur hasil:**
+**Result structure:**
 
 ```plaintext
 starters/my-starter/
@@ -236,39 +236,39 @@ starters/my-starter/
 
 **Options:**
 
-- `--interactive` (default) — Interactive prompt
-- `--dir <path>` — Copy contracts dari directory lain
+- `--interactive` (default) — Interactive prompts
+- `--dir <path>` — Copy contracts from another directory
 
-**Catatan:**
+**Notes:**
 
-- Validate metadata terhadap schema
-- Run `npm run check` setelah create untuk validate
+- Validates metadata against schema
+- Run `npm run check` after creation to validate
 
 ---
 
 ### `starter:clean` — Clean Generated Projects
 
-Menghapus project yang sudah di-generate di folder `workspace/`.
+Delete generated projects in the `workspace/` folder.
 
 ```bash
 npm run starter:clean <projectName>
 ```
 
-**Apa yang terjadi:**
+**What happens:**
 
-- Delete folder `workspace/<projectName>/`
-- Confirm sebelum delete
+- Delete `workspace/<projectName>/` folder
+- Confirm before deleting
 
 **Options:**
 
-- `--force` — Delete tanpa prompt
-- `--all` — Delete semua projects (hati-hati!)
+- `--force` — Delete without prompt
+- `--all` — Delete all projects (be careful!)
 
-**Contoh:**
+**Examples:**
 
 ```bash
 npm run starter:clean my-project     # Delete workspace/my-project/
-npm run starter:clean --all --force  # Delete semua di workspace/
+npm run starter:clean --all --force  # Delete everything in workspace/
 ```
 
 ---
@@ -277,7 +277,7 @@ npm run starter:clean --all --force  # Delete semua di workspace/
 
 ### `check` — Validate All Starters
 
-Mengecek konsistensi dan validitas semua starter di folder `starters/`.
+Check the consistency and validity of all starters in the `starters/` folder.
 
 ```bash
 npm run check
@@ -285,12 +285,12 @@ npm run check
 
 **Checks:**
 
-- ✓ Setiap starter punya `metadata.json`
-- ✓ Metadata valid terhadap schema
-- ✓ Setiap starter punya `contracts/` folder
-- ✓ Setiap starter punya `test/` folder
-- ✓ Setiap starter punya `README.md`
-- ✓ Category, chapter, tags dalam taxonomy
+- ✓ Each starter has `metadata.json`
+- ✓ Metadata is valid against schema
+- ✓ Each starter has `contracts/` folder
+- ✓ Each starter has `test/` folder
+- ✓ Each starter has `README.md`
+- ✓ Category, chapter, tags are in taxonomy
 
 **Output:**
 
@@ -304,32 +304,32 @@ Checking starters...
 2/3 starters valid. 1 error found.
 ```
 
-**Kapan gunakan:**
+**When to use:**
 
-- Sebelum commit changes ke git
-- Setelah menambah/modify starter
-- CI/automation untuk quality checks
+- Before committing changes to git
+- After adding/modifying starters
+- CI/automation for quality checks
 
 ---
 
 ### `generate:schema` — Generate JSON Schemas
 
-Generate JSON schema files dari TypeScript Zod schemas.
+Generate JSON schema files from TypeScript Zod schemas.
 
 ```bash
 npm run generate:schema
 ```
 
-**Apa yang terjadi:**
+**What happens:**
 
-- Read Zod schemas dari `lib/types/*.schema.ts`
-- Generate corresponding JSON schema files di `lib/schemas/`
-- Update documentation dari schema definitions
+- Read Zod schemas from `lib/types/*.schema.ts`
+- Generate corresponding JSON schema files in `lib/schemas/`
+- Update documentation from schema definitions
 
-**Kapan gunakan:**
+**When to use:**
 
-- Setelah memodify Zod schemas di `lib/types/`
-- Untuk generate documentation otomatis
+- After modifying Zod schemas in `lib/types/`
+- To generate automatic documentation
 
 **Output:**
 
@@ -344,7 +344,7 @@ Generated:
 
 ### `lint` — Lint Code
 
-Jalankan ESLint untuk check code quality.
+Run ESLint to check code quality.
 
 ```bash
 npm run lint
@@ -352,8 +352,8 @@ npm run lint
 
 **Scope:**
 
-- TypeScript files di `scripts/`, `lib/`
-- Exclude `base/` dan `workspace/`
+- TypeScript files in `scripts/`, `lib/`
+- Excludes `base/` and `workspace/`
 
 **Options:**
 
@@ -366,7 +366,7 @@ npm run lint -- src/file   # Lint specific file
 
 ### `format` — Format Code
 
-Format code menggunakan Prettier.
+Format code using Prettier.
 
 ```bash
 npm run format
@@ -375,13 +375,13 @@ npm run format
 **Scope:**
 
 - TypeScript, Markdown, JSON files
-- Exclude `base/` dan `workspace/`
+- Excludes `base/` and `workspace/`
 
 ---
 
 ### `debug:logger` — Test Logger Utility
 
-Test logger dengan berbagai log levels.
+Test logger with various log levels.
 
 ```bash
 npm run debug:logger
@@ -396,26 +396,26 @@ npm run debug:logger
 [DEBUG] This is debug info (if enabled)
 ```
 
-**Gunakan untuk:**
+**Use for:**
 
 - Debug logger output format
 - Test log level configuration
 
 ---
 
-## Global Options (Available untuk semua commands)
+## Global Options (Available for all commands)
 
-| Option         | Type    | Description                         | Example                                    |
-| -------------- | ------- | ----------------------------------- | ------------------------------------------ |
-| `--cwd <path>` | string  | Run command dari directory lain     | `npm run starter:list -- --cwd ~/projects` |
-| `--verbose`    | boolean | Show detailed logs dan debug info   | `npm run template:init -- --verbose`       |
-| `--json`       | boolean | Output dalam JSON format (untuk CI) | `npm run starter:list -- --json`           |
+| Option         | Type    | Description                          | Example                                    |
+| -------------- | ------- | ------------------------------------ | ------------------------------------------ |
+| `--cwd <path>` | string  | Run command from different directory | `npm run starter:list -- --cwd ~/projects` |
+| `--verbose`    | boolean | Show detailed logs and debug info    | `npm run template:init -- --verbose`       |
+| `--json`       | boolean | Output in JSON format (for CI)       | `npm run starter:list -- --json`           |
 
 ---
 
 ## Workflow Examples
 
-### Setup Baru
+### New Setup
 
 ```bash
 # 1. Install dependencies
@@ -440,7 +440,7 @@ npm run starter:list
 # 2. Create project
 npm run starter:create fhe-add -- --dir my-fhe-project
 
-# 3. Navigate dan develop
+# 3. Navigate and develop
 cd workspace/my-fhe-project
 npm install
 npm test

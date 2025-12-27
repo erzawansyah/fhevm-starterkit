@@ -1,0 +1,214 @@
+{
+  "name": "encrypted-access-control",
+  "contract_name": "EncryptedAccessControl",
+  "contract_filename": "AccessControl.sol",
+  "label": "encrypted-access-control",
+  "description": "Demonstrates access control using encrypted roles and FHE permissions (allow vs allowTransient).",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "concepts": [
+    "FHE.select",
+    "FHE.fromExternal",
+    "FHE.asEuint32",
+    "FHE.allow",
+    "FHE.allowThis",
+    "FHE.allowTransient"
+  ],
+  "chapter": "basics",
+  "has_ui": false,
+  "authors": [
+    {
+      "name": "Unknown"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "admin",
+      "type": "address",
+      "visibility": "public",
+      "notice": "Admin address that can manage roles and secret."
+    },
+    {
+      "name": "_secret",
+      "type": "euint32",
+      "visibility": "private",
+      "notice": "Encrypted secret stored in the contract."
+    }
+  ],
+  "functions": [
+    {
+      "name": "setEncryptedRole",
+      "signature": "setEncryptedRole(address user, externalEbool role, bytes calldata inputProof)",
+      "visibility": "external",
+      "notice": "Initializes admin to deployer.",
+      "params": [
+        {
+          "name": "user",
+          "type": "",
+          "description": "Address receiving the role."
+        },
+        {
+          "name": "role",
+          "type": "",
+          "description": "Encrypted boolean indicating access."
+        },
+        {
+          "name": "inputProof",
+          "type": "",
+          "description": "Zero-knowledge proof for `role`."
+        }
+      ]
+    },
+    {
+      "name": "allowThisRole",
+      "signature": "allowThisRole(address user)",
+      "visibility": "external",
+      "notice": "Allows this contract to use the stored encrypted role for a given user.",
+      "dev": "Useful if role ciphertext was migrated or if tooling wants an explicit \"re-allowThis\".",
+      "params": [
+        {
+          "name": "user",
+          "type": "",
+          "description": "Address whose role ciphertext is re-allowed for this contract."
+        }
+      ]
+    },
+    {
+      "name": "setSecretValue",
+      "signature": "setSecretValue(externalEuint32 value, bytes calldata inputProof)",
+      "visibility": "external",
+      "notice": "Sets the encrypted secret value stored in this contract.",
+      "params": [
+        {
+          "name": "value",
+          "type": "",
+          "description": "Encrypted uint32 secret."
+        },
+        {
+          "name": "inputProof",
+          "type": "",
+          "description": "Zero-knowledge proof for `value`."
+        }
+      ]
+    },
+    {
+      "name": "allowThisSecret",
+      "signature": "allowThisSecret()",
+      "visibility": "external",
+      "notice": "Re-allows the contract to use the stored secret ciphertext.",
+      "dev": "Useful if secret ciphertext was migrated or tooling wants explicit allowThis."
+    },
+    {
+      "name": "readSecretTransient",
+      "signature": "readSecretTransient() returns (euint32)",
+      "visibility": "external",
+      "notice": "Reads the secret with transient permission (recommended default).",
+      "dev": "This demonstrates FHE.allowTransient:",
+      "returns": [
+        {
+          "name": "Encrypted",
+          "type": "",
+          "description": "result (either secret or zero)."
+        }
+      ]
+    },
+    {
+      "name": "grantPersistentSecretAccess",
+      "signature": "grantPersistentSecretAccess(address user)",
+      "visibility": "external",
+      "notice": "Grants persistent decrypt permission for the secret to `user`.",
+      "dev": "This demonstrates FHE.allow:",
+      "params": [
+        {
+          "name": "user",
+          "type": "",
+          "description": "Address to grant persistent secret decrypt permission."
+        }
+      ]
+    },
+    {
+      "name": "revokePersistentSecretAccess",
+      "signature": "revokePersistentSecretAccess(address user)",
+      "visibility": "external",
+      "notice": "Revokes persistent decrypt permission flag for the secret from `user`.",
+      "dev": "Some FHE permission systems may not support true revocation for already-granted ciphertext.",
+      "params": [
+        {
+          "name": "user",
+          "type": "",
+          "description": "Address to revoke application-level access flag."
+        }
+      ]
+    },
+    {
+      "name": "readSecretPersistent",
+      "signature": "readSecretPersistent() returns (euint32)",
+      "visibility": "external",
+      "notice": "Reads the secret for users with persistent access flag and encrypted role.",
+      "dev": "This shows a common pattern:",
+      "returns": [
+        {
+          "name": "Encrypted",
+          "type": "",
+          "description": "result (either secret or zero)."
+        }
+      ]
+    },
+    {
+      "name": "setAdmin",
+      "signature": "setAdmin(address newAdmin)",
+      "visibility": "external",
+      "notice": "Transfers admin role to a new address.",
+      "params": [
+        {
+          "name": "newAdmin",
+          "type": "",
+          "description": "New admin address."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "EncryptedRoleSet",
+      "signature": "EncryptedRoleSet(address indexed user)",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "name": "SecretUpdated",
+      "signature": "SecretUpdated()"
+    },
+    {
+      "name": "PersistentAccessGranted",
+      "signature": "PersistentAccessGranted(address indexed user)",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "name": "PersistentAccessRevoked",
+      "signature": "PersistentAccessRevoked(address indexed user)",
+      "params": [
+        {
+          "name": "indexed",
+          "type": "address",
+          "indexed": false
+        }
+      ]
+    }
+  ],
+  "constructor_doc": {
+    "notice": "Initializes admin to deployer."
+  }
+}

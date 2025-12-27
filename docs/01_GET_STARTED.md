@@ -1,20 +1,20 @@
-# Get Started dengan FHEVM StarterKit
+# Get Started with FHEVM StarterKit
 
-Selamat datang di panduan quick start untuk FHEVM StarterKit! Di sini Anda akan menemukan langkah-langkah dasar untuk mulai menggunakan proyek ini, termasuk instalasi, konfigurasi, dan menjalankan contoh pertama.
+Welcome to the quick start guide for FHEVM StarterKit! Here you will find the basic steps to start using this project, including installation, configuration, and running your first example.
 
-## Prasyarat
+## Prerequisites
 
-Pastikan Anda sudah menginstal:
+Make sure you have installed:
 
-- **Node.js** (versi 20+)
-- **npm** atau **yarn**
+- **Node.js** (version 20+)
+- **npm** or **yarn**
 - **Git**
 
 ---
 
-## Langkah 1: Clone Repository
+## Step 1: Clone Repository
 
-Clone repository FHEVM StarterKit dari GitHub:
+Clone the FHEVM StarterKit repository from GitHub:
 
 ```bash
 git clone https://github.com/erzawansyah/fhevm-starterkit.git
@@ -23,9 +23,9 @@ cd fhevm-starterkit
 
 ---
 
-## Langkah 2: Install Dependencies
+## Step 2: Install Dependencies
 
-Install semua dependensi yang dibutuhkan:
+Install all required dependencies:
 
 ```bash
 npm install
@@ -33,58 +33,58 @@ npm install
 
 ---
 
-## Langkah 3: Setup Environment Variables
+## Step 3: Setup Environment Variables
 
-Jika Anda ingin menggunakan frontend template (UI), salin file `.env.example` menjadi `.env.local`:
+If you want to use the frontend template (UI), copy the `.env.example` file to `.env.local`:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edit file `.env.local` dan isi WalletConnect Project ID Anda:
+Edit the `.env.local` file and fill in your WalletConnect Project ID:
 
 ```env
 VITE_WALLETCONNECT_PROJECT_ID=YOUR_PROJECT_ID_HERE
 ```
 
-Dapatkan Project ID gratis dari [WalletConnect Cloud](https://cloud.walletconnect.com).
+Get a free Project ID from [WalletConnect Cloud](https://cloud.walletconnect.com).
 
-> **Note:** Langkah ini hanya dibutuhkan jika Anda akan menggunakan UI relayer. Untuk smart contract development saja, langkah ini opsional.
+> **Note:** This step is only required if you will be using the relayer UI. For smart contract development only, this step is optional.
 
 ---
 
-## Cara Mudah: Gunakan `npm start`
+## Easy Way: Use `npm start`
 
-Setelah langkah 3, Anda bisa langsung menjalankan:
+After step 3, you can directly run:
 
 ```bash
 npm start
 ```
 
-Perintah ini akan otomatis menjalankan:
+This command will automatically run:
 
 - `npm run template:init` — Clone base templates
 - `npm run template:build-ui` — Setup frontend environment
 
-Ini menghemat waktu dan memastikan semua setup yang diperlukan sudah lengkap!
+This saves time and ensures all necessary setup is complete!
 
 ---
 
-## Langkah 4: Initialize Base Templates (Alternative)
+## Step 4: Initialize Base Templates (Alternative)
 
-Inisialisasi base templates dengan menjalankan:
+Initialize base templates by running:
 
 ```bash
 npm run template:init
 ```
 
-Perintah ini akan:
+This command will:
 
-- Clone template Hardhat resmi dari Zama ke folder `base/hardhat-template/`
-- Clone template UI relayer ke folder `base/frontend-template/`
-- Setup markdown templates dan overrides
+- Clone the official Hardhat template from Zama to `base/hardhat-template/`
+- Clone the relayer UI template to `base/frontend-template/`
+- Setup markdown templates and overrides
 
-Proses inisialisasi ini **hanya perlu dilakukan sekali**. Jika Anda ingin menggunakan versi terbaru dari templates, gunakan:
+This initialization process **only needs to be done once**. If you want to use the latest version of templates, use:
 
 ```bash
 npm run template:update
@@ -92,27 +92,27 @@ npm run template:update
 
 ---
 
-## Langkah 5: Build Frontend Template (Optional)
+## Step 5: Build Frontend Template (Optional)
 
-Jika Anda tidak menggunakan `npm start` di atas, build frontend template secara manual:
+If you didn't use `npm start` above, build the frontend template manually:
 
 ```bash
 npm run template:build-ui
 ```
 
-Ini akan setup environment dan dependencies untuk frontend template.
+This will setup environment and dependencies for the frontend template.
 
 ---
 
-## Langkah 6: Explore Available Starters
+## Step 6: Explore Available Starters
 
-List semua starter yang tersedia:
+List all available starters:
 
 ```bash
 npm run starter:list
 ```
 
-Anda akan melihat output seperti:
+You will see output like:
 
 ```
 Available Starters:
@@ -124,41 +124,41 @@ Available Starters:
 
 ---
 
-## Langkah 7: Create Project dari Starter
+## Step 7: Create Project from Starter
 
-Ada dua cara membuat project baru dari starter:
+There are two ways to create a new project from a starter:
 
-### Cara 1: Direct dengan positional argument
+### Method 1: Direct with positional argument
 
 ```bash
 npm run starter:create fhe-add -- --dir my-fhe-add
 ```
 
-Ini akan membuat folder `workspace/my-fhe-add` berisi:
+This will create a `workspace/my-fhe-add` folder containing:
 
-- Contract FHEAdd.sol (dari starter)
-- Test file FHEAdd.ts
-- Hardhat configuration dan dependencies
+- FHEAdd.sol contract (from starter)
+- FHEAdd.ts test file
+- Hardhat configuration and dependencies
 
-### Cara 2: Interactive mode
+### Method 2: Interactive mode
 
-Jika tidak memberikan argument:
+If you don't provide arguments:
 
 ```bash
 npm run starter:create
 ```
 
-Script akan menampilkan menu interaktif untuk:
+The script will display an interactive menu to:
 
-1. Pilih starter dari list
-2. Filter by category, chapter, tags, atau concepts
-3. Tentukan destination directory
-4. Confirm sebelum create
+1. Select starter from list
+2. Filter by category, chapter, tags, or concepts
+3. Specify destination directory
+4. Confirm before creating
 
-### Contoh lainnya:
+### Other examples:
 
 ```bash
-# Create dengan custom dir
+# Create with custom dir
 npm run starter:create fhe-counter -- --dir ./my-project
 
 # Create multiple starters
@@ -171,13 +171,13 @@ npm run starter:create -- --category fundamental --dir ./basics
 npm run starter:create -- --concepts "encrypted-add" --dir ./my-starter
 ```
 
-Untuk penjelasan lengkap semua opsi, lihat [02_USING_STARTER_SCRIPT.md](02_USING_STARTER_SCRIPT.md).
+For a complete explanation of all options, see [02_USING_STARTER_SCRIPT.md](02_USING_STARTER_SCRIPT.md).
 
 ---
 
-## Langkah 8: Setup Project di Workspace
+## Step 8: Setup Project in Workspace
 
-Setelah project tercipta, masuk ke directory project:
+After the project is created, enter the project directory:
 
 ```bash
 cd workspace/my-fhe-add
@@ -185,7 +185,7 @@ cd workspace/my-fhe-add
 
 ---
 
-## Langkah 9: Install Project Dependencies
+## Step 9: Install Project Dependencies
 
 ```bash
 npm install
@@ -193,15 +193,15 @@ npm install
 
 ---
 
-## Langkah 10: Compile & Test Contract
+## Step 10: Compile & Test Contract
 
-Compile kontrak Solidity:
+Compile the Solidity contract:
 
 ```bash
 npx hardhat compile
 ```
 
-Jalankan test:
+Run tests:
 
 ```bash
 npx hardhat test
@@ -209,53 +209,53 @@ npx hardhat test
 
 ---
 
-## Langkah 11: Deploy Contract (Optional)
+## Step 11: Deploy Contract (Optional)
 
-### Deploy ke Hardhat Network (localhost)
+### Deploy to Hardhat Network (localhost)
 
-Start Hardhat node di terminal pertama:
+Start Hardhat node in the first terminal:
 
 ```bash
 npx hardhat node
 ```
 
-Di terminal kedua, deploy:
+In the second terminal, deploy:
 
 ```bash
 npx hardhat deploy
 ```
 
-### Deploy ke Testnet (Sepolia)
+### Deploy to Testnet (Sepolia)
 
 ```bash
 npx hardhat deploy --network sepolia
 ```
 
-> **Note:** Pastikan Anda sudah setup `.env.local` dengan `SEPOLIA_RPC_URL` dan `PRIVATE_KEY` jika ingin deploy ke testnet.
+> **Note:** Make sure you have set up `.env.local` with `SEPOLIA_RPC_URL` and `PRIVATE_KEY` if you want to deploy to testnet.
 
 ---
 
-## Langkah 12: Interaksi dengan UI (Optional)
+## Step 12: Interact with UI (Optional)
 
-Jika Anda telah build frontend template, Anda bisa menjalankan UI untuk interaksi dengan kontrak:
+If you have built the frontend template, you can run the UI to interact with the contract:
 
 ```bash
 npm run starter:start-ui
 ```
 
-Buka browser ke `http://localhost:3000` untuk mengakses UI.
+Open your browser to `http://localhost:3000` to access the UI.
 
 ---
 
-## Perintah Berguna
+## Useful Commands
 
-**List semua starter:**
+**List all starters:**
 
 ```bash
 npm run starter:list
 ```
 
-**Create starter baru:**
+**Create new starter:**
 
 ```bash
 npm run starter:create <name> -- --dir <destination>
@@ -290,34 +290,34 @@ npm run generate:schema
 
 ## Troubleshooting
 
-**Template init gagal:**
+**Template init fails:**
 
-- Pastikan Git sudah terinstall
-- Check koneksi internet
-- Run `npm run template:reset` kemudian `npm run template:init` lagi
+- Make sure Git is installed
+- Check internet connection
+- Run `npm run template:reset` then `npm run template:init` again
 
-**Starter create gagal:**
+**Starter create fails:**
 
-- Pastikan `npm run template:init` sudah selesai
-- Check apakah folder `base/hardhat-template/` ada
-- Run dengan `--verbose` flag untuk melihat detail error
+- Make sure `npm run template:init` is complete
+- Check if the `base/hardhat-template/` folder exists
+- Run with `--verbose` flag to see detailed error
 
-**Test gagal:**
+**Test fails:**
 
-- Pastikan semua dependencies terinstall (`npm install`)
-- Check bahwa kontrak compile tanpa error (`npx hardhat compile`)
+- Make sure all dependencies are installed (`npm install`)
+- Check that the contract compiles without errors (`npx hardhat compile`)
 
 ---
 
 ## Next Steps
 
-1. Baca [00_README.md](00_README.md) untuk overview lengkap struktur proyek
-2. Lihat [02_USING_STARTER_SCRIPT.md](02_USING_STARTER_SCRIPT.md) untuk penjelasan command `starter:create`
-3. Pelajari [03_AUTOMATION_SCRIPT.md](03_AUTOMATION_SCRIPT.md) untuk semua CLI commands yang tersedia
-4. Check [04_COMMENTING_GUIDELINES.md](04_COMMENTING_GUIDELINES.md) untuk standar dokumentasi kontrak
+1. Read [00_README.md](00_README.md) for a complete project structure overview
+2. See [02_USING_STARTER_SCRIPT.md](02_USING_STARTER_SCRIPT.md) for explanation of the `starter:create` command
+3. Study [03_AUTOMATION_SCRIPT.md](03_AUTOMATION_SCRIPT.md) for all available CLI commands
+4. Check [04_COMMENTING_GUIDELINES.md](04_COMMENTING_GUIDELINES.md) for contract documentation standards
 
 ---
 
-## Kontribusi
+## Contributing
 
-Jika Anda ingin membuat starter baru atau berkontribusi, baca [AGENTS.md](../AGENTS.md) untuk development guidelines dan best practices.
+If you want to create a new starter or contribute, read [AGENTS.md](../AGENTS.md) for development guidelines and best practices.

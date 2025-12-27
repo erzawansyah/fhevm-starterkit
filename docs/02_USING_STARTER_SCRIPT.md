@@ -2,26 +2,26 @@
 
 ## Overview
 
-Command `starter:create` adalah command utama untuk membuat project baru dari starter templates yang tersedia di folder `starters/`. Command ini support tiga mode:
+The `starter:create` command is the main command for creating new projects from starter templates available in the `starters/` folder. This command supports three modes:
 
-1. **Positional** — Select starter via nama di command line
+1. **Positional** — Select starter via name in command line
 2. **Filter** — Select starter via taxonomy (category, chapter, tags, concepts)
-3. **Interactive** — Interactive menu jika tidak ada arguments
+3. **Interactive** — Interactive menu if no arguments provided
 
 ---
 
 ## Quick Syntax
 
-### Mode 1: Positional (Direct nama starter)
+### Mode 1: Positional (Direct starter name)
 
 ```bash
-# Single starter (--dir opsional, default = starter name)
+# Single starter (--dir optional, default = starter name)
 npm run starter:create fhe-add
 
-# Single starter dengan custom dir
+# Single starter with custom dir
 npm run starter:create fhe-add -- --dir ./my-project
 
-# Multiple starters (--dir wajib)
+# Multiple starters (--dir required)
 npm run starter:create fhe-add fhe-counter -- --dir ./my-projects
 ```
 
@@ -40,14 +40,14 @@ npm run starter:create -- --tags DeFi --dir ./defi-examples
 # Filter by concepts
 npm run starter:create -- --concepts "encrypted-add" --dir ./math-examples
 
-# Multiple filters (OR logic — pilih starter yang match ANY filter)
+# Multiple filters (OR logic — select starters matching ANY filter)
 npm run starter:create -- --category fundamental --tags DeFi --dir ./filtered
 ```
 
 ### Mode 3: Interactive
 
 ```bash
-# Tidak ada arguments = interactive mode
+# No arguments = interactive mode
 npm run starter:create
 ```
 
@@ -57,9 +57,9 @@ npm run starter:create
 
 ### Positional Arguments
 
-| Argument            | Description                  | Required?                                |
-| ------------------- | ---------------------------- | ---------------------------------------- |
-| `<starterNames...>` | Satu atau lebih nama starter | No (opsional di mode filter/interactive) |
+| Argument            | Description               | Required?                                |
+| ------------------- | ------------------------- | ---------------------------------------- |
+| `<starterNames...>` | One or more starter names | No (optional in filter/interactive mode) |
 
 ### Options
 
@@ -70,16 +70,16 @@ npm run starter:create
 | `--chapter <chapter>`   |           | string  | Filter by chapter (repeatable)                   |
 | `--tags <tags>`         |           | string  | Filter by tags, comma-separated (repeatable)     |
 | `--concepts <concepts>` |           | string  | Filter by concepts, comma-separated (repeatable) |
-| `--force`               | `-f`      | boolean | Overwrite existing directory tanpa prompt        |
+| `--force`               | `-f`      | boolean | Overwrite existing directory without prompt      |
 | `--skip-ui`             |           | boolean | Skip copying frontend/UI files                   |
 
-### Global Options (available untuk semua commands)
+### Global Options (available for all commands)
 
-| Option         | Type    | Description                                 |
-| -------------- | ------- | ------------------------------------------- |
-| `--cwd <path>` | string  | Run command dari directory lain             |
-| `--verbose`    | boolean | Show detailed logs                          |
-| `--json`       | boolean | Output in JSON format (untuk CI/automation) |
+| Option         | Type    | Description                               |
+| -------------- | ------- | ----------------------------------------- |
+| `--cwd <path>` | string  | Run command from different directory      |
+| `--verbose`    | boolean | Show detailed logs                        |
+| `--json`       | boolean | Output in JSON format (for CI/automation) |
 
 ---
 
@@ -96,21 +96,21 @@ npm run starter:create
 
 ### Filter Semantics
 
-- Filters digabung dengan **OR logic**
-- Contoh: `--category fundamental --tags DeFi` = starter yang category=fundamental **OR** tags=DeFi
-- Jika ingin AND logic, run multiple commands atau use positional arguments
+- Filters are combined with **OR logic**
+- Example: `--category fundamental --tags DeFi` = starters with category=fundamental **OR** tags=DeFi
+- If you want AND logic, run multiple commands or use positional arguments
 
 ### Validation
 
-- Jika `--dir` tidak diberikan dan required, command akan error dan exit
-- Jika starter tidak ditemukan, error dan suggestion alternatives
-- Jika target directory sudah ada, prompt tanya: overwrite/merge/rename (kecuali `--force`)
+- If `--dir` is not provided and required, command will error and exit
+- If starter not found, error with suggested alternatives
+- If target directory exists, prompt to: overwrite/merge/rename (unless `--force`)
 
 ---
 
 ## Interactive Flow (Detailed)
 
-Ketika `npm run starter:create` dijalankan tanpa arguments:
+When `npm run starter:create` is run without arguments:
 
 ```
 1. Choose selection method:
@@ -118,18 +118,18 @@ Ketika `npm run starter:create` dijalankan tanpa arguments:
    [2] Pick by filters (category, chapter, tags, concepts)
 
 2. (If option 1) Select starter(s):
-   - Display list dari starters/
-   - User pilih satu atau lebih
+   - Display list from starters/
+   - User picks one or more
 
    (If option 2) Enter filter values:
    - Prompt: Category? (optional)
    - Prompt: Chapter? (optional)
    - Prompt: Tags? (optional)
    - Prompt: Concepts? (optional)
-   - Script scan dan display matching starters
+   - Script scans and displays matching starters
 
 3. Select destination directory:
-   - Prompt: Where to create? (default = starter name jika single)
+   - Prompt: Where to create? (default = starter name if single)
    - Validate path
 
 4. Review & confirm:
@@ -137,7 +137,7 @@ Ketika `npm run starter:create` dijalankan tanpa arguments:
    - Prompt: Create? [y/n]
 
 5. Create project(s):
-   - Copy starters ke workspace/<dir>/
+   - Copy starters to workspace/<dir>/
    - Show success message
 ```
 
@@ -148,7 +148,7 @@ Ketika `npm run starter:create` dijalankan tanpa arguments:
 ### Create Single Starter
 
 ```bash
-# Gunakan default dir (= starter name)
+# Use default dir (= starter name)
 npm run starter:create fhe-add
 
 # Result: workspace/fhe-add/
@@ -162,7 +162,7 @@ npm run starter:create fhe-add -- --dir ./my-encrypted-add
 ### Create Multiple Starters
 
 ```bash
-# Create beberapa starter ke satu dir
+# Create several starters to one dir
 npm run starter:create fhe-add fhe-counter -- --dir ./my-examples
 
 # Result:
@@ -176,16 +176,16 @@ npm run starter:create fhe-add fhe-counter -- --dir ./my-examples
 # Get all fundamental starters
 npm run starter:create -- --category fundamental --dir ./basics
 
-# Result: workspace/basics/ berisi semua fundamental starters
+# Result: workspace/basics/ contains all fundamental starters
 ```
 
 ### Filter by Multiple Criteria
 
 ```bash
-# Starters yang category=applied OR tags=DeFi
+# Starters with category=applied OR tags=DeFi
 npm run starter:create -- --category applied --tags DeFi --dir ./advanced
 
-# Result: workspace/advanced/ berisi starters yang match
+# Result: workspace/advanced/ contains matching starters
 ```
 
 ### Interactive Mode
@@ -202,7 +202,7 @@ npm run starter:create
 ### With Flags
 
 ```bash
-# Overwrite tanpa prompt
+# Overwrite without prompt
 npm run starter:create fhe-add -- --dir ./existing --force
 
 # Skip UI files
@@ -211,7 +211,7 @@ npm run starter:create fhe-counter -- --dir ./no-ui --skip-ui
 # Verbose logging
 npm run starter:create fhe-add -- --dir ./debug --verbose
 
-# JSON output (untuk CI/automation)
+# JSON output (for CI/automation)
 npm run starter:create -- --category fundamental --dir ./json --json
 ```
 
@@ -219,22 +219,22 @@ npm run starter:create -- --category fundamental --dir ./json --json
 
 ## Output Structure
 
-Setelah `starter:create` sukses, struktur workspace:
+After `starter:create` succeeds, workspace structure:
 
 ```plaintext
 workspace/
 └── my-fhe-project/          (destination dir)
-    ├── contracts/           (dari starter)
+    ├── contracts/           (from starter)
     │   └── FHEAdd.sol
-    ├── test/                (dari starter)
+    ├── test/                (from starter)
     │   └── FHEAdd.ts
-    ├── ui/                  (dari template, jika --skip-ui tidak dipakai)
+    ├── ui/                  (from template, if --skip-ui not used)
     │   ├── src/
     │   ├── public/
     │   └── ...
-    ├── hardhat.config.ts    (dari template)
-    ├── package.json         (merged dengan starter + template)
-    ├── README.md            (dari starter atau generated)
+    ├── hardhat.config.ts    (from template)
+    ├── package.json         (merged with starter + template)
+    ├── README.md            (from starter or generated)
     └── ...
 ```
 
@@ -242,7 +242,7 @@ workspace/
 
 ## Troubleshooting
 
-### Starter tidak ditemukan
+### Starter not found
 
 ```bash
 npm run starter:create non-existent -- --dir test
@@ -256,7 +256,7 @@ npm run starter:create non-existent -- --dir test
 npm run starter:list
 ```
 
-### Directory sudah ada
+### Directory already exists
 
 ```bash
 npm run starter:create fhe-add -- --dir ./existing
@@ -264,14 +264,14 @@ npm run starter:create fhe-add -- --dir ./existing
 # Options: [o]verwrite, [m]erge, [r]ename, [c]ancel
 ```
 
-**Solution:** Use `--force` untuk auto-overwrite, atau `--dir` beda:
+**Solution:** Use `--force` to auto-overwrite, or different `--dir`:
 
 ```bash
 npm run starter:create fhe-add -- --dir ./existing --force
 npm run starter:create fhe-add -- --dir ./existing-v2
 ```
 
-### Filter tidak match
+### Filter doesn't match
 
 ```bash
 npm run starter:create -- --category nonexistent --dir test
@@ -279,9 +279,9 @@ npm run starter:create -- --category nonexistent --dir test
 # Check category, chapter, tags, concepts
 ```
 
-**Solution:** Run `starter:list` untuk available values
+**Solution:** Run `starter:list` for available values
 
-### Template tidak initialized
+### Template not initialized
 
 ```bash
 npm run starter:create fhe-add -- --dir test
@@ -302,7 +302,7 @@ npm run template:init
 | Command                        | Purpose                       |
 | ------------------------------ | ----------------------------- |
 | `npm run starter:list`         | List all available starters   |
-| `npm run starter:add`          | Add new starter ke collection |
+| `npm run starter:add`          | Add new starter to collection |
 | `npm run starter:clean <name>` | Delete generated project      |
 | `npm run template:init`        | Initialize base templates     |
 | `npm run template:update`      | Update base templates         |
@@ -311,7 +311,7 @@ npm run template:init
 
 ## Notes for CI/Automation
 
-Untuk automation (GitHub Actions, CI/CD), gunakan JSON output:
+For automation (GitHub Actions, CI/CD), use JSON output:
 
 ```bash
 npm run starter:create fhe-add -- --dir test --json
@@ -328,4 +328,4 @@ Output:
 }
 ```
 
-Gunakan `--force` untuk skip prompts dan auto-overwrite.
+Use `--force` to skip prompts and auto-overwrite.
