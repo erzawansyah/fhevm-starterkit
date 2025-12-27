@@ -1,3 +1,7 @@
-{
-  "contracts": []
-}
+[
+  {
+    "slug": "my-contract",
+    "name": "MyContract",
+    "file": "MyContract.sol"
+  }
+]

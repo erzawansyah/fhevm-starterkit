@@ -278,33 +278,33 @@ export async function copyTemplateToWorkspace(
   // Create filter function for specific source directory
   const createFilterFunc =
     (sourceDir: string) =>
-    (src: string): boolean => {
-      const absSourceDir = path.resolve(sourceDir);
-      const absSrc = path.resolve(src);
+      (src: string): boolean => {
+        const absSourceDir = path.resolve(sourceDir);
+        const absSrc = path.resolve(src);
 
-      // Normalize relative path (posix style) from source directory
-      const relRaw = path.relative(absSourceDir, absSrc);
+        // Normalize relative path (posix style) from source directory
+        const relRaw = path.relative(absSourceDir, absSrc);
 
-      // If src is the root itself, always include
-      if (!relRaw) return true;
+        // If src is the root itself, always include
+        if (!relRaw) return true;
 
-      const rel = relRaw.split(path.sep).join("/"); // Windows-safe to POSIX
-      const parts = rel.split("/");
+        const rel = relRaw.split(path.sep).join("/"); // Windows-safe to POSIX
+        const parts = rel.split("/");
 
-      // Exclude directory names anywhere in the path
-      // Example: node_modules/... should be excluded even if it's nested
-      if (parts.some((p) => excludeDirs.includes(p))) {
-        return false;
-      }
+        // Exclude directory names anywhere in the path
+        // Example: node_modules/... should be excluded even if it's nested
+        if (parts.some((p) => excludeDirs.includes(p))) {
+          return false;
+        }
 
-      // Exclude exact relative file path
-      // Example: contracts/FHECounter.sol
-      if (excludeFiles.includes(rel)) {
-        return false;
-      }
+        // Exclude exact relative file path
+        // Example: contracts/FHECounter.sol
+        if (excludeFiles.includes(rel)) {
+          return false;
+        }
 
-      return true;
-    };
+        return true;
+      };
 
   // Copy hardhat template
   // from /base/hardhat-template to /workspace/<starter-name>
@@ -360,6 +360,60 @@ export async function copyTemplateToWorkspace(
       recursive: true,
     });
   }
+
+  // Add global additional packages and scripts to package.json
+  const globalPackages = readGlobalAdditionalPackages();
+  const deps = globalPackages.dependencies || [];
+  const devDeps = globalPackages.devDependencies || [];
+  const scripts = globalPackages.scripts;
+  const hasDeps = deps.length > 0;
+  const hasDevDeps = devDeps.length > 0;
+
+  if (hasDeps || hasDevDeps || scripts) {
+    const pkgPath = path.join(workspaceStarter, "package.json");
+    const parsedPkg = safeReadJson<Record<string, unknown>>(pkgPath);
+    if (!parsedPkg.ok) {
+      logger.warning(
+        `package.json tidak ditemukan/invalid di ${quotePath(pkgPath)}; lewati penambahan deps tambahan.`,
+      );
+      return;
+    }
+
+    const pkgJson = parsedPkg.data as Record<string, unknown>;
+    const existingDeps =
+      (pkgJson.dependencies as Record<string, string> | undefined) || {};
+    const existingDevDeps =
+      (pkgJson.devDependencies as Record<string, string> | undefined) || {};
+    const existingScripts =
+      (pkgJson.scripts as Record<string, string> | undefined) || {};
+
+    const upsert = (target: Record<string, string>, specs: string[]): void => {
+      for (const spec of specs) {
+        const { name, version } = parsePackageSpec(spec);
+        target[name] = version;
+      }
+    };
+
+    upsert(existingDeps, deps);
+    upsert(existingDevDeps, devDeps);
+    if (scripts) {
+      Object.entries(scripts).forEach(([k, v]) => {
+        existingScripts[k] = v;
+      });
+    }
+
+    const updated = {
+      ...pkgJson,
+      dependencies: existingDeps,
+      devDependencies: existingDevDeps,
+      scripts: existingScripts,
+    };
+
+    fs.writeFileSync(pkgPath, `${JSON.stringify(updated, null, 2)}\n`, "utf-8");
+    logger.success(
+      "Paket dan script global telah ditambahkan ke package.json.",
+    );
+  }
 }
 
 /**
@@ -384,14 +438,6 @@ export async function copyStarterToWorkspace(
   const depSet = new Set<string>();
   const devDepSet = new Set<string>();
   const scriptsMap = new Map<string, string>();
-  const globalPackages = readGlobalAdditionalPackages();
-  globalPackages.dependencies?.forEach((pkg) => depSet.add(pkg));
-  globalPackages.devDependencies?.forEach((pkg) => devDepSet.add(pkg));
-  if (globalPackages.scripts) {
-    Object.entries(globalPackages.scripts).forEach(([k, v]) =>
-      scriptsMap.set(k, v),
-    );
-  }
 
   // Create workspace/<destinationDir> directory if not exists
   if (!fs.existsSync(targetDir)) {
@@ -534,7 +580,7 @@ export async function copyStarterToWorkspace(
 
     fs.writeFileSync(pkgPath, `${JSON.stringify(updated, null, 2)}\n`, "utf-8");
     logger.success(
-      "Paket dan script tambahan telah ditambahkan ke package.json (tanpa install otomatis).",
+      "Paket dan script dari starters telah ditambahkan ke package.json.",
     );
   }
 }

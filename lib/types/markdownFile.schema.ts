@@ -23,9 +23,10 @@ export type ReadmeTemplateData = {
 };
 
 export type DraftContractMetadata = {
-  contractLabel: string;
-  contractName: string;
-  authorName: string;
+  contractName: string; // e.g., DraftContract
+  contractDir: string; // e.g., draft-contract
+  contractLabel: string; // e.g., "Draft Contract"
+  authorName: string; // e.g., "John Doe"
   category: CategoryEnumType;
   chapter: ChapterEnumType
   tags: TagsEnumType[];

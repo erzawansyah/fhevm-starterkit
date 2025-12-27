@@ -26,7 +26,9 @@ import { DraftContractMetadata, DraftTestMetadata } from "../../lib/types/markdo
 
 // Options for adding a new draft starter
 export type StarterAddOptions = GlobalOptions & {
+  contractDir?: string; // direktori contract yang akan dibuat (opsional)
   contractName?: string; // nama contract yang akan dibuat (opsional)
+  label?: string; // label untuk contract
   category?: CategoryEnumType; // category draft starter
   chapter?: ChapterEnumType; // chapter draft starter
   tags?: TagsEnumType[]; // tags draft starter
@@ -122,17 +124,18 @@ export async function runStarterAdd(opts: StarterAddOptions) {
     logger.success("✅ Base template copied.");
 
 
-    const contractContent = await renderHbsFile<DraftContractMetadata>(sourceContractFile, {
+    const contractContent = renderHbsFile<DraftContractMetadata>(sourceContractFile, {
+      contractDir: opts.contractDir || "draft-contract",
       contractName: opts.contractName || "DraftContract",
-      contractLabel: opts.contractName ? opts.contractName.replace(/([A-Z])/g, " $1").trim() : "Draft Contract",
+      contractLabel: opts.label ? opts.label : (opts.contractDir ? opts.contractDir.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") : "Draft Contract"),
       authorName: await renderAuthorName(),
       category: opts.category || "fundamental",
       chapter: opts.chapter || "basics",
       tags: opts.tags || ["fhe", "basic", "draft"],
     });
 
-    const testContent = await renderHbsFile<DraftTestMetadata>(sourceTestFile, {
-      starterId: opts.contractName ? `${opts.contractName.toLowerCase()}-example` : "draftcontract-example",
+    const testContent = renderHbsFile<DraftTestMetadata>(sourceTestFile, {
+      starterId: opts.contractDir || "draft-contract",
       contractName: opts.contractName || "DraftContract",
       testGoal: "Memastikan fungsi dasar contract berjalan sesuai harapan.",
       scenarioName: "Dasar FHEVM",
@@ -164,6 +167,19 @@ export async function runStarterAdd(opts: StarterAddOptions) {
     logger.info("- Start developing your FHEVM contract!");
     logger.info("- Run tests with: npx hardhat test");
 
+    // Ganti contract-list.json untuk menambahkan draft starter
+    const existingContractListPath = path.join(workspaceDir, "draft", "contract-list.json");
+    console.log("Updating contract-list.json to include the new draft starter...");
+    console.log(`Path to contract-list.json: ${existingContractListPath}`);
+
+
+    if (fs.existsSync(existingContractListPath)) {
+      fs.writeFileSync(existingContractListPath, JSON.stringify([{
+        file: opts.contractName ? `${opts.contractName}.sol` : "DraftContract.sol",
+        name: opts.contractName || "DraftContract",
+        slug: opts.contractDir || "draft-contract",
+      }]));
+    }
   } catch (error) {
     logger.error("❌ Error in starter:add command:", error);
     process.exit(1);

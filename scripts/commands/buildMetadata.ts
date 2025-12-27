@@ -18,6 +18,7 @@ export type BuildMetadataOptions = GlobalOptions & {
  */
 function parseContractLevelNatSpec(contractContent: string): {
     title: string;
+    label: string;
     notice: string;
     dev: string;
     details: string;
@@ -35,6 +36,7 @@ function parseContractLevelNatSpec(contractContent: string): {
 } {
     const result = {
         title: "",
+        label: "",
         notice: "",
         dev: "",
         details: "",
@@ -151,6 +153,12 @@ function parseContractLevelNatSpec(contractContent: string): {
         }
     }
 
+    // Parse @custom:label
+    const labelMatch = docComment.match(/@custom:label\s+([^\n]+)/);
+    if (labelMatch) {
+        result.label = cleanCommentText(labelMatch[1]);
+    }
+
     // Parse @custom:category
     const categoryMatch = docComment.match(/@custom:category\s+(\w+)/);
     if (categoryMatch) {
@@ -228,7 +236,7 @@ function parseContractLevelNatSpec(contractContent: string): {
             const tagMatch = match.match(/@custom:(\w+)\s+(.+)/s);
             if (
                 tagMatch &&
-                !["security", "limitations", "category", "chapter", "tags", "version", "fhevm-version", "ui", "additional-pkg", "author-email", "author-url"].includes(
+                !["security", "limitations", "category", "chapter", "tags", "version", "fhevm-version", "ui", "additional-pkg", "author-email", "author-url", "label"].includes(
                     tagMatch[1]
                 )
             ) {
@@ -617,7 +625,8 @@ function detectFHEOperations(contractContent: string): string[] {
  */
 function extractContractName(contractContent: string): string {
     // Match contract declaration, excluding abstract contracts and interfaces
-    const contractMatch = contractContent.match(/(?:^|\n)\s*contract\s+(\w+)/m);
+    // Must match actual contract declaration (with optional inheritance or opening brace)
+    const contractMatch = contractContent.match(/(?:^|\n)\s*contract\s+(\w+)(?:\s+is\s+|\s*\{)/m);
     return contractMatch ? contractMatch[1] : "";
 }
 
@@ -670,13 +679,19 @@ export async function runBuildMetadata(opts: BuildMetadataOptions) {
         // Get contract filename
         const contractFilename = path.basename(opts.contractPath);
 
-        // Determine starter name
+        // Determine starter name from @title (converted to kebab-case)
         const starterName =
             opts.starterName ||
-            contractName
-                .replace(/([A-Z])/g, "-$1")
-                .toLowerCase()
-                .replace(/^-/, "");
+            (natspec.title
+                ? natspec.title
+                    .replace(/[^a-zA-Z0-9\s-]/g, "") // Remove special chars except space and dash
+                    .trim()
+                    .replace(/\s+/g, "-") // Replace spaces with dashes
+                    .toLowerCase()
+                : contractName
+                    .replace(/([A-Z])/g, "-$1")
+                    .toLowerCase()
+                    .replace(/^-/, ""));
 
         // Parse all code elements
         const stateVariables = parseStateVariables(contractContent);
@@ -691,7 +706,7 @@ export async function runBuildMetadata(opts: BuildMetadataOptions) {
             name: starterName,
             contract_name: contractName,
             contract_filename: contractFilename,
-            label: natspec.title || `${contractName} Starter`,
+            label: natspec.label || natspec.title || `${contractName} Starter`,
             description: natspec.notice || "",
             details: natspec.details || undefined,
             version: natspec.version || "1.0.0",
@@ -732,6 +747,7 @@ export async function runBuildMetadata(opts: BuildMetadataOptions) {
         if (opts.verbose) {
             logger.debug("\nExtracted information:");
             logger.debug(`  Title: ${natspec.title || "(not found)"}`);
+            logger.debug(`  Label: ${natspec.label || "(not found)"}`);
             logger.debug(`  Notice: ${natspec.notice || "(not found)"}`);
             logger.debug(
                 `  Authors: ${natspec.authors.map((a) => a.name).join(", ") || "(not found)"}`

@@ -139,6 +139,10 @@ const config: StarterKitConfigType = {
         "FHE.lt",
       ],
       "ternary-operations": ["FHE.select"],
+      // Handle-related operations (ciphertext import and usage)
+      "handles": [
+        "FHE.fromExternal",
+      ],
       "random-operations": [
         "FHE.randEuint256",
         "FHE.randEuint64",

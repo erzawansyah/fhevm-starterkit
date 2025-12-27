@@ -176,16 +176,17 @@ async function main() {
     });
 
   program
-    .command("starter:add [contractName]")
+    .command("starter:add [contractDir] [contractName]")
     .description("Create a new draft starter for development")
+    .option("--label <label>", "Label for the contract")
     .option("--category <category>", "Category of the draft starter")
     .option("--chapter <chapter>", "Chapter of the draft starter")
     .option("--tags <tags...>", "Tags for the draft starter")
     .option("--force", "Overwrite existing files", false)
-    .action(async (contractName: string, opts: StarterAddOptions) => {
+    .action(async (contractDir: string, contractName: string, opts: StarterAddOptions) => {
       const g = program.opts<GlobalOptions>();
       applyCwd(g.cwd);
-      await runStarterAdd({ contractName, ...opts, ...g });
+      await runStarterAdd({ contractDir, contractName, ...opts, ...g });
     });
 
   program

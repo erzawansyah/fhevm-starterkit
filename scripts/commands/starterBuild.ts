@@ -4,6 +4,7 @@ import { logger } from "../../lib/helper/logger";
 import { renderHbsFile } from "../../lib/helper/renderHbs";
 import { GlobalOptions } from "../cli";
 import config from "../../starterkit.config";
+import { runBuildMetadata } from "./buildMetadata";
 
 export type StarterBuildOptions = GlobalOptions & {
     draftDir?: string;
@@ -67,7 +68,7 @@ export async function runStarterBuild(opts: StarterBuildOptions) {
         logger.info("Generating metadata...");
 
         // Generate metadata from contract
-        const metadata = generateMetadataFromContract(contractPath);
+        const metadata = await generateMetadataFromContract(contractPath, opts);
         fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), "utf-8");
 
         logger.success("✓ Metadata generated");
@@ -169,40 +170,32 @@ function validateMetadata(metadata: any) {
 
 /**
  * Generate basic metadata from contract
- * (Simplified version - in production would call buildMetadata)
+ * (Calls runBuildMetadata to parse full contract details)
  */
-function generateMetadataFromContract(contractPath: string): any {
-    const content = fs.readFileSync(contractPath, "utf-8");
-    const contractName = extractContractName(content);
+async function generateMetadataFromContract(contractPath: string, opts: StarterBuildOptions): Promise<any> {
+    // Use runBuildMetadata to generate full metadata from contract
+    const tempMetadataPath = contractPath.replace(".sol", ".metadata.json");
 
-    return {
-        name: contractName.toLowerCase().replace(/([A-Z])/g, "-$1").toLowerCase(),
-        contract_name: contractName,
-        contract_filename: path.basename(contractPath),
-        label: contractName.replace(/([A-Z])/g, " $1").trim(),
-        description: "Auto-generated starter project",
-        category: "fundamental",
-        chapter: "basics",
-        authors: [
-            {
-                name: "Developer",
-            },
-        ],
-        has_ui: false,
-        version: "1.0.0",
-        fhevm_version: "0.9.1",
-        state_variables: [],
-        functions: [],
-        structs: [],
-        enums: [],
-        events: [],
-    };
+    try {
+        // Generate metadata using the full parser
+        await runBuildMetadata({
+            contractPath,
+            output: tempMetadataPath,
+            verbose: opts.verbose,
+            cwd: opts.cwd,
+            json: opts.json
+        });
+
+        // Read generated metadata
+        const metadata = JSON.parse(fs.readFileSync(tempMetadataPath, "utf-8"));
+
+        // Clean up temp file
+        fs.unlinkSync(tempMetadataPath);
+
+        return metadata;
+    } catch (error) {
+        logger.error(`Failed to generate metadata: ${error}`);
+        throw error;
+    }
 }
 
-/**
- * Extract contract name from Solidity file
- */
-function extractContractName(content: string): string {
-    const match = content.match(/contract\s+(\w+)/);
-    return match ? match[1] : "Contract";
-}
