@@ -1,0 +1,43 @@
+{
+  "name": "fhe-add",
+  "contract_name": "FHEAdd",
+  "contract_filename": "FHEAdd.sol",
+  "label": "FHE Addition Example",
+  "description": "Demonstrates encrypted addition on uint8 operands using FHE permissions.",
+  "version": "1.0.0",
+  "fhevm_version": "0.9.1",
+  "category": "fundamental",
+  "tags": [
+    "arithmetic",
+    "tutorial"
+  ],
+  "concepts": [
+    "arithmetic-operations",
+    "handles",
+    "access-control"
+  ],
+  "chapter": "fhe-operations",
+  "has_ui": true,
+  "authors": [
+    {
+      "name": "Zama Team"
+    }
+  ],
+  "state_variables": [
+    {
+      "name": "_a",
+      "type": "euint8",
+      "visibility": "private"
+    },
+    {
+      "name": "_b",
+      "type": "euint8",
+      "visibility": "private"
+    },
+    {
+      "name": "_a_plus_b",
+      "type": "euint8",
+      "visibility": "private"
+    }
+  ]
+}
