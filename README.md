@@ -25,6 +25,22 @@ FHEVM StarterKit helps developers learn and build encrypted smart contracts thro
 
 ---
 
+## Compatibility and status
+
+This project is frozen on the FHEVM 0.9 toolchain and is not being upgraded to newer Zama releases.
+
+| Component | Version |
+| --- | --- |
+| `@fhevm/solidity` | 0.9.1 |
+| `@fhevm/hardhat-plugin` / `@fhevm/mock-utils` | 0.3.0-1 |
+| `@zama-fhe/relayer-sdk` | 0.3.0-5 |
+| Hardhat template | [zama-ai/fhevm-hardhat-template](https://github.com/zama-ai/fhevm-hardhat-template) @ `2760685` |
+| UI template | [erzawansyah/relayer-ui-template](https://github.com/erzawansyah/relayer-ui-template) @ `daaff46` |
+
+**Sepolia is no longer supported.** Relayer SDK 0.3.0-5 points to the old Zama testnet relayer (`relayer.testnet.zama.org`), which no longer serves requests, so deploying, testing or decrypting on Sepolia fails. Use **local mode**: `npx hardhat test` (FHEVM mock) and `npx hardhat node` (chain `31337`) work without any relayer, and the UI uses `@fhevm/mock-utils` on that chain.
+
+---
+
 ## Quick Start
 
 ```bash
@@ -35,7 +51,7 @@ cd fhevm-starterkit
 # 2. Install dependencies
 npm install
 
-# 3. Initialize base templates (required)
+# 3. Clone the base templates and build the UI template
 npm run start
 
 # 4. List available starters
@@ -43,26 +59,54 @@ npm run starter:list
 
 # 5. Create a project from a starter
 npm run starter:create fhe-counter -- --dir my-project
+
+# 6. Run the tests (local FHEVM mock)
+cd workspace/my-project
+npm install
+npx hardhat test
 ```
 
-Optional (UI): after Step 3, copy [.env.example](.env.example) to [.env.local](.env.local) and set `VITE_WALLETCONNECT_PROJECT_ID` so the relayer UI works on first run.
+`npm run start` runs `template:init` + `template:build-ui`. If you only need contracts and tests, run `npm run template:init` instead and pass `--skip-ui` to `starter:create`.
+
+UI configuration is optional: copy [.env.example](.env.example) to `.env.local` and set `VITE_WALLETCONNECT_PROJECT_ID`. Without it, `template:build-ui` falls back to the placeholder in `.env.example`, which is fine for local injected wallets.
+
+### Running the UI locally
+
+Inside a generated project (created without `--skip-ui`):
+
+```bash
+npm run starter:runtime    # starts a Hardhat node on 127.0.0.1:8545 and deploys the starters
+npm run starter:start-ui   # serves the UI on http://localhost:3000 (second terminal)
+```
+
+Connect a browser wallet to the Hardhat network (chain ID `31337`) with one of the Hardhat test accounts.
 
 ---
 
 ## Available Starters
 
-| Starter                          | Category    | Description                                |
-| -------------------------------- | ----------- | ------------------------------------------ |
-| `encrypt-single-value`           | Fundamental | Encrypt a single value using FHE           |
-| `encrypt-multiple-values`        | Fundamental | Encrypt multiple values in one transaction |
-| `public-decrypt-single-value`    | Fundamental | Public decryption of encrypted values      |
-| `public-decrypt-multiple-values` | Fundamental | Public decryption of multiple values       |
-| `user-decrypt-single-value`      | Fundamental | User-specific decryption patterns          |
-| `user-decrypt-multiple-values`   | Fundamental | User-specific multi-value decryption       |
-| `fhe-add`                        | Fundamental | Encrypted arithmetic operations            |
-| `fhe-if-then-else`               | Fundamental | Conditional logic with encrypted data      |
-| `fhe-counter`                    | Applied     | Encrypted counter with increment/decrement |
-| `confidential-survey`            | Applied     | Anonymous survey with encrypted responses  |
+All 16 starters, with category and chapter as declared in each `metadata.json`:
+
+| Starter | Category | Chapter | Description |
+| --- | --- | --- | --- |
+| `fhe-counter` | fundamental | basics | Encrypted counter with increment/decrement |
+| `encrypt-multiple-values` | fundamental | basics | Encrypt several values in one transaction |
+| `encrypted-access-control` | fundamental | basics | Access control with FHE permissions (`allow` vs `allowTransient`) |
+| `input-proof-example` | fundamental | basics | Input proofs and why they prevent ciphertext reuse |
+| `erc7984-example` | fundamental | basics | Confidential token (OpenZeppelin ERC7984) |
+| `erc20-wrapper-example` | fundamental | basics | Wrap a public ERC20 into a confidential ERC7984 token |
+| `fhe-add` | fundamental | fhe-operations | Encrypted addition on `euint8` |
+| `fhe-if-then-else` | fundamental | basics | Encrypted max via comparison + `FHE.select` |
+| `handle-lifecycle-example` | fundamental | handles | How handles work: every operation creates a new handle |
+| `encrypt-single-value` | applied | encryption | Receive one encrypted `uint32` via `FHE.fromExternal` |
+| `user-decrypt-single-value` | applied | decryption | User decryption of a single `euint32` |
+| `user-decrypt-multiple-values` | applied | decryption | User decryption of `ebool`, `euint32`, `euint64` |
+| `public-decrypt-single-value` | applied | decryption | Public decryption of an encrypted boolean |
+| `public-decrypt-multiple-values` | patterns | decryption | Public 8-sided die roll with `makePubliclyDecryptable` |
+| `fhevm-anti-patterns-playground` | patterns | anti-patterns | Common FHEVM mistakes and their correct alternatives |
+| `confidential-survey` | advanced | encryption | Survey whose responses stay encrypted until closing |
+
+All starters pass `npx hardhat test` in local mock mode.
 
 ---
 
@@ -72,10 +116,10 @@ Starters are organized into four categories:
 
 | Category        | Description                                      |
 | --------------- | ------------------------------------------------ |
-| **Fundamental** | Core FHEVM concepts (1-2 key operations)         |
-| **Patterns**    | Best practices and common development patterns   |
-| **Applied**     | Real-world use cases (voting, counters, surveys) |
-| **Advanced**    | Complex applications (auctions, multi-contract)  |
+| **fundamental** | Core FHEVM concepts (1-2 key operations)         |
+| **patterns**    | Best practices and common development patterns   |
+| **applied**     | Real-world use cases                             |
+| **advanced**    | Complex applications (surveys, multi-contract)   |
 
 Each starter is also tagged with **chapters** (encryption, decryption, access-control, etc.) and **concepts** (FHE operations used) for easy discovery.
 
@@ -180,8 +224,10 @@ fhevm-starterkit/
 │   ├── encrypt-single-value/
 │   └── ...
 ├── base/                  # Official templates (generated locally)
-│   ├── hardhat-template/  # Zama FHEVM Hardhat template
-│   ├── frontend-template/ # Relayer UI template
+│   ├── hardhat-template/  # Zama FHEVM Hardhat template (cloned, gitignored)
+│   ├── frontend-template/ # relayer-ui-template (cloned, gitignored)
+│   ├── overrides/         # Files copied over the Hardhat template (deploy script, hardhat.config.ts)
+│   ├── draft-template/    # Template for new draft starters
 │   └── markdown-template/ # Documentation templates
 ├── workspace/             # Generated projects (gitignored)
 ├── scripts/               # CLI commands
@@ -285,7 +331,7 @@ Contributions are welcome! To add a new starter:
 4. Validate with `npm run lint`
 5. Submit a pull request
 
-See [AGENTS.md](AGENTS.md) for detailed contribution guidelines.
+See [AGENTS.md](AGENTS.md) for repository conventions (also used by AI coding agents).
 
 ---
 
@@ -299,7 +345,9 @@ See [AGENTS.md](AGENTS.md) for detailed contribution guidelines.
 
 ## License
 
-MIT © [M.E.W](https://github.com/erzawansyah)
+MIT © [M.E.W](https://github.com/erzawansyah). See [LICENSE](LICENSE).
+
+The cloned Zama Hardhat template and the Solidity starters that carry `SPDX-License-Identifier: BSD-3-Clause-Clear` keep that license. The UI template is [relayer-ui-template](https://github.com/erzawansyah/relayer-ui-template) (MIT, with a Zama-derived `src/lib/fhevm` under BSD-3-Clause-Clear).
 
 ---
 

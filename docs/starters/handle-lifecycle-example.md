@@ -59,7 +59,7 @@ This contract demonstrates the following FHE concepts:
 private euint32 _storedValue;
 ```
 
-**Description:** Encrypted placeholder for the tracked handle; zero handle is granted at deployment.
+**Description:** Encrypted value whose handle is tracked; initialized to an encrypted zero at deployment.
 
 
 

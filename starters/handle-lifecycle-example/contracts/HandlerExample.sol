@@ -20,11 +20,12 @@ import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
  * @custom:ui false
  */
 contract HandleExample is ZamaEthereumConfig {
-    /// @notice Encrypted placeholder for the tracked handle; zero handle is granted at deployment.
+    /// @notice Encrypted value whose handle is tracked; initialized to an encrypted zero at deployment.
     euint32 private _storedValue;
 
-    /// @notice Initializes the stored handle to zero and grants permission to reuse it.
-    /// @dev The zero handle is created with `FHE.asEuint32(0)` and permission is granted through `FHE.allowThis`.
+    /// @notice Initializes the stored value to an encrypted zero and grants permission to reuse it.
+    /// @dev `FHE.asEuint32(0)` is a trivial encryption: the cleartext is 0 but the handle itself is a
+    /// non-zero identifier. Only an uninitialized variable has the zero handle (bytes32(0)).
     constructor() {
         _storedValue = FHE.asEuint32(0);
         FHE.allowThis(_storedValue);
@@ -51,6 +52,8 @@ contract HandleExample is ZamaEthereumConfig {
 
         euint32 res = FHE.add(val, FHE.asEuint32(1));
         FHE.allowThis(res);
+        // Let the caller decrypt the result handle off-chain
+        FHE.allow(res, msg.sender);
 
         return (uint256(euint32.unwrap(val)), uint256(euint32.unwrap(res)));
     }

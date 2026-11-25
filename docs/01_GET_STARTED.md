@@ -227,13 +227,9 @@ In the second terminal, deploy:
 npx hardhat deploy
 ```
 
-### Deploy to Testnet (Sepolia)
+### Testnet (Sepolia): not supported
 
-```bash
-npx hardhat deploy --network sepolia
-```
-
-> **Note:** Make sure you have set up `.env.local` with `SEPOLIA_RPC_URL` and `PRIVATE_KEY` if you want to deploy to testnet.
+This starter kit is frozen on FHEVM 0.9 / relayer-sdk 0.3.0-5. That SDK version talks to the old Zama testnet relayer, which no longer serves requests, so deploying and decrypting on Sepolia no longer works. Stay on the local Hardhat network (chain `31337`).
 
 ---
 

@@ -38,19 +38,27 @@ export async function runTemplateBuildUI(opts: GlobalOptions) {
     process.exit(1);
   }
 
-  // Check if .env.local exists in the frontend template and is not empty
-  if (!fs.existsSync(FRONTEND_ENV_SOURCE)) {
-    logger.error(
+  // Provide .env.local for the frontend build.
+  // Use the root .env.local when present; otherwise fall back to .env.example
+  // so the UI still builds (a placeholder WalletConnect ID is fine for local mode).
+  const FRONTEND_ENV_EXAMPLE = path.join(__dirname, "..", "..", ".env.example");
+  if (fs.existsSync(FRONTEND_ENV_SOURCE)) {
+    fs.copyFileSync(FRONTEND_ENV_SOURCE, FRONTEND_ENV_TARGET);
+    logger.info(`Copying .env.local to ${quotePath(FRONTEND_ENV_TARGET)}...`);
+  } else if (fs.existsSync(FRONTEND_ENV_EXAMPLE)) {
+    logger.warning(
       `File .env.local not found at ${quotePath(
         FRONTEND_ENV_SOURCE,
-      )}. Please create .env.local file at the project root first.`,
+      )}. Using placeholder values from .env.example (fine for local mode).`,
     );
-    process.exit(1);
+    fs.copyFileSync(FRONTEND_ENV_EXAMPLE, FRONTEND_ENV_TARGET);
+  } else {
+    logger.warning("No .env.local or .env.example found. Using a placeholder.");
+    fs.writeFileSync(
+      FRONTEND_ENV_TARGET,
+      "VITE_WALLETCONNECT_PROJECT_ID=local-placeholder\n",
+    );
   }
-
-  // Copy .env.local to the frontend template folder
-  fs.copyFileSync(FRONTEND_ENV_SOURCE, FRONTEND_ENV_TARGET);
-  logger.info(`Copying .env.local to ${quotePath(FRONTEND_ENV_TARGET)}...`);
 
   // Run npm install in the frontend template folder
   logger.info("Running npm install in the frontend template...");

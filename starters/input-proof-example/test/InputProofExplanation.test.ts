@@ -10,6 +10,7 @@
  */
 
 import { FhevmType } from "@fhevm/hardhat-plugin";
+import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers, fhevm } from "hardhat";
@@ -22,6 +23,13 @@ type LocalSigners = {
   bob: HardhatEthersSigner;
   charlie: HardhatEthersSigner;
 };
+
+/** Returns a copy of the proof with its last byte flipped (invalid proof). */
+function tamperProof(proof: Uint8Array | string): Uint8Array {
+  const bytes = new Uint8Array(ethers.getBytes(proof));
+  bytes[bytes.length - 1] ^= 0xff;
+  return bytes;
+}
 
 async function deployFixture() {
   const factory = await ethers.getContractFactory("InputProofExample");
@@ -145,7 +153,7 @@ describe("InputProofExample", function () {
         .encrypt();
 
       const tx = contract.connect(signers.alice).setValue(input.handles[0], input.inputProof);
-      await expect(tx).to.emit(contract, "ValueSet").withArgs(signers.alice.address, expect.any(BigInt));
+      await expect(tx).to.emit(contract, "ValueSet").withArgs(signers.alice.address, anyValue);
     });
 
     it("should emit ProofValidated event on successful setValue", async function () {
@@ -200,7 +208,7 @@ describe("InputProofExample", function () {
         .encrypt();
 
       // Tamper with the proof by modifying a byte
-      const tamperedProof = input.inputProof.slice(0, -2) + "FF";
+      const tamperedProof = tamperProof(input.inputProof);
 
       await expect(
         contract.connect(signers.alice).setValue(input.handles[0], tamperedProof),
@@ -440,7 +448,7 @@ describe("InputProofExample", function () {
         .encrypt();
 
       // Tamper with condition proof
-      const tamperedProof = input1.inputProof.slice(0, -2) + "AA";
+      const tamperedProof = tamperProof(input1.inputProof);
 
       await expect(
         contract
@@ -464,7 +472,7 @@ describe("InputProofExample", function () {
         .encrypt();
 
       // Tamper with value proof
-      const tamperedProof = input2.inputProof.slice(0, -2) + "BB";
+      const tamperedProof = tamperProof(input2.inputProof);
 
       await expect(
         contract
@@ -598,15 +606,24 @@ describe("InputProofExample", function () {
 
       const aliceValueBefore = await contract.getValueFor(signers.alice.address);
 
-      // Bob tries to add to Alice's value (using Bob's proof) - should FAIL
+      // Bob adds with his own valid proof: this only touches Bob's slot (msg.sender),
+      // there is no way for Bob to address Alice's value.
       input = await fhevm
         .createEncryptedInput(contractAddress, signers.bob.address)
         .add32(100)
         .encrypt();
+      await contract.connect(signers.bob).addToValue(input.handles[0], input.inputProof);
 
-      await expect(
-        contract.connect(signers.bob).addToValue(input.handles[0], input.inputProof),
-      ).to.be.reverted;
+      const aliceValueAfter = await contract.getValueFor(signers.alice.address);
+      expect(aliceValueAfter).to.equal(aliceValueBefore);
+
+      const aliceClear = await fhevm.userDecryptEuint(
+        FhevmType.euint32,
+        aliceValueAfter,
+        contractAddress,
+        signers.alice,
+      );
+      expect(aliceClear).to.equal(50n);
     });
   });
 
