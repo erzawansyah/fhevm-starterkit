@@ -4,24 +4,22 @@ pragma solidity ^0.8.24;
 import {FHE, ebool, euint32, externalEuint32} from "@fhevm/solidity/lib/FHE.sol";
 import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
-/// @title input-proof-example
-/// @notice Demonstrates correct usage of Input Proofs to prevent Ciphertext Malling attacks in FHE contracts.
-/// @author Zama Team
-///
-/// @dev In FHE, it is critical to verify that the sender knows the plaintext of the ciphertext they are submitting.
-/// This prevents "Malling" attacks where an attacker copies a ciphertext from another user/transaction
-/// and submits it as their own, potentially tricking the contract into performing unauthorized operations.
-///
-/// Key security principle:
-/// - FHE.fromExternal() automatically verifies that the proof is cryptographically bound to msg.sender
-/// - This ensures only the original encryptor (who knows the plaintext) can use the ciphertext
-/// - Proof verification will fail if anyone else tries to submit the same ciphertext
-///
-/// @custom:category fundamental
-/// @custom:chapter encryption
-/// @custom:ui false
-/// @custom:security Critical: All external encrypted inputs MUST use FHE.fromExternal() with proof validation
-/// @custom:concepts FHE.fromExternal, proof validation, ciphertext malling prevention
+/**
+ * @title input-proof-example
+ * @notice Input proofs and why they prevent ciphertext reuse
+ * @author Zama Team
+ * @custom:label InputProofExample Starter
+ * @custom:category fundamental
+ * @custom:chapter basics
+ * @custom:ui false
+ * @custom:security Critical: All external encrypted inputs MUST use FHE.fromExternal() with proof validation
+ * @custom:concepts FHE.fromExternal, proof validation, ciphertext malling prevention
+ * @dev In FHE, it is critical to verify that the sender knows the plaintext of the ciphertext they are submitting.
+ * This prevents "Malling" attacks where an attacker copies a ciphertext from another user/transaction
+ * and submits it as their own, potentially tricking the contract into performing unauthorized operations.
+ * Key principle: FHE.fromExternal() verifies that the proof is cryptographically bound to msg.sender,
+ * so only the original encryptor can use the ciphertext; proof verification fails for anyone else.
+ */
 contract InputProofExample is ZamaEthereumConfig {
     /// @notice Stores encrypted user value per address for demonstration
     /// @dev Maps user addresses to their encrypted state values

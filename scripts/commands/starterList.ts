@@ -145,7 +145,7 @@ export async function runStarterList(opts: StarterListOptions) {
     logger.section("Starter Projects");
     logger.error(`Directory not found: ${startersDir}`);
     logger.info(
-      "Hint: jalankan command dari root project (yang punya folder 'starters').",
+      "Hint: run the command from the project root (the folder that contains 'starters').",
     );
     return;
   }

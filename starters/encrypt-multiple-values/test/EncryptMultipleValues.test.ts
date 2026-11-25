@@ -51,9 +51,9 @@ describe("EncryptMultipleValues", function () {
     contract = deployment.contract;
   });
 
-  // @scenario Dasar FHEVM
-  describe("Pengujian fungsi dasar pada contract FHEVM.", function () {
-    // @case Inisialisasi dan Penyimpanan Nilai
+  // @scenario FHEVM basics
+  describe("Basic FHEVM contract functionality.", function () {
+    // @case Initialization and value storage
     it("Ensure contract can be initialized and store encrypted values correctly.", async function () {
       const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
       const plaintext = 42;
@@ -79,8 +79,8 @@ describe("EncryptMultipleValues", function () {
       expect(decrypted).to.equal(plaintext);
     });
 
-    // @case Pembaruan nilai terenkripsi
-    it("Mengizinkan penyimpanan ulang oleh pemanggil berbeda dengan ciphertext baru.", async function () {
+    // @case Encrypted value update
+    it("Allows a different caller to overwrite the value with a new ciphertext.", async function () {
       const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
 
       const firstValue = 7;
@@ -109,7 +109,7 @@ describe("EncryptMultipleValues", function () {
       expect(decrypted).to.equal(secondValue);
     });
 
-    // @case Proof tidak valid
+    // @case Invalid proof
     it("Reject invalid proof when storing ciphertext.", async function () {
       const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
 

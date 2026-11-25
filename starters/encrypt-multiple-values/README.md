@@ -1,5 +1,6 @@
 # EncryptMultipleValues Starter
 
+Encrypt several values in one transaction
 
 
 ---
@@ -25,10 +26,15 @@ This contract demonstrates the following FHE concepts:
 - **FHE.allowThis** — Homomorphic operation on encrypted data
 
 
+## Tags
+
+- `fhe`
+- `basic`
+
 
 ## Authors
 
-**Unknown**
+**Muhamad Erza Wansyah**
 
 
 

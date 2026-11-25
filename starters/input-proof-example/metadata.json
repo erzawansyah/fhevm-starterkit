@@ -3,7 +3,7 @@
   "contract_name": "InputProofExample",
   "contract_filename": "InputProofExplanation.sol",
   "label": "InputProofExample Starter",
-  "description": "",
+  "description": "Input proofs and why they prevent ciphertext reuse",
   "version": "1.0.0",
   "fhevm_version": "0.9.1",
   "category": "fundamental",
@@ -12,6 +12,7 @@
     "FHE.sub",
     "FHE.mul",
     "FHE.eq",
+    "FHE.ne",
     "FHE.lt",
     "FHE.select",
     "FHE.fromExternal",
@@ -23,7 +24,7 @@
   "has_ui": false,
   "authors": [
     {
-      "name": "Unknown"
+      "name": "Zama Team"
     }
   ],
   "state_variables": [

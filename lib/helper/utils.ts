@@ -100,7 +100,7 @@ export function getRemoteHeadCommitHash(repo: string, branch = "main"): string {
   const sha = out.split(/\s+/)[0];
   if (!sha || sha.length < 7) {
     throw new Error(
-      `Gagal mengambil remote HEAD commit untuk ${repo} (branch: ${branch}).`,
+      `Failed to fetch remote HEAD commit for ${repo} (branch: ${branch}).`,
     );
   }
   return sha;

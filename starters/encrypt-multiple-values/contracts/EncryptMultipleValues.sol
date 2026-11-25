@@ -4,24 +4,23 @@ pragma solidity ^0.8.24;
 import {FHE, euint8, externalEuint8} from "@fhevm/solidity/lib/FHE.sol";
 import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
-/// @title encrypt-multiple-values
-/// @custom:label Encrypt Multiple Values
-/// @notice Initial template that will be copied to workspace/draft when running `cli starter:add`.
-/// @dev Details:
-/// - Simplest example of using FHE
-/// - You can add more comments here
-/// @dev Usage summary:
-/// - Encrypt `uint8` value using FHEVM SDK
-/// - Send ciphertext and proof to `setValue`
-/// - Retrieve stored ciphertext via `getResult` for decryption process
-/// @dev Prerequisites:
-/// - Run contract on FHEVM mock environment or supported network
-/// - Caller prepares valid proof for external ciphertext
-/// @author Muhamad Erza Wansyah
-/// @custom:category fundamental
-/// @custom:chapter basics
-/// @custom:tags fhe, basic, draft
-/// @custom:ui true
+/**
+ * @title encrypt-multiple-values
+ * @notice Encrypt several values in one transaction
+ * @author Muhamad Erza Wansyah
+ * @custom:label EncryptMultipleValues Starter
+ * @custom:category fundamental
+ * @custom:chapter basics
+ * @custom:tags fhe, basic
+ * @custom:ui false
+ * @dev Usage summary:
+ * - Encrypt `uint8` value using FHEVM SDK
+ * - Send ciphertext and proof to `setValue`
+ * - Retrieve stored ciphertext via `getResult` for decryption process
+ * @dev Prerequisites:
+ * - Run contract on FHEVM mock environment or supported network
+ * - Caller prepares valid proof for external ciphertext
+ */
 contract EncryptMultipleValues is ZamaEthereumConfig {
     /// @notice Ciphertext already stored as internal `euint8`.
     euint8 private _value;

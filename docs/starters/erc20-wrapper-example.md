@@ -1,5 +1,6 @@
 # ERC20WrapperExample Starter
 
+Wrap a public ERC20 into a confidential ERC7984 token
 
 
 ---
@@ -20,7 +21,7 @@
 
 ## Authors
 
-**Unknown**
+**Zama Team**
 
 
 

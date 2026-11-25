@@ -9,18 +9,19 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
-/// @title ERC20 Wrapper Example
-/// @notice Demonstrates how to wrap a public ERC20 token into a confidential ERC7984 token, enabling encrypted balance operations.
-/// @author Zama Team
-///
-/// @dev This contract acts as a wrapper that converts standard ERC20 tokens into encrypted ERC7984 tokens.
-/// Users deposit public ERC20 tokens and receive encrypted ERC7984 tokens that support homomorphic operations
-/// while maintaining balance privacy. All balances are stored encrypted and can only be decrypted by authorized parties.
-///
-/// @custom:category applied
-/// @custom:chapter encryption
-/// @custom:ui false
-/// @custom:security All balances are encrypted; decryption requires prior permission from the account holder.
+/**
+ * @title erc20-wrapper-example
+ * @notice Wrap a public ERC20 into a confidential ERC7984 token
+ * @author Zama Team
+ * @custom:label ERC20WrapperExample Starter
+ * @custom:category fundamental
+ * @custom:chapter basics
+ * @custom:ui false
+ * @custom:security All balances are encrypted; decryption requires prior permission from the account holder.
+ * @dev This contract acts as a wrapper that converts standard ERC20 tokens into encrypted ERC7984 tokens.
+ * Users deposit public ERC20 tokens and receive encrypted ERC7984 tokens that support homomorphic operations
+ * while maintaining balance privacy. All balances are stored encrypted and can only be decrypted by authorized parties.
+ */
 contract ERC20WrapperExample is ERC7984ERC20Wrapper, ZamaEthereumConfig {
     /// @notice Initializes the ERC7984ERC20Wrapper with a reference to the underlying public ERC20 token.
     /// @dev The wrapper creates encrypted token wMCK that represents wrapped MCK tokens.
