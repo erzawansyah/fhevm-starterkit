@@ -35,7 +35,7 @@ This project is frozen on the FHEVM 0.9 toolchain and is not being upgraded to n
 | `@fhevm/hardhat-plugin` / `@fhevm/mock-utils` | 0.3.0-1 |
 | `@zama-fhe/relayer-sdk` | 0.3.0-5 |
 | Hardhat template | [zama-ai/fhevm-hardhat-template](https://github.com/zama-ai/fhevm-hardhat-template) @ `2760685` |
-| UI template | [erzawansyah/relayer-ui-template](https://github.com/erzawansyah/relayer-ui-template) @ `daaff46` |
+| UI template | [erzawansyah/relayer-ui-template](https://github.com/erzawansyah/relayer-ui-template) @ `25da75c` |
 
 **Sepolia is no longer supported.** Relayer SDK 0.3.0-5 points to the old Zama testnet relayer (`relayer.testnet.zama.org`), which no longer serves requests, so deploying, testing or decrypting on Sepolia fails. Use **local mode**: `npx hardhat test` (FHEVM mock) and `npx hardhat node` (chain `31337`) work without any relayer, and the UI uses `@fhevm/mock-utils` on that chain.
 
