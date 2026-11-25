@@ -3,7 +3,8 @@
   "contract_name": "FHECounter",
   "contract_filename": "FHECounter.sol",
   "label": "FHECounter Starter",
-  "description": "",
+  "description": "Encrypted counter with increment/decrement",
+  "details": "Demonstrates fundamental FHEVM arithmetic (add/sub) on encrypted state.\nThe contract never handles plaintext; all computations remain encrypted.",
   "version": "1.0.0",
   "fhevm_version": "0.9.1",
   "category": "fundamental",
@@ -18,7 +19,7 @@
   "has_ui": false,
   "authors": [
     {
-      "name": "Unknown"
+      "name": "Zama Team"
     }
   ],
   "state_variables": [

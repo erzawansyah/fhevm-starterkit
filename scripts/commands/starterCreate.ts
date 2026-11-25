@@ -46,7 +46,7 @@ export type StarterCreateOptions = GlobalOptions & {
   tags?: string[]; // comma-separated
   concepts?: string[]; // comma-separated
   and?: boolean; // operator for tags/concepts
-  skipUI?: boolean; // skip copying frontend files
+  skipUi?: boolean; // skip copying frontend files (commander maps --skip-ui to skipUi)
   force?: boolean; // overwrite existing files in target directory
 };
 
@@ -618,10 +618,14 @@ async function createStarters(
   logger.success("Starters copied.");
 
   // Step 3: Generate index.json for frontend
-  logger.section("Step 3: Generating contracts index...");
-  const indexPath = path.join(starterFrontendDir, "contracts", "index.json");
-  fs.writeFileSync(indexPath, JSON.stringify(starterNames, null, 2));
-  logger.success(`Contracts index generated at ${indexPath}`);
+  if (skipUI) {
+    logger.info("Step 3: Skipping contracts index (--skip-ui).");
+  } else {
+    logger.section("Step 3: Generating contracts index...");
+    const indexPath = path.join(starterFrontendDir, "contracts", "index.json");
+    fs.writeFileSync(indexPath, JSON.stringify(starterNames, null, 2));
+    logger.success(`Contracts index generated at ${indexPath}`);
+  }
 
   // Step 4: Modify README.md
   logger.section("Step 4: Modifying README.md...");
@@ -698,6 +702,6 @@ export async function runStarterCreate(opts: StarterCreateOptions) {
     }
   }
 
-  await createStarters(plan, opts.skipUI);
+  await createStarters(plan, opts.skipUi);
   process.exit(0);
 }

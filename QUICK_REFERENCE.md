@@ -527,7 +527,7 @@ npm run starter:list
 - **Command Help:** `npm run starter:build -- --help`
 - **Detailed Guide:** [docs/06_STARTER_BUILD_WORKFLOW.md](docs/06_STARTER_BUILD_WORKFLOW.md)
 - **Commenting Format:** [docs/04_COMMENTING_GUIDELINES.md](docs/04_COMMENTING_GUIDELINES.md)
-- **Implementation Details:** [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)
+- **Metadata Generation Flow:** [docs/07_METADATA_GENERATION_FLOW.md](docs/07_METADATA_GENERATION_FLOW.md)
 
 ---
 

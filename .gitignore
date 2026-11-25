@@ -34,8 +34,6 @@ tools/
 # Workspace settings
 workspace/
 
-
-# Devtools
-AGENTS.md
-lib/devtools/agents-guidelines.md
-.github/
+# Templates cloned by `npm run template:init`
+base/hardhat-template/
+base/frontend-template/

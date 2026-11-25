@@ -60,7 +60,7 @@ function readAdditionalPackages(sourceDir: string): AdditionalPackages {
   const parsed = safeReadJson<AdditionalPackages>(manifestPath);
   if (!parsed.ok) {
     logger.warning(
-      `Gagal membaca packages.extra.json di ${quotePath(manifestPath)}: ${parsed.error}`,
+      `Failed to read packages.extra.json at ${quotePath(manifestPath)}: ${parsed.error}`,
     );
     return {};
   }
@@ -237,10 +237,10 @@ export function handleSkipUi(skipUi: boolean | undefined): void {
     // Check apakah dist direktori ada di frontend template
     if (!fs.existsSync(builtUiDir)) {
       logger.error(
-        `Direktori dist tidak ditemukan di template frontend: ${quotePath(builtUiDir)}`,
+        `dist directory not found in the frontend template: ${quotePath(builtUiDir)}`,
       );
       logger.error(
-        `Silakan jalankan ${quotePath("npm start")} atau ${quotePath("npm run template:build-ui")} dari root project terlebih dahulu.`,
+        `Run ${quotePath("npm start")} or ${quotePath("npm run template:build-ui")} from the project root first.`,
       );
       process.exit(1);
     }
@@ -326,7 +326,7 @@ export async function copyTemplateToWorkspace(
   for (const dirRel of createDirs) {
     const dirPath = path.join(workspaceStarter, dirRel);
     if (!fs.existsSync(dirPath)) {
-      logger.info(`Membuat direktori tambahan: ${quotePath(dirPath)}...`);
+      logger.info(`Creating additional directory: ${quotePath(dirPath)}...`);
       fs.mkdirSync(dirPath, { recursive: true });
     }
   }
@@ -335,7 +335,7 @@ export async function copyTemplateToWorkspace(
   const createFiles = actions.createFiles || [];
   for (const file of createFiles) {
     const filePath = path.join(workspaceStarter, file.path);
-    logger.info(`Membuat file tambahan: ${quotePath(filePath)}...`);
+    logger.info(`Creating additional file: ${quotePath(filePath)}...`);
     fs.writeFileSync(filePath, file.content, { encoding: "utf-8" });
   }
 
@@ -374,7 +374,7 @@ export async function copyTemplateToWorkspace(
     const parsedPkg = safeReadJson<Record<string, unknown>>(pkgPath);
     if (!parsedPkg.ok) {
       logger.warning(
-        `package.json tidak ditemukan/invalid di ${quotePath(pkgPath)}; lewati penambahan deps tambahan.`,
+        `package.json not found or invalid at ${quotePath(pkgPath)}; skipping additional dependencies.`,
       );
       return;
     }
@@ -411,7 +411,7 @@ export async function copyTemplateToWorkspace(
 
     fs.writeFileSync(pkgPath, `${JSON.stringify(updated, null, 2)}\n`, "utf-8");
     logger.success(
-      "Paket dan script global telah ditambahkan ke package.json.",
+      "Global packages and scripts have been added to package.json.",
     );
   }
 }
@@ -529,7 +529,7 @@ export async function copyStarterToWorkspace(
   fs.writeFileSync(contractListFile, JSON.stringify(contractList, null, 2), {
     encoding: "utf-8",
   });
-  logger.info(`✔ Semua starter telah disalin ke workspace/${destinationDir}`);
+  logger.info(`✔ All starters have been copied to workspace/${destinationDir}`);
 
   const deps = Array.from(depSet);
   const devDeps = Array.from(devDepSet);
@@ -543,7 +543,7 @@ export async function copyStarterToWorkspace(
     const parsedPkg = safeReadJson<Record<string, unknown>>(pkgPath);
     if (!parsedPkg.ok) {
       logger.warning(
-        `package.json tidak ditemukan/invalid di ${quotePath(pkgPath)}; lewati penambahan deps tambahan.`,
+        `package.json not found or invalid at ${quotePath(pkgPath)}; skipping additional dependencies.`,
       );
       return;
     }
@@ -580,7 +580,7 @@ export async function copyStarterToWorkspace(
 
     fs.writeFileSync(pkgPath, `${JSON.stringify(updated, null, 2)}\n`, "utf-8");
     logger.success(
-      "Paket dan script dari starters telah ditambahkan ke package.json.",
+      "Packages and scripts from starters have been added to package.json.",
     );
   }
 }
@@ -601,7 +601,7 @@ export function generateWorkspaceReadmeFromStarters(
   const markdownTemplateDir = resolveMarkdownTemplateDir();
   const sourceFile = path.join(markdownTemplateDir, fileName);
   if (!fs.existsSync(sourceFile)) {
-    logger.error(`Template file ${quotePath(sourceFile)} tidak ditemukan.`);
+    logger.error(`Template file ${quotePath(sourceFile)} not found.`);
     return;
   }
   const targetReadmeFile = path.join(targetDir, "README.md");

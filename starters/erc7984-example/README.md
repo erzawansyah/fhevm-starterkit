@@ -1,5 +1,6 @@
 # ERC7984Example Starter
 
+Confidential token (OpenZeppelin ERC7984)
 
 
 ---
@@ -27,7 +28,7 @@ This contract demonstrates the following FHE concepts:
 
 ## Authors
 
-**Unknown**
+**Zama Team**
 
 
 

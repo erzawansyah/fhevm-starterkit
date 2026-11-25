@@ -5,18 +5,19 @@ import {ERC7984} from "@openzeppelin/confidential-contracts/token/ERC7984/ERC798
 import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 import {FHE, euint64, externalEuint64} from "@fhevm/solidity/lib/FHE.sol";
 
-/// @title erc7984-confidential-token-example
-/// @notice Demonstrates how to create a fully encrypted ERC7984 token where all balances and transfers are confidential.
-/// @author Zama Team
-///
-/// @dev This contract implements the ERC7984 standard for encrypted tokens. All balances are stored as encrypted euint64 values,
-/// and all transfer operations maintain confidentiality. Users can mint tokens, transfer them using encrypted amounts, and interact
-/// with the token without revealing balance or transaction amounts on-chain.
-///
-/// @custom:category applied
-/// @custom:chapter encryption
-/// @custom:ui false
-/// @custom:security All balances are encrypted; decryption requires prior permission from token holders.
+/**
+ * @title erc7984-example
+ * @notice Confidential token (OpenZeppelin ERC7984)
+ * @author Zama Team
+ * @custom:label ERC7984Example Starter
+ * @custom:category fundamental
+ * @custom:chapter basics
+ * @custom:ui false
+ * @custom:security All balances are encrypted; decryption requires prior permission from token holders.
+ * @dev This contract implements the ERC7984 standard for encrypted tokens. All balances are stored as encrypted euint64 values,
+ * and all transfer operations maintain confidentiality. Users can mint tokens, transfer them using encrypted amounts, and interact
+ * with the token without revealing balance or transaction amounts on-chain.
+ */
 contract ERC7984Example is ERC7984, ZamaEthereumConfig {
     /// @notice Initializes the ERC7984 token with name, symbol, and metadata URI.
     /// @dev The constructor sets up the confidential token infrastructure.

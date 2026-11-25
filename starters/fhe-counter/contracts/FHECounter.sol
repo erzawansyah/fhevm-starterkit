@@ -4,25 +4,25 @@ pragma solidity ^0.8.24;
 import {FHE, euint32, externalEuint32} from "@fhevm/solidity/lib/FHE.sol";
 import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
-/// @title A simple FHE counter contract
-/// @notice Privacy-preserving counter storing an encrypted 32-bit value.
-/// @author Zama Team
-///
-/// @dev Usage summary:
-/// - Submit encrypted uint32 input with its proof
-/// - Call increment() / decrement() for homomorphic update
-/// - Permissions are granted so contract and caller can access ciphertext
-/// - Retrieve the encrypted count via getCount()
-///
-/// @dev Details:
-/// Demonstrates fundamental FHEVM arithmetic (add/sub) on encrypted state.
-/// The contract never handles plaintext; all computations remain encrypted.
-///
-/// @custom:category applied
-/// @custom:chapter basics
-/// @custom:ui false
-/// @custom:security Decryption requires prior permission; ciphertext access is restricted.
-/// @custom:limitations No overflow/underflow checks; returns encrypted values only.
+/**
+ * @title fhe-counter
+ * @notice Encrypted counter with increment/decrement
+ * @author Zama Team
+ * @custom:label FHECounter Starter
+ * @custom:category fundamental
+ * @custom:chapter basics
+ * @custom:ui false
+ * @custom:security Decryption requires prior permission; ciphertext access is restricted.
+ * @custom:limitations No overflow/underflow checks; returns encrypted values only.
+ * @dev Usage summary:
+ * - Submit encrypted uint32 input with its proof
+ * - Call increment() / decrement() for homomorphic update
+ * - Permissions are granted so contract and caller can access ciphertext
+ * - Retrieve the encrypted count via getCount()
+ * @dev Details:
+ * Demonstrates fundamental FHEVM arithmetic (add/sub) on encrypted state.
+ * The contract never handles plaintext; all computations remain encrypted.
+ */
 contract FHECounter is ZamaEthereumConfig {
     /// @notice Encrypted counter value
     /// @dev Stored as euint32; mutated via homomorphic add/sub.

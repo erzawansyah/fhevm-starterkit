@@ -4,35 +4,33 @@
  * @example-id handle-example
  * @test-suite HandleExample
  * @test-goal
- * - Ensure the initialized handle is zero and decrypts to a zero cleartext value.
+ * - Show that an encrypted zero (trivial encryption) still has a non-zero handle.
  * - Verify that compareHandles() returns distinct handles and yields an incremented cleartext.
  * - Confirm invalid proofs are rejected by the same entrypoint.
  */
 
-import {
-  FhevmType,
-  HardhatFhevmRuntimeEnvironment,
-} from "@fhevm/hardhat-plugin";
+import { FhevmType } from "@fhevm/hardhat-plugin";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
-import * as hre from "hardhat";
+import { ethers, fhevm } from "hardhat";
+
+import { HandleExample } from "../types";
 
 async function deployFixture() {
   const factory = await ethers.getContractFactory("HandleExample");
-  const contract = await factory.deploy();
+  const contract = (await factory.deploy()) as HandleExample;
   const contractAddress = await contract.getAddress();
 
   return { contract, contractAddress };
 }
 
 describe("HandleExample", function () {
-  let contract: any;
+  let contract: HandleExample;
   let contractAddress: string;
   let alice: HardhatEthersSigner;
 
   before(async function () {
-    if (!hre.fhevm.isMock) {
+    if (!fhevm.isMock) {
       throw new Error("This hardhat test suite cannot run on Sepolia Testnet");
     }
 
@@ -47,24 +45,17 @@ describe("HandleExample", function () {
   });
 
   describe("Handle lifecycle", function () {
-    it("initial handle is zero and decrypts to zero", async function () {
-      const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
+    it("encrypted zero has a non-zero, stable handle", async function () {
       const storedHandle = await contract.getHandle();
 
-      expect(storedHandle).to.eq(ethers.ZeroHash);
+      // FHE.asEuint32(0) produces a real ciphertext handle, not bytes32(0)
+      expect(storedHandle).to.not.equal(0n);
 
-      const clearValue = await fhevm.userDecryptEuint(
-        FhevmType.euint32,
-        storedHandle,
-        contractAddress,
-        alice,
-      );
-
-      expect(clearValue).to.eq(0);
+      // Reading again returns the same handle: nothing changed on-chain
+      expect(await contract.getHandle()).to.equal(storedHandle);
     });
 
     it("compareHandles returns distinct handles and increments the ciphertext", async function () {
-      const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
       const value = 42;
       const input = await fhevm
         .createEncryptedInput(contractAddress, alice.address)
@@ -73,32 +64,34 @@ describe("HandleExample", function () {
 
       const [originalHandle, newHandle] = await contract
         .connect(alice)
-        .callStatic.compareHandles(input.handles[0], input.inputProof);
+        .compareHandles.staticCall(input.handles[0], input.inputProof);
 
-      expect(originalHandle.eq(input.handles[0])).to.be.true;
-      expect(originalHandle.eq(newHandle)).to.be.false;
+      // The imported handle is the same as the one produced client-side
+      expect(originalHandle).to.equal(BigInt(ethers.hexlify(input.handles[0])));
+      // Every FHE operation produces a new handle
+      expect(newHandle).to.not.equal(originalHandle);
 
-      await contract.connect(alice).compareHandles(input.handles[0], input.inputProof);
+      const tx = await contract.connect(alice).compareHandles(input.handles[0], input.inputProof);
+      await tx.wait();
 
       const decrypted = await fhevm.userDecryptEuint(
         FhevmType.euint32,
-        newHandle,
+        ethers.toBeHex(newHandle, 32),
         contractAddress,
         alice,
       );
 
-      expect(decrypted).to.eq(value + 1);
+      expect(decrypted).to.equal(BigInt(value + 1));
     });
 
     it("rejects compareHandles when proof is tampered", async function () {
-      const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
       const input = await fhevm
         .createEncryptedInput(contractAddress, alice.address)
         .add32(7)
         .encrypt();
 
-      const proofLength = ethers.utils.arrayify(input.inputProof).length;
-      const tamperedProof = ethers.utils.hexZeroPad("0x02", proofLength);
+      const proofLength = ethers.getBytes(input.inputProof).length;
+      const tamperedProof = ethers.zeroPadValue("0x02", proofLength);
 
       await expect(
         contract.connect(alice).compareHandles(input.handles[0], tamperedProof),

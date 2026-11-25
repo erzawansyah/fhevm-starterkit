@@ -7,10 +7,10 @@ import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 /**
  * @title {{contractDir}}
  * @custom:label {{contractLabel}}
- * @notice Template awal yang akan di copy ke workspace/draft saat menjalankan `cli starter:add`.
+ * @notice Initial template copied to workspace/draft when running `cli starter:add`.
  * @dev Details:
- * - Contoh paling sederhana dalam menggunakan FHE
- * - Anda bisa menambahkan komentar lagi disini
+ * - Simplest example of using FHE
+ * - You can add more comments here
  * @author {{authorName}}
  * @custom:category {{category}}
  * @custom:chapter {{chapter}}
@@ -18,28 +18,28 @@ import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
  * @custom:ui true
  */
 contract {{contractName}} is ZamaEthereumConfig {
-    /// @notice Ciphertext yang sudah disimpan sebagai `euint8` internal.
+    /// @notice Ciphertext already stored as internal `euint8`.
     euint8 private _value;
 
     constructor() {}
 
     /**
-     * @notice Menyimpan input terenkripsi ke state kontrak.
-     * @param inputValue Ciphertext `euint8` eksternal dari pemanggil.
-     * @param inputProof Bukti zk yang memvalidasi ciphertext input.
+     * @notice Stores encrypted input to contract state.
+     * @param inputValue External `euint8` ciphertext from caller.
+     * @param inputProof zk proof that validates the input ciphertext.
      */
     function setValue(
         externalEuint8 inputValue,
         bytes calldata inputProof
     ) external {
-        // Setiap komentar di dalam fungsi akan dipahami sebagai logic flow dari fungsi
+        // Every comment inside a function is treated as the logic flow of the function
         _value = FHE.fromExternal(inputValue, inputProof);
         FHE.allowThis(_value);
     }
 
     /**
-     * @notice Mengembalikan ciphertext yang sudah disimpan
-     * @return Ciphertext `euint8` hasil penjumlahan homomorfik.
+     * @notice Returns the stored ciphertext.
+     * @return Stored `euint8` ciphertext.
      */
     function getResult() public view returns (euint8) {
         return _value;

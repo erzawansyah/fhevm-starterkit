@@ -3,7 +3,7 @@
   "contract_name": "ERC7984Example",
   "contract_filename": "ERC7984Example.sol",
   "label": "ERC7984Example Starter",
-  "description": "",
+  "description": "Confidential token (OpenZeppelin ERC7984)",
   "version": "1.0.0",
   "fhevm_version": "0.9.1",
   "category": "fundamental",
@@ -15,7 +15,7 @@
   "has_ui": false,
   "authors": [
     {
-      "name": "Unknown"
+      "name": "Zama Team"
     }
   ]
 }

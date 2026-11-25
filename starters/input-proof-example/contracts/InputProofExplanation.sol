@@ -1,27 +1,25 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 pragma solidity ^0.8.24;
 
-import {FHE, euint32, externalEuint32} from "@fhevm/solidity/lib/FHE.sol";
+import {FHE, ebool, euint32, externalEuint32} from "@fhevm/solidity/lib/FHE.sol";
 import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
-/// @title input-proof-example
-/// @notice Demonstrates correct usage of Input Proofs to prevent Ciphertext Malling attacks in FHE contracts.
-/// @author Zama Team
-///
-/// @dev In FHE, it is critical to verify that the sender knows the plaintext of the ciphertext they are submitting.
-/// This prevents "Malling" attacks where an attacker copies a ciphertext from another user/transaction
-/// and submits it as their own, potentially tricking the contract into performing unauthorized operations.
-///
-/// Key security principle:
-/// - FHE.fromExternal() automatically verifies that the proof is cryptographically bound to msg.sender
-/// - This ensures only the original encryptor (who knows the plaintext) can use the ciphertext
-/// - Proof verification will fail if anyone else tries to submit the same ciphertext
-///
-/// @custom:category fundamental
-/// @custom:chapter encryption
-/// @custom:ui false
-/// @custom:security Critical: All external encrypted inputs MUST use FHE.fromExternal() with proof validation
-/// @custom:concepts FHE.fromExternal, proof validation, ciphertext malling prevention
+/**
+ * @title input-proof-example
+ * @notice Input proofs and why they prevent ciphertext reuse
+ * @author Zama Team
+ * @custom:label InputProofExample Starter
+ * @custom:category fundamental
+ * @custom:chapter basics
+ * @custom:ui false
+ * @custom:security Critical: All external encrypted inputs MUST use FHE.fromExternal() with proof validation
+ * @custom:concepts FHE.fromExternal, proof validation, ciphertext malling prevention
+ * @dev In FHE, it is critical to verify that the sender knows the plaintext of the ciphertext they are submitting.
+ * This prevents "Malling" attacks where an attacker copies a ciphertext from another user/transaction
+ * and submits it as their own, potentially tricking the contract into performing unauthorized operations.
+ * Key principle: FHE.fromExternal() verifies that the proof is cryptographically bound to msg.sender,
+ * so only the original encryptor can use the ciphertext; proof verification fails for anyone else.
+ */
 contract InputProofExample is ZamaEthereumConfig {
     /// @notice Stores encrypted user value per address for demonstration
     /// @dev Maps user addresses to their encrypted state values
@@ -62,8 +60,9 @@ contract InputProofExample is ZamaEthereumConfig {
         // This will REVERT if proof is invalid or not for msg.sender
         _userValue[msg.sender] = FHE.fromExternal(input, inputProof);
 
-        // Grant permissions so msg.sender can decrypt their own value
+        // Grant permissions: the contract keeps using the value, msg.sender can decrypt it
         FHE.allowThis(_userValue[msg.sender]);
+        FHE.allow(_userValue[msg.sender], msg.sender);
 
         // Increment validation counter for audit trail
         _validationCount++;
@@ -104,6 +103,7 @@ contract InputProofExample is ZamaEthereumConfig {
 
         // Update permissions for the new ciphertext
         FHE.allowThis(_userValue[msg.sender]);
+        FHE.allow(_userValue[msg.sender], msg.sender);
 
         _validationCount++;
         emit ProofValidated(msg.sender, _validationCount);
@@ -121,6 +121,7 @@ contract InputProofExample is ZamaEthereumConfig {
         _userValue[msg.sender] = FHE.sub(_userValue[msg.sender], amount);
 
         FHE.allowThis(_userValue[msg.sender]);
+        FHE.allow(_userValue[msg.sender], msg.sender);
 
         _validationCount++;
         emit ProofValidated(msg.sender, _validationCount);
@@ -134,6 +135,7 @@ contract InputProofExample is ZamaEthereumConfig {
         euint32 factor = FHE.fromExternal(input, inputProof);
         _userValue[msg.sender] = FHE.mul(_userValue[msg.sender], factor);
         FHE.allowThis(_userValue[msg.sender]);
+        FHE.allow(_userValue[msg.sender], msg.sender);
 
         _validationCount++;
         emit ProofValidated(msg.sender, _validationCount);
@@ -142,15 +144,16 @@ contract InputProofExample is ZamaEthereumConfig {
     // ============= Comparison Operations with Proof =============
 
     /// @notice Compares user's value with an external encrypted value
-    /// @dev Returns an encrypted boolean (euint8 where 1=true, 0=false)
+    /// @dev Returns an encrypted boolean (ebool)
     /// The comparison result is also encrypted; no plaintext comparison happens
     /// @param input The externally encrypted value to compare against
     /// @param inputProof The proof validating the external input
-    /// @return encrypted boolean: 1 if user's value equals input, 0 otherwise
-    function isEqualTo(externalEuint32 input, bytes calldata inputProof) external returns (euint8) {
+    /// @return encrypted boolean: true if user's value equals input
+    function isEqualTo(externalEuint32 input, bytes calldata inputProof) external returns (ebool) {
         euint32 otherValue = FHE.fromExternal(input, inputProof);
-        euint8 result = FHE.eq(_userValue[msg.sender], otherValue);
+        ebool result = FHE.eq(_userValue[msg.sender], otherValue);
         FHE.allowThis(result);
+        FHE.allow(result, msg.sender);
 
         _validationCount++;
         emit ProofValidated(msg.sender, _validationCount);
@@ -161,11 +164,12 @@ contract InputProofExample is ZamaEthereumConfig {
     /// @notice Checks if user's value is less than an external encrypted value
     /// @param input The externally encrypted value to compare against
     /// @param inputProof The proof validating the external input
-    /// @return encrypted boolean: 1 if user's value < input, 0 otherwise
-    function isLessThan(externalEuint32 input, bytes calldata inputProof) external returns (euint8) {
+    /// @return encrypted boolean: true if user's value < input
+    function isLessThan(externalEuint32 input, bytes calldata inputProof) external returns (ebool) {
         euint32 otherValue = FHE.fromExternal(input, inputProof);
-        euint8 result = FHE.lt(_userValue[msg.sender], otherValue);
+        ebool result = FHE.lt(_userValue[msg.sender], otherValue);
         FHE.allowThis(result);
+        FHE.allow(result, msg.sender);
 
         _validationCount++;
         emit ProofValidated(msg.sender, _validationCount);
@@ -178,7 +182,7 @@ contract InputProofExample is ZamaEthereumConfig {
     /// @notice Conditionally sets value based on encrypted condition
     /// @dev FHE.select performs encrypted conditional: if condition==1, use trueVal, else use falseVal
     /// Demonstrates encrypted branching without revealing the condition on-chain
-    /// @param condition Externally encrypted boolean condition (1 or 0)
+    /// @param condition Externally encrypted condition as euint32 (non-zero = true, 0 = false)
     /// @param conditionProof Proof for the condition
     /// @param trueValue Value to set if condition is true
     /// @param trueValueProof Proof for trueValue
@@ -190,8 +194,11 @@ contract InputProofExample is ZamaEthereumConfig {
         bytes calldata trueValueProof
     ) external returns (euint32) {
         // Validate both inputs
-        euint32 cond = FHE.fromExternal(condition, conditionProof);
+        euint32 condValue = FHE.fromExternal(condition, conditionProof);
         euint32 tVal = FHE.fromExternal(trueValue, trueValueProof);
+
+        // FHE.select needs an ebool: treat any non-zero value as true
+        ebool cond = FHE.ne(condValue, FHE.asEuint32(0));
 
         // Set a default false value (can be zero or another constant)
         euint32 fVal = FHE.asEuint32(0);
@@ -200,6 +207,7 @@ contract InputProofExample is ZamaEthereumConfig {
         euint32 selected = FHE.select(cond, tVal, fVal);
         _userValue[msg.sender] = selected;
         FHE.allowThis(_userValue[msg.sender]);
+        FHE.allow(_userValue[msg.sender], msg.sender);
 
         _validationCount += 2;
         emit ProofValidated(msg.sender, _validationCount);
@@ -221,5 +229,6 @@ contract InputProofExample is ZamaEthereumConfig {
     function reset() external {
         _userValue[msg.sender] = FHE.asEuint32(0);
         FHE.allowThis(_userValue[msg.sender]);
+        FHE.allow(_userValue[msg.sender], msg.sender);
     }
 }

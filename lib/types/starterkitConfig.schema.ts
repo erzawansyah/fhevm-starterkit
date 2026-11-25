@@ -41,7 +41,7 @@ export const TemplateActionsConfigSchema = z.object({
     })
     .optional(),
   /** Additional npm scripts to merge into generated workspaces */
-  additionalScripts: z.record(z.string()).optional(),
+  additionalScripts: z.record(z.string(), z.string()).optional(),
 });
 export type TemplateActionsConfigType = z.infer<
   typeof TemplateActionsConfigSchema

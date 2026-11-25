@@ -3,7 +3,7 @@
   "contract_name": "ERC20WrapperExample",
   "contract_filename": "ERC20WrapperExample.sol",
   "label": "ERC20WrapperExample Starter",
-  "description": "",
+  "description": "Wrap a public ERC20 into a confidential ERC7984 token",
   "version": "1.0.0",
   "fhevm_version": "0.9.1",
   "category": "fundamental",
@@ -11,7 +11,7 @@
   "has_ui": false,
   "authors": [
     {
-      "name": "Unknown"
+      "name": "Zama Team"
     }
   ],
   "constructor_args": [

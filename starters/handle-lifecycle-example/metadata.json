@@ -31,7 +31,7 @@
       "name": "_storedValue",
       "type": "euint32",
       "visibility": "private",
-      "notice": "Encrypted placeholder for the tracked handle; zero handle is granted at deployment."
+      "notice": "Encrypted value whose handle is tracked; initialized to an encrypted zero at deployment."
     }
   ]
 }

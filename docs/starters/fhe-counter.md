@@ -1,6 +1,10 @@
 # FHECounter Starter
 
+Encrypted counter with increment/decrement
 
+## Overview
+Demonstrates fundamental FHEVM arithmetic (add/sub) on encrypted state.
+The contract never handles plaintext; all computations remain encrypted.
 
 ---
 
@@ -30,7 +34,7 @@ This contract demonstrates the following FHE concepts:
 
 ## Authors
 
-**Unknown**
+**Zama Team**
 
 
 

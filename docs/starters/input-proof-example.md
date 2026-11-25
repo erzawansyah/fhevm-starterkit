@@ -1,5 +1,6 @@
 # InputProofExample Starter
 
+Input proofs and why they prevent ciphertext reuse
 
 
 ---
@@ -24,6 +25,7 @@ This contract demonstrates the following FHE concepts:
 - **FHE.sub** — Homomorphic operation on encrypted data
 - **FHE.mul** — Homomorphic operation on encrypted data
 - **FHE.eq** — Homomorphic operation on encrypted data
+- **FHE.ne** — Homomorphic operation on encrypted data
 - **FHE.lt** — Homomorphic operation on encrypted data
 - **FHE.select** — Homomorphic operation on encrypted data
 - **FHE.fromExternal** — Homomorphic operation on encrypted data
@@ -35,7 +37,7 @@ This contract demonstrates the following FHE concepts:
 
 ## Authors
 
-**Unknown**
+**Zama Team**
 
 
 

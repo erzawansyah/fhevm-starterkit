@@ -24,7 +24,7 @@ const config: StarterKitConfigType = {
       repo: "https://github.com/erzawansyah/relayer-ui-template.git",
       dir: "base/frontend-template",
       branch: "main",
-      commit: "daaff464231f32be03564e2f7cfe2d162490ebca",
+      commit: "25da75cabf4716f70d7116bdb998300b80e70963",
     },
     actions: {
       // Directories to exclude when copying templates (to avoid locked files and unnecessary data)
@@ -47,9 +47,9 @@ const config: StarterKitConfigType = {
         devDependencies: ["serve@14.2.3"],
       },
       additionalScripts: {
-        // deploys to localhost and sepolia, then starts hardhat node
-        "starter:runtime":
-          "npx hardhat deploy && npx hardhat deploy --network sepolia && npx hardhat node",
+        // starts a local hardhat node (mock FHEVM) which runs the deploy scripts on startup.
+        // Sepolia is not supported anymore with relayer-sdk 0.3.0-5.
+        "starter:runtime": "npx hardhat node",
         // serves the frontend on port 3000
         "starter:start-ui": "serve -s ui -l 3000",
         // builds the frontend template

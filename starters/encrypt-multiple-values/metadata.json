@@ -3,10 +3,14 @@
   "contract_name": "EncryptMultipleValues",
   "contract_filename": "EncryptMultipleValues.sol",
   "label": "EncryptMultipleValues Starter",
-  "description": "",
+  "description": "Encrypt several values in one transaction",
   "version": "1.0.0",
   "fhevm_version": "0.9.1",
   "category": "fundamental",
+  "tags": [
+    "fhe",
+    "basic"
+  ],
   "concepts": [
     "FHE.fromExternal",
     "FHE.allow",
@@ -16,7 +20,7 @@
   "has_ui": false,
   "authors": [
     {
-      "name": "Unknown"
+      "name": "Muhamad Erza Wansyah"
     }
   ],
   "state_variables": [
