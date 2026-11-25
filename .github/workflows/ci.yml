@@ -30,7 +30,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run template:init
-      - run: npm run starter:create fhe-counter -- --dir ci-smoke --skip-ui
+      - name: Build the UI template (npm ci inside relayer-ui-template)
+        run: npm run template:build-ui
+      - run: npm run starter:create fhe-counter -- --dir ci-smoke
       - name: Test generated project (FHEVM mock)
         working-directory: workspace/ci-smoke
         run: |

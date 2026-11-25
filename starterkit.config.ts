@@ -24,7 +24,7 @@ const config: StarterKitConfigType = {
       repo: "https://github.com/erzawansyah/relayer-ui-template.git",
       dir: "base/frontend-template",
       branch: "main",
-      commit: "25da75cabf4716f70d7116bdb998300b80e70963",
+      commit: "a5f39fbcfb21baf6ad2d03250e6fed9032ef7035",
     },
     actions: {
       // Directories to exclude when copying templates (to avoid locked files and unnecessary data)
